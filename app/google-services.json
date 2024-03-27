@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "850315858172",
+    "project_id": "loccnmproject",
+    "storage_bucket": "loccnmproject.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:850315858172:android:b0ac3ca570db1d3a724779",
+        "android_client_info": {
+          "package_name": "com.example.peachzyapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB5gMo6aWU3xYKscep12CGJqK5rylBhz0g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
