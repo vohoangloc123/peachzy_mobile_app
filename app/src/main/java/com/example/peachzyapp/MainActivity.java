@@ -10,20 +10,28 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentStatePagerAdapter;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.viewpager.widget.ViewPager;
 
+import com.example.peachzyapp.adapters.ViewPagerAdapter;
+import com.example.peachzyapp.entities.ChatBox;
+import com.example.peachzyapp.fragments.MainFragments.ChatHistoryFragment;
+import com.example.peachzyapp.fragments.MainFragments.ChatListsFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 
 public class MainActivity extends AppCompatActivity {
     private ViewPager viewPager;
     private BottomNavigationView bottomNavigationView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
+
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
@@ -31,7 +39,8 @@ public class MainActivity extends AppCompatActivity {
         });
         viewPager=findViewById(R.id.view_pager);
         viewPager.setAdapter(new ViewPagerAdapter(getSupportFragmentManager(), FragmentStatePagerAdapter.BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT));
-
+        //số lượng fragment được load
+        viewPager.setOffscreenPageLimit(2);
         bottomNavigationView=findViewById(R.id.bottom_navigation);
 
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
@@ -58,6 +67,7 @@ public class MainActivity extends AppCompatActivity {
 
                             break;
                     }
+
             }
 
             @Override
@@ -71,6 +81,9 @@ public class MainActivity extends AppCompatActivity {
                 int itemId = menuItem.getItemId();
                 if (itemId == R.id.navigation_chats) {
                     Toast.makeText(MainActivity.this, "Chuyển tab 1", Toast.LENGTH_SHORT).show();
+                    // Gọi reloadData() khi chuyển sang tab 1
+                    ChatListsFragment chatLists = (ChatListsFragment) viewPager.getAdapter().instantiateItem(viewPager, 0);
+                    chatLists.reloadData();
                     viewPager.setCurrentItem(0);
                 } else if (itemId == R.id.navigation_notifications) {
 
@@ -86,4 +99,37 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+//    public void goToDetailFragment(ChatBox chatBox)
+//    {
+//        FragmentTransaction fragmentTransaction=getSupportFragmentManager().beginTransaction();
+//        ChatHistoryFragment chatHistoryFragment=new ChatHistoryFragment();
+//        Bundle bundle=new Bundle();
+//        bundle.putSerializable("object_chatbox", chatBox);
+//        chatHistoryFragment.setArguments(bundle);
+//
+//        fragmentTransaction.replace(R.id.main, chatHistoryFragment);
+//        fragmentTransaction.addToBackStack(ChatHistoryFragment.TAG);
+//        fragmentTransaction.commit();
+//    }
+public void goToDetailFragment(ChatBox chatBox) {
+    FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+    ChatHistoryFragment chatHistoryFragment = new ChatHistoryFragment();
+    Bundle bundle = new Bundle();
+    bundle.putSerializable("object_chatbox", chatBox);
+    chatHistoryFragment.setArguments(bundle);
+
+    // Thêm ChatHistoryFragment
+    fragmentTransaction.add(R.id.main, chatHistoryFragment, ChatHistoryFragment.TAG);
+
+    // Tìm fragment tại vị trí 0 (ChatListsFragment nếu sử dụng FragmentStatePagerAdapter)
+    Fragment chatListsFragment = (Fragment) viewPager.getAdapter().instantiateItem(viewPager, 0);
+
+    // Ẩn ChatListsFragment nếu được tìm thấy
+    if (chatListsFragment != null) {
+        fragmentTransaction.hide(chatListsFragment);
+    }
+
+    fragmentTransaction.addToBackStack(ChatHistoryFragment.TAG);
+    fragmentTransaction.commit();
+}
 }

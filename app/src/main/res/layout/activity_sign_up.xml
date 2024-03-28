@@ -40,20 +40,6 @@
 
         </LinearLayout>
 
-        <EditText
-            android:id="@+id/etOTP"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:ems="10"
-            android:inputType="text"
-            android:visibility="invisible"/>
-
-        <Button
-            android:id="@+id/btnVerifyOTP"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:visibility="invisible"
-            android:text="Button" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

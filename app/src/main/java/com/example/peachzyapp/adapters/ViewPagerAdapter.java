@@ -1,9 +1,13 @@
-package com.example.peachzyapp;
+package com.example.peachzyapp.adapters;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
+
+import com.example.peachzyapp.fragments.MainFragments.BlankFragmentTab1;
+import com.example.peachzyapp.fragments.MainFragments.ChatListsFragment;
+import com.example.peachzyapp.fragments.MainFragments.Friends;
 
 public class ViewPagerAdapter extends FragmentPagerAdapter {
     public ViewPagerAdapter(@NonNull FragmentManager fm, int behavior) {
@@ -15,7 +19,7 @@ public class ViewPagerAdapter extends FragmentPagerAdapter {
     public Fragment getItem(int position) {
         switch (position){
             case 0:
-                return new ChatLists();
+                return new ChatListsFragment();
             case 1:
                 return new BlankFragmentTab1();
             case 2:
@@ -23,7 +27,7 @@ public class ViewPagerAdapter extends FragmentPagerAdapter {
             case 3:
                 return new BlankFragmentTab1();
             default:
-                return new ChatLists();
+                return new ChatListsFragment();
         }
 
     }
