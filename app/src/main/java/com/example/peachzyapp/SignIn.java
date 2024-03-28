@@ -24,6 +24,9 @@ public class SignIn extends AppCompatActivity {
     Button forgetPasswordButton;
 
     private FirebaseAuth mAuth;
+
+    //for test
+    Button testButton;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -36,6 +39,7 @@ public class SignIn extends AppCompatActivity {
         signUpButton = findViewById(R.id.btnSignUp);
         signInButton=findViewById(R.id.btnSignIn);
         forgetPasswordButton=findViewById(R.id.btnForgetPassword);
+        testButton=findViewById(R.id.testButton);
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
@@ -67,12 +71,19 @@ public class SignIn extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             // Log in success, update UI with the signed-in user's information
                             FirebaseUser user = mAuth.getCurrentUser();
+                            Intent intent=new Intent(this, MainActivity.class);
+                            startActivity(intent);
                             Toast.makeText(SignIn.this, "Log in successful.", Toast.LENGTH_SHORT).show();
                         } else {
                             // If log in fails, display a message to the user.
                             Toast.makeText(SignIn.this, "Log in failed.", Toast.LENGTH_SHORT).show();
                         }
                     });
+        });
+        testButton.setOnClickListener(v -> {
+            Intent intent=new Intent(this, MainActivity.class);
+            startActivity(intent);
+            Toast.makeText(SignIn.this, "Log in successful.", Toast.LENGTH_SHORT).show();
         });
 
     }
