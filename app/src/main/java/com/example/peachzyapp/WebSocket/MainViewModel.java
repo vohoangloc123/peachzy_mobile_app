@@ -15,10 +15,11 @@ public class MainViewModel extends ViewModel {
 
     public void setStatus(boolean status) {
         // Implement your logic here
+        _socketStatus.setValue(status);
     }
 
     public void setMessage(Pair<Boolean, String> message) {
-        if (_socketStatus.getValue() != null && _socketStatus.getValue()) {
+        if (Boolean.TRUE.equals(_socketStatus.getValue()) ==true) {
             _message.setValue(message);
         }
     }

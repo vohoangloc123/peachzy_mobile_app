@@ -62,6 +62,7 @@ public class WebsocketAndroid extends AppCompatActivity {
             @Override
             public void onChanged(Pair<Boolean, String> message) {
                 text.append(message.first ? "You: " : "Other: ").append(message.second).append("\n");
+
                 tvMessage.setText(text.toString());
             }
         });
@@ -96,6 +97,7 @@ public class WebsocketAndroid extends AppCompatActivity {
                     if (webSocket != null) {
                         webSocket.send(message);
                         viewModel.setMessage(new Pair<>(true, message));
+                        etMessage.getText().clear();
                     }
                 } else {
                     Toast.makeText(WebsocketAndroid.this, "Enter something here ..", Toast.LENGTH_LONG).show();
