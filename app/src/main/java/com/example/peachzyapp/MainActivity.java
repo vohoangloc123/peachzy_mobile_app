@@ -1,7 +1,9 @@
 package com.example.peachzyapp;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -11,6 +13,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentStatePagerAdapter;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.viewpager.widget.ViewPager;
@@ -99,18 +102,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-//    public void goToDetailFragment(ChatBox chatBox)
-//    {
-//        FragmentTransaction fragmentTransaction=getSupportFragmentManager().beginTransaction();
-//        ChatHistoryFragment chatHistoryFragment=new ChatHistoryFragment();
-//        Bundle bundle=new Bundle();
-//        bundle.putSerializable("object_chatbox", chatBox);
-//        chatHistoryFragment.setArguments(bundle);
-//
-//        fragmentTransaction.replace(R.id.main, chatHistoryFragment);
-//        fragmentTransaction.addToBackStack(ChatHistoryFragment.TAG);
-//        fragmentTransaction.commit();
-//    }
 public void goToDetailFragment(ChatBox chatBox) {
     FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
     ChatHistoryFragment chatHistoryFragment = new ChatHistoryFragment();
@@ -121,15 +112,49 @@ public void goToDetailFragment(ChatBox chatBox) {
     // Thêm ChatHistoryFragment
     fragmentTransaction.add(R.id.main, chatHistoryFragment, ChatHistoryFragment.TAG);
 
-    // Tìm fragment tại vị trí 0 (ChatListsFragment nếu sử dụng FragmentStatePagerAdapter)
+    // Tìm và ẩn tất cả các Fragment khác
     Fragment chatListsFragment = (Fragment) viewPager.getAdapter().instantiateItem(viewPager, 0);
+    Fragment notificationFragment = (Fragment) viewPager.getAdapter().instantiateItem(viewPager, 1);
+    Fragment usersFragment = (Fragment) viewPager.getAdapter().instantiateItem(viewPager, 2);
+    Fragment settingsFragment = (Fragment) viewPager.getAdapter().instantiateItem(viewPager, 3);
 
-    // Ẩn ChatListsFragment nếu được tìm thấy
     if (chatListsFragment != null) {
         fragmentTransaction.hide(chatListsFragment);
     }
+    if (notificationFragment != null) {
+        fragmentTransaction.hide(notificationFragment);
+    }
+    if (usersFragment != null) {
+        fragmentTransaction.hide(usersFragment);
+    }
+    if (settingsFragment != null) {
+        fragmentTransaction.hide(settingsFragment);
+    }
 
+    // Ẩn bottomNavigationView
+    showBottomNavigation(false);
     fragmentTransaction.addToBackStack(ChatHistoryFragment.TAG);
     fragmentTransaction.commit();
 }
+    public void showBottomNavigation(boolean show) {
+        if (show) {
+            bottomNavigationView.setVisibility(View.VISIBLE);
+        } else {
+            bottomNavigationView.setVisibility(View.GONE);
+        }
+    }
+    @Override
+    public void onBackPressed() {
+        // Kiểm tra xem có Fragment trong BackStack không
+//        Toast.makeText(getApplicationContext(), "Worked", Toast.LENGTH_SHORT).show();
+        if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
+            // Pop Fragment ra khỏi BackStack
+            showBottomNavigation(true);
+            getSupportFragmentManager().popBackStack();
+        } else {
+            // Nếu không có Fragment trong BackStack, thoát ứng dụng
+            super.onBackPressed();
+        }
+    }
+
 }

@@ -42,6 +42,9 @@ dependencies {
     //để gửi email
     implementation("com.sun.mail:android-mail:1.6.7")
     implementation("com.sun.mail:android-activation:1.6.7")
+    //web socket
+    implementation("com.squareup.okhttp3:okhttp:4.9.1")
+
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.activity)
