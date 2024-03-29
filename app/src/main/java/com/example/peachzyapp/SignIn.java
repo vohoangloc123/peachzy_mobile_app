@@ -81,7 +81,7 @@ public class SignIn extends AppCompatActivity {
                     });
         });
         testButton.setOnClickListener(v -> {
-            Intent intent=new Intent(this, MainActivity.class);
+            Intent intent=new Intent(this, WebsocketAndroid.class);
             startActivity(intent);
             Toast.makeText(SignIn.this, "Log in successful.", Toast.LENGTH_SHORT).show();
         });
