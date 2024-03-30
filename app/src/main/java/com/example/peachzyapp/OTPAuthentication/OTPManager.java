@@ -24,50 +24,6 @@ public class OTPManager {
     public static boolean verifyOTP(int sentOTP, int enteredOTP) {
         return sentOTP == enteredOTP;
     }
-
-    // Gửi email
-//    public static void sendEmail(String recipientEmail, String otp) {
-//        // Thông tin tài khoản Gmail và mật khẩu của bạn
-//        final String username = "nhatnguyen9.6h@gmail.com"; // Thay đổi thành địa chỉ email của bạn
-//        final String password = "lcgpnktjwzrcwjkj"; // Thay đổi thành mật khẩu email của bạn
-//
-//        // Cấu hình các thông số cho mail server
-//        Properties props = new Properties();
-//        props.put("mail.smtp.auth", "true");
-//        props.put("mail.smtp.starttls.enable", "true");
-//        props.put("mail.smtp.host", "smtp.gmail.com");
-//        props.put("mail.smtp.port", "587");
-//
-//        // Tạo phiên gửi email
-//        Session session = Session.getInstance(props,
-//                new javax.mail.Authenticator() {
-//                    protected PasswordAuthentication getPasswordAuthentication() {
-//                        return new PasswordAuthentication(username, password);
-//                    }
-//                });
-//
-//        try {
-//            // Tạo đối tượng MimeMessage
-//            Message message = new MimeMessage(session);
-//            // Đặt người gửi
-//            message.setFrom(new InternetAddress(username));
-//            // Đặt người nhận
-//            message.setRecipients(Message.RecipientType.TO,
-//                    InternetAddress.parse(recipientEmail));
-//            // Đặt tiêu đề email
-//            message.setSubject("Mã OTP cho ứng dụng của bạn");
-//            // Đặt nội dung email
-//            message.setText("Mã OTP của bạn là: " + otp);
-//
-//            // Gửi email
-//            Transport.send(message);
-//
-//            System.out.println("Đã gửi email thành công!");
-//
-//        } catch (MessagingException e) {
-//            throw new RuntimeException(e);
-//        }
-//    }
     public static void sendEmail(String recipientEmail, String otp) {
         // Thông tin tài khoản Gmail và mật khẩu của bạn
         final String username = "nhatnguyen9.6h@gmail.com"; // Thay đổi thành địa chỉ email của bạn

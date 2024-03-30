@@ -44,7 +44,10 @@ dependencies {
     implementation("com.sun.mail:android-activation:1.6.7")
     //web socket
     implementation("com.squareup.okhttp3:okhttp:4.9.1")
-
+    //dynamoDB
+    implementation("com.amazonaws:aws-android-sdk-core:2.6.*")
+    implementation("com.amazonaws:aws-android-sdk-ddb:2.6.*")
+    implementation("com.amazonaws:aws-android-sdk-ddb-document:2.6.*")
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.activity)
