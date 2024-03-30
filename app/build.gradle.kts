@@ -35,6 +35,10 @@ android {
 }
 
 dependencies {
+//    implementation("com.google.guava:guava:20.0") {
+//        exclude(group = "com.google.guava", module = "listenablefuture")
+//    }
+    implementation("com.google.guava:guava:30.1-jre")
     //Firebase Core SDK cung cấp các công cụ cần thiết để khởi tạo và
     // quản lý kết nối giữa ứng dụng của bạn và các dịch vụ Firebase khác.
     implementation("com.google.firebase:firebase-core:19.0.1")
@@ -45,9 +49,10 @@ dependencies {
     //web socket
     implementation("com.squareup.okhttp3:okhttp:4.9.1")
     //dynamoDB
-    implementation("com.amazonaws:aws-android-sdk-core:2.6.*")
-    implementation("com.amazonaws:aws-android-sdk-ddb:2.6.*")
-    implementation("com.amazonaws:aws-android-sdk-ddb-document:2.6.*")
+    implementation("com.amazonaws:aws-android-sdk-core:2.75.0")
+    implementation("com.amazonaws:aws-android-sdk-ddb:2.75.0")
+    implementation("com.amazonaws:aws-android-sdk-ddb-document:2.4.5")
+    implementation("com.amazonaws:aws-android-sdk-s3:2.75.0")
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.activity)

@@ -12,6 +12,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.peachzyapp.dynamoDB.DynamoDBManager;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -31,6 +32,7 @@ public class SignIn extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mAuth = FirebaseAuth.getInstance();
+        DynamoDBManager dynamoDBManager=new DynamoDBManager(this);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_sign_in);
         FirebaseApp.initializeApp(this);
@@ -80,6 +82,8 @@ public class SignIn extends AppCompatActivity {
                         }
                     });
         });
+
+
         testButton.setOnClickListener(v -> {
             Intent intent=new Intent(this, MainActivity.class);
             startActivity(intent);
