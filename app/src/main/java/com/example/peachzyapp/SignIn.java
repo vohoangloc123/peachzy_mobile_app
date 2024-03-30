@@ -25,6 +25,7 @@ public class SignIn extends AppCompatActivity {
     Button forgetPasswordButton;
 
     private FirebaseAuth mAuth;
+    private DynamoDBManager dynamoDBManager;
 
     //for test
     Button testButton;
@@ -42,6 +43,17 @@ public class SignIn extends AppCompatActivity {
         signInButton=findViewById(R.id.btnSignIn);
         forgetPasswordButton=findViewById(R.id.btnForgetPassword);
         testButton=findViewById(R.id.testButton);
+        dynamoDBManager = new DynamoDBManager(this);
+        if (dynamoDBManager.checkDynamoDBConnection()) {
+            Toast.makeText(this, "DynamoDB connection successful.", Toast.LENGTH_SHORT).show();
+
+        } else {
+            Toast.makeText(this, "DynamoDB connection failed.", Toast.LENGTH_SHORT).show();
+        }
+        // Các xử lý khác không được hiển thị ở đây để giữ ngắn gọn
+
+        // Xác định xem có kết nối đến DynamoDB hay không khi activity được tạo
+//        dynamoDBManager.checkDynamoDBConnection();
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);

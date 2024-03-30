@@ -18,6 +18,7 @@ import android.widget.Toast;
 
 import com.example.peachzyapp.R;
 import com.example.peachzyapp.WebSocket.MainViewModel;
+import com.example.peachzyapp.dynamoDB.DynamoDBManager;
 import com.example.peachzyapp.entities.ChatBox;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
@@ -63,6 +64,7 @@ public class ChatHistoryFragment extends Fragment {
                 tvName.setText(chatBox.getName());
             }
         }
+
         tvMessage=view.findViewById(R.id.tvMessage);
         viewModel = new ViewModelProvider(this).get(MainViewModel.class);
         viewModel.socketStatus.observe(getActivity(), new Observer<Boolean>() {
