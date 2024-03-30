@@ -1,22 +1,109 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".fragments.SignUpFragments.OTPFragment"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:background="@color/bgGrey">
 
-    <EditText
-        android:id="@+id/etOTP"
+
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:ems="10"
-        android:inputType="text" />
+        android:layout_height="match_parent"
+        android:background="@color/bgGrey"
+        android:orientation="vertical"
+        android:padding="15dp"
+        android:textAlignment="center"
+        tools:layout_editor_absoluteX="16dp"
+        tools:layout_editor_absoluteY="0dp">
 
-    <Button
-        android:id="@+id/btnVerifyOTP"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Xác thực"/>
 
-</LinearLayout>
+        <ImageView
+            android:id="@+id/imageView2"
+            android:layout_width="match_parent"
+            android:layout_height="100dp"/>
+        <TextView
+            android:id="@+id/textView2"
+            android:layout_width="match_parent"
+            android:layout_height="39dp"
+            android:layout_marginBottom="20sp"
+            android:text="@string/VerifyOtp"
+            android:textAlignment="center"
+            android:textSize="25dp"
+            android:textStyle="bold"
+            android:textColor="@color/textColorBtn"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="90dp"
+            android:orientation="horizontal"
+            >
+
+            <EditText
+                android:id="@+id/etOTP"
+                android:layout_width="1dp"
+                android:layout_height="59dp"
+                android:layout_weight="1"
+                android:background="@drawable/edittext_border"
+                android:ems="10"
+                android:inputType="text"
+                android:hint="_"
+                android:textAlignment="center"
+                android:textColor="@color/textColorBtn" />
+
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="43dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/textView12"
+                android:layout_width="132dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/OTPFailed"
+                android:textColor="@color/textColorBtn"
+                android:textSize="18dp"
+                android:textStyle="bold" />
+
+            <Button
+                android:id="@+id/button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:backgroundTint="@color/bgGrey"
+                android:text="@string/Resend"
+                android:textColor="@color/btnColor"/>
+
+
+        </LinearLayout>
+        <Button
+            android:layout_marginTop="20dp"
+            android:id="@+id/btnVerifyOTP"
+            android:layout_width="match_parent"
+            android:layout_height="63dp"
+            android:backgroundTint="@color/btnColor"
+            android:text="@string/submit"
+            android:textColor="@color/textColorBtn"
+            android:textStyle="bold"
+            app:cornerRadius="50dp"/>
+
+        <Button
+            android:id="@+id/btnSignIn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="50px"
+            android:backgroundTint="@color/bgGrey"
+            android:text="Return to Sign in"
+            android:textAlignment="center"
+            android:textColor="@color/textColorBtn"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

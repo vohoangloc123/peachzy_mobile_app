@@ -4,6 +4,7 @@ import android.content.Context;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.amazonaws.AmazonServiceException;
 import com.amazonaws.auth.CognitoCachingCredentialsProvider;
 import com.amazonaws.mobileconnectors.dynamodbv2.document.Table;
 import com.amazonaws.regions.Region;
@@ -33,9 +34,6 @@ public class DynamoDBManager {
         ddbClient = new AmazonDynamoDBClient(credentialsProvider);
         ddbClient.setRegion(Region.getRegion(Regions.AP_SOUTHEAST_1)); // Set the region
     }
-
-
-
     public boolean checkDynamoDBConnection() {
         try {
             if (ddbClient == null) {
@@ -47,10 +45,15 @@ public class DynamoDBManager {
             }
             // If there's no error, connection is successful
             return true;
+        } catch (AmazonServiceException e) {
+            // Log exception for debugging
+            Log.e("DynamoDBManager", "Amazon Service Exception: " + e.getMessage());
+            return false;
         } catch (Exception e) {
             // Log exception for debugging
             Log.e("DynamoDBManager", "Error checking DynamoDB connection: " + e.getMessage());
             return false;
         }
     }
+
 }
