@@ -26,6 +26,8 @@ import java.util.List;
 
 public class SignUp extends AppCompatActivity {
     EditText etEmail;
+    EditText etFirstName;
+    EditText etLastName;
     EditText etPassword;
     Button btnSignUp;
 
@@ -42,6 +44,8 @@ public class SignUp extends AppCompatActivity {
         setContentView(R.layout.activity_sign_up);
         OTPManager otpManager=new OTPManager();
         etEmail=findViewById(R.id.etEmail);
+        etFirstName=findViewById(R.id.etFirstName);
+        etLastName=findViewById(R.id.etLastName);
         etPassword=findViewById(R.id.etPassword);
         btnSignUp=findViewById(R.id.btnSignUp);
         // Khởi tạo FirebaseApp
@@ -53,6 +57,8 @@ public class SignUp extends AppCompatActivity {
         });
         btnSignUp.setOnClickListener(v -> {
             final String email = etEmail.getText().toString().trim();
+            final String firstName=etFirstName.getText().toString().trim();
+            final String lastName=etLastName.getText().toString().trim();
             final String password = etPassword.getText().toString().trim();
 
             // Kiểm tra email có tồn tại không
@@ -74,6 +80,8 @@ public class SignUp extends AppCompatActivity {
                                 Bundle bundle = new Bundle();
                                 bundle.putString("generatedOTP", String.valueOf(generatedOTP));
                                 bundle.putString("email", email);
+                                bundle.putString("firstName", firstName);
+                                bundle.putString("lastName", lastName);
                                 bundle.putString("password", password);
                                 OTPFragment otpFragment = new OTPFragment();
                                 otpFragment.setArguments(bundle);

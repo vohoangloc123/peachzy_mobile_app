@@ -2,11 +2,21 @@
 <project version="4">
   <component name="deploymentTargetDropDown">
     <value>
-      <entry key="SignIn">
-        <State />
-      </entry>
       <entry key="app">
-        <State />
+        <State>
+          <runningDeviceTargetSelectedWithDropDown>
+            <Target>
+              <type value="RUNNING_DEVICE_TARGET" />
+              <deviceKey>
+                <Key>
+                  <type value="SERIAL_NUMBER" />
+                  <value value="ugdmlnprci95pnvk" />
+                </Key>
+              </deviceKey>
+            </Target>
+          </runningDeviceTargetSelectedWithDropDown>
+          <timeTargetWasSelectedWithDropDown value="2024-03-31T15:36:08.165263800Z" />
+        </State>
       </entry>
     </value>
   </component>
