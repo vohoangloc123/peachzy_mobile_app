@@ -14,6 +14,7 @@ import android.widget.Toast;
 
 import com.example.peachzyapp.OTPAuthentication.OTPManager;
 import com.example.peachzyapp.R;
+import com.example.peachzyapp.dynamoDB.DynamoDBManager;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -23,9 +24,11 @@ public class OTPFragment extends Fragment {
     OTPManager otpManager;
     private FirebaseAuth mAuth;
     private String generatedOTP;
+    private String firstName;
+    private String lastName;
     private String email;
     private String password;
-
+    public DynamoDBManager dynamoDBManager;
     public OTPFragment() {
         // Required empty public constructor
     }
@@ -40,9 +43,12 @@ public class OTPFragment extends Fragment {
 
         otpManager = new OTPManager();
         mAuth = FirebaseAuth.getInstance();
+        dynamoDBManager=new DynamoDBManager(getActivity());
         Bundle bundle = getArguments();
         if (bundle != null) {
             generatedOTP = bundle.getString("generatedOTP");
+            firstName=bundle.getString("firstName");
+            lastName=bundle.getString("lastName");
             email = bundle.getString("email");
             password = bundle.getString("password");
 
@@ -55,16 +61,26 @@ public class OTPFragment extends Fragment {
 
         btnVerifyOTP.setOnClickListener(v -> {
             String otpEntered = etOTP.getText().toString().trim();
-            Log.d("CheckOTP", "OTP entered"+otpEntered);
-            Log.d("CheckOTP", "OTP received"+generatedOTP);
+            Log.d("CheckOTP", "OTP entered" + otpEntered);
+            Log.d("CheckOTP", "OTP received" + generatedOTP);
+
             if (generatedOTP != null && otpManager.verifyOTP(Integer.valueOf(generatedOTP), Integer.valueOf(otpEntered))) {
                 mAuth.createUserWithEmailAndPassword(email, password)
                         .addOnCompleteListener(requireActivity(), task -> {
                             if (task.isSuccessful()) {
                                 // Sign up success, update UI with the signed-in user's information
                                 FirebaseUser user = mAuth.getCurrentUser();
-                                Toast.makeText(getActivity(), "Sign up successful.",
-                                        Toast.LENGTH_SHORT).show();
+                                if (user != null) {
+                                    Log.d("CheckUserID", user.getUid());
+                                    String id = user.getUid();
+                                    dynamoDBManager.createAccountWithFirebaseUID(id, firstName, lastName, email);
+                                    Toast.makeText(getActivity(), "Sign up successful.",
+                                            Toast.LENGTH_SHORT).show();
+                                } else {
+                                    Log.e("CheckUserID", "FirebaseUser is null");
+                                    Toast.makeText(getActivity(), "Failed to get user ID.",
+                                            Toast.LENGTH_SHORT).show();
+                                }
                             } else {
                                 // If sign up fails, display a message to the user.
                                 Toast.makeText(getActivity(), "Sign up failed.",
