@@ -4,13 +4,15 @@ import android.content.Context;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.amazonaws.AmazonServiceException;
+import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.auth.CognitoCachingCredentialsProvider;
 import com.amazonaws.mobileconnectors.dynamodbv2.document.Table;
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
 import com.amazonaws.services.dynamodbv2.model.ListTablesResult;
+
+import java.util.List;
 
 public class DynamoDBManager {
     private Context context;
@@ -22,38 +24,54 @@ public class DynamoDBManager {
         }
         this.context = context;
     }
+
+
     private void initializeDynamoDB() {
-        CognitoCachingCredentialsProvider credentialsProvider = new CognitoCachingCredentialsProvider(
-                context.getApplicationContext(),
-                "thanhnhan16.2.2002@gmail.com", // Replace with your AWS account email or phone number
-                "ap-southeast-1", // Replace with the region your identity pool resides in
-                "YOUR_AWS_ACCESS_KEY_ID", // Replace with your AWS Access Key ID
-                "YOUR_AWS_SECRET_ACCESS_KEY", // Replace with your AWS Secret Access Key
-                Regions.AP_SOUTHEAST_1 // Replace with the AWS region you are using
-        );
-        ddbClient = new AmazonDynamoDBClient(credentialsProvider);
-        ddbClient.setRegion(Region.getRegion(Regions.AP_SOUTHEAST_1)); // Set the region
+        try {
+            BasicAWSCredentials credentials = new BasicAWSCredentials("AKIAZI2LEH5QNBAXEUHP", "krI7P46llTA2kLj+AZQGSr9lEviTlS4bwQzBXSSi");
+
+            ddbClient = new AmazonDynamoDBClient(credentials);
+            ddbClient.setRegion(Region.getRegion(Regions.AP_SOUTHEAST_1)); // Set the region
+
+            ListTablesResult tables = ddbClient.listTables();
+
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
+
+
+
     public boolean checkDynamoDBConnection() {
         try {
             if (ddbClient == null) {
                 initializeDynamoDB();
             }
-            ListTablesResult tables = ddbClient.listTables();
-            for (String tableName : tables.getTableNames()) {
-                Log.d("DynamoDBManager", "Table name: " + tableName);
-            }
-            // If there's no error, connection is successful
+
+            // Thực hiện công việc mạng trong một luồng mới
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        ListTablesResult tables = ddbClient.listTables();
+                        for (String tableName : tables.getTableNames()) {
+                            Log.d("DynamoDBManagerRun", "Table name: " + tableName);
+                        }
+                    } catch (Exception e) {
+                        // Log exception for debugging
+                        Log.e("DynamoDBManagerRun", "Error checking DynamoDB connection: " + e.getMessage());
+                    }
+                }
+            }).start();
+
+            // Trả về true vì việc khởi động công việc mạng đã được bắt đầu
             return true;
-        } catch (AmazonServiceException e) {
-            // Log exception for debugging
-            Log.e("DynamoDBManager", "Amazon Service Exception: " + e.getMessage());
-            return false;
         } catch (Exception e) {
             // Log exception for debugging
             Log.e("DynamoDBManager", "Error checking DynamoDB connection: " + e.getMessage());
             return false;
         }
     }
-
 }
