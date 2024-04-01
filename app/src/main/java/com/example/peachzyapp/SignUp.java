@@ -81,7 +81,8 @@ public class SignUp extends AppCompatActivity {
             else if (regexp.isValidGmailEmail(email)==false){
                 notification(R.string.invalid_email);
             }
-            else if (password.length()<8){
+            else if (password.length()<8)
+            {
                 notification(R.string.invalid_password);
             }
             else if(!password.equals(cfPassword) ){
