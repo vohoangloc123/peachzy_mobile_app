@@ -1,6 +1,8 @@
 package com.example.peachzyapp;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
@@ -12,6 +14,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.peachzyapp.Regexp.Regexp;
 import com.example.peachzyapp.dynamoDB.DynamoDBManager;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
@@ -26,6 +29,7 @@ public class SignIn extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
     private DynamoDBManager dynamoDBManager;
+    private Regexp regexp;
 
     //for test
     Button testButton;
@@ -75,8 +79,13 @@ public class SignIn extends AppCompatActivity {
 
             // Kiểm tra xem trường email và mật khẩu có rỗng không
             if (email.isEmpty() || password.isEmpty()) {
-                Toast.makeText(SignIn.this, "Please enter email and password.", Toast.LENGTH_SHORT).show();
+                notification(R.string.null_email_or_password);
                 return; // Không thực hiện đăng nhập nếu trường email hoặc mật khẩu rỗng
+            }
+            //Kiểm tra gmail có hợp lệ hay không
+            else if(regexp.isValidGmailEmail(email)==false){
+                notification(R.string.invalid_email);
+                return;
             }
 
             // Thực hiện đăng nhập
@@ -102,5 +111,14 @@ public class SignIn extends AppCompatActivity {
             Toast.makeText(SignIn.this, "Log in successful.", Toast.LENGTH_SHORT).show();
         });
 
+    }
+    //Hiện thông báo regext
+    private void notification(int stringId) {
+        regexp= new Regexp();
+        Context context = this;
+        Resources resources = context.getResources();
+
+        String myNotification = resources.getString(stringId);
+        Toast.makeText(SignIn.this, myNotification, Toast.LENGTH_SHORT).show();
     }
 }

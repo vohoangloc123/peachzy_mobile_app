@@ -1,5 +1,7 @@
 package com.example.peachzyapp;
 
+import android.content.Context;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -14,12 +16,13 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.peachzyapp.OTPAuthentication.OTPManager;
+import com.example.peachzyapp.Regexp.Regexp;
 import com.google.firebase.auth.FirebaseAuth;
 
 public class ForgetPassword extends AppCompatActivity {
     EditText etEmail;
     Button forgetPasswordButton;
-
+    private Regexp regexp;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -38,8 +41,13 @@ public class ForgetPassword extends AppCompatActivity {
 
             if (TextUtils.isEmpty(email)) {
                 // Xử lý trường hợp email trống
-                Toast.makeText(getApplicationContext(), "Please enter your email", Toast.LENGTH_SHORT).show();
-            } else {
+                notification(R.string.null_email);
+            }
+            else if (regexp.isValidGmailEmail(email)==false){
+                notification(R.string.invalid_email);
+            }
+
+            else {
                 FirebaseAuth.getInstance().sendPasswordResetEmail(email)
                         .addOnCompleteListener(task -> {
                             if (task.isSuccessful()) {
@@ -61,5 +69,13 @@ public class ForgetPassword extends AppCompatActivity {
                         });
             }
         });
+    }
+    private void notification(int stringId) {
+        regexp= new Regexp();
+        Context context = this;
+        Resources resources = context.getResources();
+
+        String myNotification = resources.getString(stringId);
+        Toast.makeText(getApplicationContext(), myNotification, Toast.LENGTH_SHORT).show();
     }
 }
