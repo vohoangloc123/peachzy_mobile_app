@@ -1,5 +1,7 @@
 package com.example.peachzyapp;
 
+import android.content.Context;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -15,6 +17,7 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.example.peachzyapp.OTPAuthentication.OTPManager;
 import com.example.peachzyapp.OTPAuthentication.SendEmailTask;
+import com.example.peachzyapp.Regexp.Regexp;
 import com.example.peachzyapp.fragments.SignUpFragments.OTPFragment;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -35,6 +38,8 @@ public class SignUp extends AppCompatActivity {
     Button verifyOTPButton;
     private FirebaseAuth mAuth;
     private int generatedOTP;
+    EditText etConfirmPassword;
+    private Regexp regexp;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +53,7 @@ public class SignUp extends AppCompatActivity {
         etLastName=findViewById(R.id.etLastName);
         etPassword=findViewById(R.id.etPassword);
         btnSignUp=findViewById(R.id.btnSignUp);
+        etConfirmPassword=findViewById(R.id.etConfirmPassword);
         // Khởi tạo FirebaseApp
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
@@ -60,7 +66,28 @@ public class SignUp extends AppCompatActivity {
             final String firstName=etFirstName.getText().toString().trim();
             final String lastName=etLastName.getText().toString().trim();
             final String password = etPassword.getText().toString().trim();
+            final String cfPassword=etConfirmPassword.getText().toString().trim();
 
+
+            if (email.isEmpty() || password.isEmpty()) {
+                notification(R.string.null_email_or_password);
+            }
+            else if (regexp.isValidName(firstName)==false) {
+                notification(R.string.invalid_name);
+            }
+            else if  (regexp.isValidName(lastName)==false) {
+                notification(R.string.invalid_name);
+            }
+            else if (regexp.isValidGmailEmail(email)==false){
+                notification(R.string.invalid_email);
+            }
+            else if (password.length()<8){
+                notification(R.string.invalid_password);
+            }
+            else if(!password.equals(cfPassword) ){
+                notification(R.string.invalid_confirmPassword);
+            }
+            else {
             // Kiểm tra email có tồn tại không
             mAuth.fetchSignInMethodsForEmail(email)
                     .addOnCompleteListener(task -> {
@@ -96,7 +123,16 @@ public class SignUp extends AppCompatActivity {
                             Toast.makeText(SignUp.this, "Error checking email existence.", Toast.LENGTH_SHORT).show();
                         }
                     });
+            }
         });
+    }
+    private void notification(int stringId) {
+        regexp= new Regexp();
+        Context context = this;
+        Resources resources = context.getResources();
+
+        String myNotification = resources.getString(stringId);
+        Toast.makeText(SignUp.this, myNotification, Toast.LENGTH_SHORT).show();
     }
     }
 
