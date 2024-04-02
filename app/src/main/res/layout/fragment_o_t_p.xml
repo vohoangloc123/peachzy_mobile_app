@@ -49,11 +49,12 @@
                 android:layout_weight="1"
                 android:background="@drawable/edittext_border"
                 android:ems="10"
-                android:hint="Enter OTP"
+                android:hint="@string/enter_otp"
                 android:inputType="text"
                 android:textSize="16dp"
                 android:padding="20dp"
-                android:textColorHint="@color/borderColor"/>
+                android:textColorHint="@color/borderColor"
+                android:textColor="@color/black"/>
 
 
         </LinearLayout>
@@ -98,17 +99,24 @@
             android:textStyle="bold"
             app:cornerRadius="10dp" />
 
-        <Button
-            android:id="@+id/btnSignIn"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="50px"
-            android:backgroundTint="@color/bgGrey"
-            android:text="Return to Sign in"
-            android:textAlignment="center"
-            android:textColor="@color/textColorBtn"
-            android:textSize="14sp"
-            android:textStyle="bold" />
+            android:orientation="horizontal"
+            android:gravity="center_horizontal">
+            <Button
+                android:id="@+id/btnSignIn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="50px"
+                android:backgroundTint="@color/bgGrey"
+                android:text="@string/returnSignIn"
+                android:textAlignment="center"
+                android:textColor="@color/textColorBtn"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
 
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
