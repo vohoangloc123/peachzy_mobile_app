@@ -2,7 +2,8 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="bgGrey">#e2e5e9</color>
+    <color name="bgGrey">#f4f4f4</color>
+    <color name="bgGreyBlue">#e2e5e9</color>
     <color name="borderColor">#acb5bf</color>
     <color name="btnColor">#ff9377</color>
     <color name="red">#FF0000</color>
