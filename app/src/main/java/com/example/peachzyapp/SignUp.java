@@ -69,26 +69,26 @@ public class SignUp extends AppCompatActivity {
             final String cfPassword=etConfirmPassword.getText().toString().trim();
 
 
-            if (email.isEmpty() || password.isEmpty()) {
-                notification(R.string.null_email_or_password);
-            }
-            else if (regexp.isValidName(firstName)==false) {
-                notification(R.string.invalid_name);
-            }
-            else if  (regexp.isValidName(lastName)==false) {
-                notification(R.string.invalid_name);
-            }
-            else if (regexp.isValidGmailEmail(email)==false){
-                notification(R.string.invalid_email);
-            }
-            else if (password.length()<8)
-            {
-                notification(R.string.invalid_password);
-            }
-            else if(!password.equals(cfPassword) ){
-                notification(R.string.invalid_confirmPassword);
-            }
-            else {
+//            if (email.isEmpty() || password.isEmpty()) {
+//                notification(R.string.null_email_or_password);
+//            }
+//            else if (regexp.isValidName(firstName)==false) {
+//                notification(R.string.invalid_name);
+//            }
+//            else if  (regexp.isValidName(lastName)==false) {
+//                notification(R.string.invalid_name);
+//            }
+//            else if (regexp.isValidGmailEmail(email)==false){
+//                notification(R.string.invalid_email);
+//            }
+//            else if (password.length()<8)
+//            {
+//                notification(R.string.invalid_password);
+//            }
+//            else if(!password.equals(cfPassword) ){
+//                notification(R.string.invalid_confirmPassword);
+//            }
+
             // Kiểm tra email có tồn tại không
             mAuth.fetchSignInMethodsForEmail(email)
                     .addOnCompleteListener(task -> {
@@ -124,7 +124,7 @@ public class SignUp extends AppCompatActivity {
                             Toast.makeText(SignUp.this, "Error checking email existence.", Toast.LENGTH_SHORT).show();
                         }
                     });
-            }
+
         });
     }
     private void notification(int stringId) {

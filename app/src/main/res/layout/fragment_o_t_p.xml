@@ -23,7 +23,8 @@
         <ImageView
             android:id="@+id/imageView2"
             android:layout_width="match_parent"
-            android:layout_height="100dp"/>
+            android:layout_height="100dp"
+            android:src="@drawable/logo"/>
         <TextView
             android:id="@+id/textView2"
             android:layout_width="match_parent"
@@ -37,21 +38,21 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="90dp"
-            android:orientation="horizontal"
-            >
+            android:layout_height="59dp"
+            android:orientation="horizontal">
 
             <EditText
                 android:id="@+id/etOTP"
-                android:layout_width="1dp"
-                android:layout_height="59dp"
+                android:layout_width="match_parent"
+                android:layout_height="58dp"
                 android:layout_weight="1"
                 android:background="@drawable/edittext_border"
                 android:ems="10"
+                android:hint="Enter OTP"
                 android:inputType="text"
-                android:hint="_"
-                android:textAlignment="center"
-                android:textColor="@color/textColorBtn" />
+                android:textColor="@color/textColorBtn"
+                android:textSize="16dp"
+                android:padding="20dp"/>
 
 
         </LinearLayout>
@@ -63,35 +64,37 @@
 
             <TextView
                 android:id="@+id/textView12"
-                android:layout_width="132dp"
+                android:layout_width="194dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="@string/OTPFailed"
+                android:textAlignment="center"
                 android:textColor="@color/textColorBtn"
-                android:textSize="18dp"
+                android:textSize="14sp"
                 android:textStyle="bold" />
 
             <Button
                 android:id="@+id/button"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:backgroundTint="@color/bgGrey"
                 android:text="@string/Resend"
-                android:textColor="@color/btnColor"/>
+                android:textColor="@color/btnColor" />
 
 
         </LinearLayout>
+
         <Button
-            android:layout_marginTop="20dp"
             android:id="@+id/btnVerifyOTP"
             android:layout_width="match_parent"
-            android:layout_height="63dp"
+            android:layout_height="58dp"
+            android:layout_marginTop="20dp"
             android:backgroundTint="@color/btnColor"
             android:text="@string/submit"
             android:textColor="@color/textColorBtn"
             android:textStyle="bold"
-            app:cornerRadius="50dp"/>
+            app:cornerRadius="10dp" />
 
         <Button
             android:id="@+id/btnSignIn"

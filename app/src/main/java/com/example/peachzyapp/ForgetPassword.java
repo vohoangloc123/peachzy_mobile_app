@@ -39,15 +39,15 @@ public class ForgetPassword extends AppCompatActivity {
         forgetPasswordButton.setOnClickListener(v -> {
             String email = etEmail.getText().toString().trim();
 
-            if (TextUtils.isEmpty(email)) {
-                // Xử lý trường hợp email trống
-                notification(R.string.null_email);
-            }
-            else if (regexp.isValidGmailEmail(email)==false){
-                notification(R.string.invalid_email);
-            }
+//            if (TextUtils.isEmpty(email)) {
+//                // Xử lý trường hợp email trống
+//                notification(R.string.null_email);
+//            }
+//            else if (regexp.isValidGmailEmail(email)==false){
+//                notification(R.string.invalid_email);
+//            }
 
-            else {
+
                 FirebaseAuth.getInstance().sendPasswordResetEmail(email)
                         .addOnCompleteListener(task -> {
                             if (task.isSuccessful()) {
@@ -67,7 +67,7 @@ public class ForgetPassword extends AppCompatActivity {
                                 Toast.makeText(getApplicationContext(), "Failed to send password reset email", Toast.LENGTH_SHORT).show();
                             }
                         });
-            }
+
         });
     }
     private void notification(int stringId) {

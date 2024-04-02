@@ -20,7 +20,8 @@
         <ImageView
             android:id="@+id/imageView"
             android:layout_width="match_parent"
-            android:layout_height="100dp" />
+            android:layout_height="100dp"
+            android:src="@drawable/logo" />
 
         <TextView
             android:id="@+id/textView2"
@@ -30,7 +31,8 @@
             android:text="@string/login_to_your_account"
             android:textAlignment="center"
             android:textSize="25dp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:textColor="@color/textColorBtn"/>
 
         <EditText
             android:id="@+id/etEmail"
@@ -41,7 +43,8 @@
             android:ems="10"
             android:hint="@string/email"
             android:inputType="textEmailAddress"
-            android:padding="20dp" />
+            android:padding="20dp"
+            android:textSize="16dp"/>
 
         <EditText
             android:id="@+id/etPassword"
@@ -52,7 +55,8 @@
             android:ems="10"
             android:hint="@string/password"
             android:inputType="textPassword"
-            android:padding="20dp" />
+            android:padding="20dp"
+            android:textSize="16dp"/>
 
         <LinearLayout
             android:layout_width="357dp"
@@ -69,7 +73,8 @@
                 android:text="@string/newUser"
                 android:textAlignment="center"
                 android:textSize="17dp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:textColor="@color/textColorBtn"/>
 
             <Button
                 android:id="@+id/btnSignUp"
@@ -88,22 +93,22 @@
             android:id="@+id/btnForgetPassword"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/Forgot_password"
             android:backgroundTint="@color/bgGrey"
+            android:text="@string/Forgot_password"
             android:textColor="@color/btnColor"
-            android:textStyle="bold"
-            android:textSize="17dp"/>
+            android:textSize="17dp"
+            android:textStyle="bold" />
 
         <Button
-            android:layout_marginTop="20dp"
             android:id="@+id/btnSignIn"
             android:layout_width="match_parent"
-            android:layout_height="63dp"
+            android:layout_height="58dp"
+            android:layout_marginTop="20dp"
             android:backgroundTint="@color/btnColor"
             android:text="@string/login"
             android:textColor="@color/textColorBtn"
             android:textStyle="bold"
-            app:cornerRadius="10dp"/>
+            app:cornerRadius="10dp" />
 
         <Button
             android:id="@+id/testButton"
@@ -111,7 +116,6 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="Button" />
-
 
 
     </LinearLayout>
