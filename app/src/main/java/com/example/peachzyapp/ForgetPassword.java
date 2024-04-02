@@ -31,6 +31,11 @@ public class ForgetPassword extends AppCompatActivity {
         OTPManager otpManager = new OTPManager();
         etEmail = findViewById(R.id.etEmail);
         forgetPasswordButton = findViewById(R.id.btnForgetPassword);
+        // Khai báo Regexp
+        regexp= new Regexp();
+        Context context = this;
+        Resources resources = context.getResources();
+        //
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
@@ -39,13 +44,15 @@ public class ForgetPassword extends AppCompatActivity {
         forgetPasswordButton.setOnClickListener(v -> {
             String email = etEmail.getText().toString().trim();
 
-//            if (TextUtils.isEmpty(email)) {
-//                // Xử lý trường hợp email trống
-//                notification(R.string.null_email);
-//            }
-//            else if (regexp.isValidGmailEmail(email)==false){
-//                notification(R.string.invalid_email);
-//            }
+            if (TextUtils.isEmpty(email)) {
+                // Xử lý trường hợp email trống
+                notification(R.string.null_email);
+                return;
+            }
+            else if (regexp.isValidGmailEmail(email)==false){
+                notification(R.string.invalid_email);
+                return;
+            }
 
 
                 FirebaseAuth.getInstance().sendPasswordResetEmail(email)

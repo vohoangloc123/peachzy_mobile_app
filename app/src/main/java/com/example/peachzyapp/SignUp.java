@@ -54,8 +54,11 @@ public class SignUp extends AppCompatActivity {
         etPassword=findViewById(R.id.etPassword);
         btnSignUp=findViewById(R.id.btnSignUp);
         etConfirmPassword=findViewById(R.id.etConfirmPassword);
-        // Khởi tạo FirebaseApp
-
+        // Khai báo Regexp
+        regexp= new Regexp();
+        Context context = this;
+        Resources resources = context.getResources();
+        //
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
@@ -69,25 +72,31 @@ public class SignUp extends AppCompatActivity {
             final String cfPassword=etConfirmPassword.getText().toString().trim();
 
 
-//            if (email.isEmpty() || password.isEmpty()) {
-//                notification(R.string.null_email_or_password);
-//            }
-//            else if (regexp.isValidName(firstName)==false) {
-//                notification(R.string.invalid_name);
-//            }
-//            else if  (regexp.isValidName(lastName)==false) {
-//                notification(R.string.invalid_name);
-//            }
-//            else if (regexp.isValidGmailEmail(email)==false){
-//                notification(R.string.invalid_email);
-//            }
-//            else if (password.length()<8)
-//            {
-//                notification(R.string.invalid_password);
-//            }
-//            else if(!password.equals(cfPassword) ){
-//                notification(R.string.invalid_confirmPassword);
-//            }
+            if (email.isEmpty() || password.isEmpty()) {
+                notification(R.string.null_email_or_password);
+                return;
+            }
+            else if (regexp.isValidName(firstName)==false) {
+                notification(R.string.invalid_name);
+                return;
+            }
+            else if  (regexp.isValidName(lastName)==false) {
+                notification(R.string.invalid_name);
+                return;
+            }
+            else if (regexp.isValidGmailEmail(email)==false){
+                notification(R.string.invalid_email);
+                return;
+            }
+            else if (password.length()<8)
+            {
+                notification(R.string.invalid_password);
+                return;
+            }
+            else if(!password.equals(cfPassword) ){
+                notification(R.string.invalid_confirmPassword);
+                return;
+            }
 
             // Kiểm tra email có tồn tại không
             mAuth.fetchSignInMethodsForEmail(email)
