@@ -16,6 +16,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.peachzyapp.AddFriendFragment;
 import com.example.peachzyapp.R;
 import com.example.peachzyapp.WebSocket.MainViewModel;
 import com.example.peachzyapp.dynamoDB.DynamoDBManager;
@@ -42,6 +43,7 @@ public class ChatHistoryFragment extends Fragment {
     private BottomNavigationView bottomNavigationView;
 
     public static final String TAG=ChatHistoryFragment.class.getName();
+
     public ChatHistoryFragment() {
     }
     @Override

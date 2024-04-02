@@ -9,7 +9,6 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -19,11 +18,7 @@ import com.example.peachzyapp.OTPAuthentication.OTPManager;
 import com.example.peachzyapp.OTPAuthentication.SendEmailTask;
 import com.example.peachzyapp.Regexp.Regexp;
 import com.example.peachzyapp.fragments.SignUpFragments.OTPFragment;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.SignInMethodQueryResult;
 
 import java.util.List;
 
@@ -59,7 +54,7 @@ public class SignUp extends AppCompatActivity {
         Context context = this;
         Resources resources = context.getResources();
         //
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.etFind), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
@@ -123,7 +118,7 @@ public class SignUp extends AppCompatActivity {
                                 OTPFragment otpFragment = new OTPFragment();
                                 otpFragment.setArguments(bundle);
                                 getSupportFragmentManager().beginTransaction()
-                                        .replace(R.id.main, otpFragment)
+                                        .replace(R.id.etFind, otpFragment)
                                         .commit();
                                 new SendEmailTask(email, String.valueOf(generatedOTP)).execute();
                                 Toast.makeText(SignUp.this, generatedOTP+"", Toast.LENGTH_SHORT).show();
