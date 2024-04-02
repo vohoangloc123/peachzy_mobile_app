@@ -78,30 +78,30 @@ public class SignIn extends AppCompatActivity {
             String password = etPassword.getText().toString().trim();
 
             // Kiểm tra xem trường email và mật khẩu có rỗng không
-            if (email.isEmpty() || password.isEmpty()) {
-                notification(R.string.null_email_or_password);
-                return; // Không thực hiện đăng nhập nếu trường email hoặc mật khẩu rỗng
-            }
-            //Kiểm tra gmail có hợp lệ hay không
-            else if(regexp.isValidGmailEmail(email)==false){
-                notification(R.string.invalid_email);
-                return;
-            }
+//            if (email.isEmpty() || password.isEmpty()) {
+//                notification(R.string.null_email_or_password);
+//                // Không thực hiện đăng nhập nếu trường email hoặc mật khẩu rỗng
+//            }
+//            //Kiểm tra gmail có hợp lệ hay không
+//            else if(regexp.isValidGmailEmail(email)==false){
+//                notification(R.string.invalid_email);
+//            }
 
-            // Thực hiện đăng nhập
-            mAuth.signInWithEmailAndPassword(email, password)
-                    .addOnCompleteListener(this, task -> {
-                        if (task.isSuccessful()) {
-                            // Log in success, update UI with the signed-in user's information
-                            FirebaseUser user = mAuth.getCurrentUser();
-                            Intent intent=new Intent(this, MainActivity.class);
-                            startActivity(intent);
-                            Toast.makeText(SignIn.this, "Log in successful.", Toast.LENGTH_SHORT).show();
-                        } else {
-                            // If log in fails, display a message to the user.
-                            Toast.makeText(SignIn.this, "Log in failed.", Toast.LENGTH_SHORT).show();
-                        }
-                    });
+                // Thực hiện đăng nhập
+                mAuth.signInWithEmailAndPassword(email, password)
+                        .addOnCompleteListener(this, task -> {
+                            if (task.isSuccessful()) {
+                                // Log in success, update UI with the signed-in user's information
+                                FirebaseUser user = mAuth.getCurrentUser();
+                                Intent intent = new Intent(this, MainActivity.class);
+                                startActivity(intent);
+                                Toast.makeText(SignIn.this, "Log in successful.", Toast.LENGTH_SHORT).show();
+                            } else {
+                                // If log in fails, display a message to the user.
+                                Toast.makeText(SignIn.this, "Log in failed.", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+
         });
 
 
