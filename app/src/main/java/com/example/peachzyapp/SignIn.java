@@ -48,6 +48,11 @@ public class SignIn extends AppCompatActivity {
         forgetPasswordButton=findViewById(R.id.btnForgetPassword);
         testButton=findViewById(R.id.testButton);
         dynamoDBManager = new DynamoDBManager(this);
+        // Khai báo Regexp
+        regexp= new Regexp();
+        Context context = this;
+        Resources resources = context.getResources();
+        //
         if (dynamoDBManager.checkDynamoDBConnection()) {
             Toast.makeText(this, "DynamoDB connection successful.", Toast.LENGTH_SHORT).show();
 
@@ -78,14 +83,16 @@ public class SignIn extends AppCompatActivity {
             String password = etPassword.getText().toString().trim();
 
             // Kiểm tra xem trường email và mật khẩu có rỗng không
-//            if (email.isEmpty() || password.isEmpty()) {
-//                notification(R.string.null_email_or_password);
-//                // Không thực hiện đăng nhập nếu trường email hoặc mật khẩu rỗng
-//            }
-//            //Kiểm tra gmail có hợp lệ hay không
-//            else if(regexp.isValidGmailEmail(email)==false){
-//                notification(R.string.invalid_email);
-//            }
+            if (email.isEmpty() || password.isEmpty()) {
+                notification(R.string.null_email_or_password);
+                // Không thực hiện đăng nhập nếu trường email hoặc mật khẩu rỗng
+                return;
+            }
+            //Kiểm tra gmail có hợp lệ hay không
+            else if(regexp.isValidGmailEmail(email)==false){
+                notification(R.string.invalid_email);
+                return;
+            }
 
                 // Thực hiện đăng nhập
                 mAuth.signInWithEmailAndPassword(email, password)
