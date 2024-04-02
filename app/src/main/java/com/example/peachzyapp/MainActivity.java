@@ -1,7 +1,6 @@
 package com.example.peachzyapp;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
@@ -13,7 +12,6 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentStatePagerAdapter;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.viewpager.widget.ViewPager;
@@ -35,7 +33,7 @@ public class MainActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
 
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.etFind), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
@@ -110,7 +108,7 @@ public void goToDetailFragment(ChatBox chatBox) {
     chatHistoryFragment.setArguments(bundle);
 
     // Thêm ChatHistoryFragment
-    fragmentTransaction.add(R.id.main, chatHistoryFragment, ChatHistoryFragment.TAG);
+    fragmentTransaction.add(R.id.etFind, chatHistoryFragment, ChatHistoryFragment.TAG);
 
     // Tìm và ẩn tất cả các Fragment khác
     Fragment chatListsFragment = (Fragment) viewPager.getAdapter().instantiateItem(viewPager, 0);
@@ -136,6 +134,37 @@ public void goToDetailFragment(ChatBox chatBox) {
     fragmentTransaction.addToBackStack(ChatHistoryFragment.TAG);
     fragmentTransaction.commit();
 }
+    public void goToDetailFragmentAddFriend() {
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+        AddFriendFragment addFriendFragment=new AddFriendFragment();
+
+        // Thêm ChatHistoryFragment
+        fragmentTransaction.add(R.id.etFind, addFriendFragment, addFriendFragment.TAG1);
+
+        // Tìm và ẩn tất cả các Fragment khác
+        Fragment chatListsFragment = (Fragment) viewPager.getAdapter().instantiateItem(viewPager, 0);
+        Fragment notificationFragment = (Fragment) viewPager.getAdapter().instantiateItem(viewPager, 1);
+        Fragment usersFragment = (Fragment) viewPager.getAdapter().instantiateItem(viewPager, 2);
+        Fragment settingsFragment = (Fragment) viewPager.getAdapter().instantiateItem(viewPager, 3);
+
+        if (chatListsFragment != null) {
+            fragmentTransaction.hide(chatListsFragment);
+        }
+        if (notificationFragment != null) {
+            fragmentTransaction.hide(notificationFragment);
+        }
+        if (usersFragment != null) {
+            fragmentTransaction.hide(usersFragment);
+        }
+        if (settingsFragment != null) {
+            fragmentTransaction.hide(settingsFragment);
+        }
+
+        // Ẩn bottomNavigationView
+        showBottomNavigation(false);
+        fragmentTransaction.addToBackStack(addFriendFragment.TAG1);
+        fragmentTransaction.commit();
+    }
     public void showBottomNavigation(boolean show) {
         if (show) {
             bottomNavigationView.setVisibility(View.VISIBLE);

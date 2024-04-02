@@ -30,7 +30,6 @@ public class SignIn extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private DynamoDBManager dynamoDBManager;
     private Regexp regexp;
-
     //for test
     Button testButton;
     @Override
@@ -59,11 +58,7 @@ public class SignIn extends AppCompatActivity {
         } else {
             Toast.makeText(this, "DynamoDB connection failed.", Toast.LENGTH_SHORT).show();
         }
-        // Các xử lý khác không được hiển thị ở đây để giữ ngắn gọn
-
-        // Xác định xem có kết nối đến DynamoDB hay không khi activity được tạo
-//        dynamoDBManager.checkDynamoDBConnection();
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.etFind), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
@@ -100,6 +95,7 @@ public class SignIn extends AppCompatActivity {
                             if (task.isSuccessful()) {
                                 // Log in success, update UI with the signed-in user's information
                                 FirebaseUser user = mAuth.getCurrentUser();
+
                                 Intent intent = new Intent(this, MainActivity.class);
                                 startActivity(intent);
                                 Toast.makeText(SignIn.this, "Log in successful.", Toast.LENGTH_SHORT).show();
@@ -113,7 +109,7 @@ public class SignIn extends AppCompatActivity {
 
 
         testButton.setOnClickListener(v -> {
-            Intent intent=new Intent(this, MainActivity.class);
+            Intent intent=new Intent(this, testinterface.class);
             startActivity(intent);
             Toast.makeText(SignIn.this, "Log in successful.", Toast.LENGTH_SHORT).show();
         });
