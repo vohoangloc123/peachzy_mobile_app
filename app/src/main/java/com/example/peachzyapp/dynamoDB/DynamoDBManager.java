@@ -2,7 +2,6 @@ package com.example.peachzyapp.dynamoDB;
 
 import android.content.Context;
 import android.util.Log;
-import android.widget.TextView;
 
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.BasicAWSCredentials;
@@ -146,8 +145,15 @@ public class DynamoDBManager {
 
                         // Xử lý kết quả
                         for (Map<String, AttributeValue> item : scanResult.getItems()) {
-                            String friendResult = item.toString(); // Kết quả tìm thấy
-                            listener.onFriendFound(friendResult);
+                            String name = item.get("name").getS();
+                            String avatar = item.get("avatar").getS();
+
+                            // Tạo một chuỗi để hiển thị trong ListView, ví dụ: "Name: [Tên], Avatar: [Avatar]"
+                            String friendResult = "Name: " + name + ", Avatar: " + avatar;
+
+                            // Log dữ liệu
+                            Log.d("friendResult", friendResult);
+                            listener.onFriendFound(name, avatar);
                             return; // Đảm bảo chỉ hiển thị một kết quả nếu tìm thấy
                         }
                         // Gọi callback nếu không tìm thấy bạn bè
@@ -164,7 +170,7 @@ public class DynamoDBManager {
 
     // Định nghĩa interface để truyền kết quả tìm kiếm bạn bè
     public interface FriendFoundListener {
-        void onFriendFound(String friendResult);
+        void onFriendFound(String friendResult, String avatar);
         void onFriendNotFound();
         void onError(Exception e);
     }
