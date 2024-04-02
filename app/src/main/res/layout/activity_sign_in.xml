@@ -45,7 +45,8 @@
             android:inputType="textEmailAddress"
             android:padding="20dp"
             android:textSize="16dp"
-            android:textColorHint="@color/borderColor"/>
+            android:textColorHint="@color/borderColor"
+            android:textColor="@color/black"/>
 
         <EditText
             android:id="@+id/etPassword"
@@ -58,7 +59,8 @@
             android:inputType="textPassword"
             android:padding="20dp"
             android:textSize="16dp"
-            android:textColorHint="@color/borderColor"/>
+            android:textColorHint="@color/borderColor"
+            android:textColor="@color/black"/>
 
         <LinearLayout
             android:layout_width="357dp"

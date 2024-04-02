@@ -10,7 +10,7 @@
     <string name="accept">Accept</string>
     <string name="decline">Decline</string>
     <string name="enter_message">Enter message</string>
-    <string name="send">SEND</string>
+    <string name="send">Send</string>
     <string name="create_a_new_account">Create Account</string>
     <string name="display_name">Display name</string>
     <string name="email">Email Address</string>
@@ -44,4 +44,13 @@
     <string name="Resend">Resend(1/3)</string>
     <string name="submit">Submit</string>
     <string name="returnSignIn">Return to Sign in</string>
+    <string name="forgot_your_password">Forgot your password?</string>
+    <string name="forgot_password_description">Please enter the email address associated with your account and We will send email you link to reset your password</string>
+    <string name="get_started_with_peachzy">Get Started With Peachzy</string>
+    <string name="already_have_an_account">Already have an account?</string>
+    <string name="i_agree_to">I agree to</string>
+    <string name="terms_of_service">Terms of service</string>
+    <string name="and">and</string>
+    <string name="privacy_policy">Privacy Policy</string>
+    <string name="enter_otp">Enter OTP</string>
 </resources>
