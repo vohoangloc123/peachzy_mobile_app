@@ -2,7 +2,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
+    android:id="@+id/etFind"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".SignIn">
@@ -44,6 +44,7 @@
             android:hint="@string/email"
             android:inputType="textEmailAddress"
             android:padding="20dp"
+
             android:textSize="16dp"
             android:textColorHint="@color/borderColor"
             android:textColor="@color/black"/>
@@ -114,12 +115,23 @@
             android:textStyle="bold"
             app:cornerRadius="10dp" />
 
-        <Button
-            android:id="@+id/testButton"
-            android:layout_width="0dp"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Button" />
+            android:orientation="horizontal"
+            android:gravity="center_horizontal">
+            <Button
+                android:id="@+id/testButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="50px"
+                android:backgroundTint="@color/bgGrey"
+                android:text="@string/returnSignIn"
+                android:textAlignment="center"
+                android:textColor="@color/textColorBtn"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+        </LinearLayout>
 
 
     </LinearLayout>

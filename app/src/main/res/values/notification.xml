@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="invalid_email">Email không hợp lệ</string>
+    <string name="null_email_or_password">Vui lòng nhập Email và Password</string>
+    <string name="null_email">Vui lòng nhập Email</string>
+    <string name="invalid_name">FirstName và LastName phải là chữ cái và không được rỗng</string>
+    <string name="invalid_password">Password phải trên 8 ký tự</string>
+    <string name="invalid_confirmPassword">ConfirmPassword không khớp với Password</string>
+</resources>
