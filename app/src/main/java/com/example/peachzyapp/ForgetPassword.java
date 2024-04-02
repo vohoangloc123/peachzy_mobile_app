@@ -1,8 +1,9 @@
 package com.example.peachzyapp;
 
+import android.content.Context;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -14,12 +15,13 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.peachzyapp.OTPAuthentication.OTPManager;
+import com.example.peachzyapp.Regexp.Regexp;
 import com.google.firebase.auth.FirebaseAuth;
 
 public class ForgetPassword extends AppCompatActivity {
     EditText etEmail;
     Button forgetPasswordButton;
-
+    private Regexp regexp;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -28,7 +30,12 @@ public class ForgetPassword extends AppCompatActivity {
         OTPManager otpManager = new OTPManager();
         etEmail = findViewById(R.id.etEmail);
         forgetPasswordButton = findViewById(R.id.btnForgetPassword);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
+        // Khai báo Regexp
+        regexp= new Regexp();
+        Context context = this;
+        Resources resources = context.getResources();
+        //
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.etFind), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
@@ -38,8 +45,15 @@ public class ForgetPassword extends AppCompatActivity {
 
             if (TextUtils.isEmpty(email)) {
                 // Xử lý trường hợp email trống
-                Toast.makeText(getApplicationContext(), "Please enter your email", Toast.LENGTH_SHORT).show();
-            } else {
+                notification(R.string.null_email);
+                return;
+            }
+            else if (regexp.isValidGmailEmail(email)==false){
+                notification(R.string.invalid_email);
+                return;
+            }
+
+
                 FirebaseAuth.getInstance().sendPasswordResetEmail(email)
                         .addOnCompleteListener(task -> {
                             if (task.isSuccessful()) {
@@ -59,7 +73,15 @@ public class ForgetPassword extends AppCompatActivity {
                                 Toast.makeText(getApplicationContext(), "Failed to send password reset email", Toast.LENGTH_SHORT).show();
                             }
                         });
-            }
+
         });
+    }
+    private void notification(int stringId) {
+        regexp= new Regexp();
+        Context context = this;
+        Resources resources = context.getResources();
+
+        String myNotification = resources.getString(stringId);
+        Toast.makeText(getApplicationContext(), myNotification, Toast.LENGTH_SHORT).show();
     }
 }

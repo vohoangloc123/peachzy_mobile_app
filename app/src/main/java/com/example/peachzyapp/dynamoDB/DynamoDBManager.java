@@ -2,24 +2,23 @@ package com.example.peachzyapp.dynamoDB;
 
 import android.content.Context;
 import android.util.Log;
-import android.widget.Toast;
+import android.widget.TextView;
 
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.auth.CognitoCachingCredentialsProvider;
-import com.amazonaws.mobileconnectors.dynamodbv2.document.Table;
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
+import com.amazonaws.services.dynamodbv2.model.ComparisonOperator;
+import com.amazonaws.services.dynamodbv2.model.Condition;
 import com.amazonaws.services.dynamodbv2.model.ListTablesResult;
 import com.amazonaws.services.dynamodbv2.model.PutItemRequest;
 import com.amazonaws.services.dynamodbv2.model.PutItemResult;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
+import com.amazonaws.services.dynamodbv2.model.ScanRequest;
+import com.amazonaws.services.dynamodbv2.model.ScanResult;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class DynamoDBManager {
@@ -125,14 +124,50 @@ public class DynamoDBManager {
             Log.e("DynamoDBManager", "Error checking DynamoDB connection: " + e.getMessage());
         }
     }
+    public void findFriend(String email, FriendFoundListener listener) {
+        try {
+            if (ddbClient == null) {
+                initializeDynamoDB();
+            }
+            Log.d("email", email);
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        // Tạo một yêu cầu truy vấn
+                        HashMap<String, Condition> scanFilter = new HashMap<String, Condition>();
+                        Condition condition = new Condition()
+                                .withComparisonOperator(ComparisonOperator.EQ.toString())
+                                .withAttributeValueList(new AttributeValue().withS(email));
+                        scanFilter.put("email", condition);
+
+                        ScanRequest scanRequest = new ScanRequest("Users").withScanFilter(scanFilter);
+                        ScanResult scanResult = ddbClient.scan(scanRequest);
+
+                        // Xử lý kết quả
+                        for (Map<String, AttributeValue> item : scanResult.getItems()) {
+                            String friendResult = item.toString(); // Kết quả tìm thấy
+                            listener.onFriendFound(friendResult);
+                            return; // Đảm bảo chỉ hiển thị một kết quả nếu tìm thấy
+                        }
+                        // Gọi callback nếu không tìm thấy bạn bè
+                        listener.onFriendNotFound();
+                    } catch (Exception e) {
+                        listener.onError(e);
+                    }
+                }
+            }).start(); // Khởi chạy thread
+        } catch (Exception e) {
+            listener.onError(e);
+        }
+    }
+
+    // Định nghĩa interface để truyền kết quả tìm kiếm bạn bè
+    public interface FriendFoundListener {
+        void onFriendFound(String friendResult);
+        void onFriendNotFound();
+        void onError(Exception e);
+    }
 
 
-//    public void createAccountWithCurrentFirebaseUser() {
-//        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-//        if (currentUser != null) {
-//            createAccountWithFirebaseUID(currentUser.getUid());
-//        } else {
-//            Log.e("DynamoDBManager", "No current Firebase user found.");
-//        }
-//    }
 }

@@ -1,6 +1,8 @@
 package com.example.peachzyapp;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
@@ -12,6 +14,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.peachzyapp.Regexp.Regexp;
 import com.example.peachzyapp.dynamoDB.DynamoDBManager;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
@@ -26,7 +29,7 @@ public class SignIn extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
     private DynamoDBManager dynamoDBManager;
-
+    private Regexp regexp;
     //for test
     Button testButton;
     @Override
@@ -44,17 +47,18 @@ public class SignIn extends AppCompatActivity {
         forgetPasswordButton=findViewById(R.id.btnForgetPassword);
         testButton=findViewById(R.id.testButton);
         dynamoDBManager = new DynamoDBManager(this);
+        // Khai báo Regexp
+        regexp= new Regexp();
+        Context context = this;
+        Resources resources = context.getResources();
+        //
         if (dynamoDBManager.checkDynamoDBConnection()) {
             Toast.makeText(this, "DynamoDB connection successful.", Toast.LENGTH_SHORT).show();
 
         } else {
             Toast.makeText(this, "DynamoDB connection failed.", Toast.LENGTH_SHORT).show();
         }
-        // Các xử lý khác không được hiển thị ở đây để giữ ngắn gọn
-
-        // Xác định xem có kết nối đến DynamoDB hay không khi activity được tạo
-//        dynamoDBManager.checkDynamoDBConnection();
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.etFind), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
@@ -75,32 +79,49 @@ public class SignIn extends AppCompatActivity {
 
             // Kiểm tra xem trường email và mật khẩu có rỗng không
             if (email.isEmpty() || password.isEmpty()) {
-                Toast.makeText(SignIn.this, "Please enter email and password.", Toast.LENGTH_SHORT).show();
-                return; // Không thực hiện đăng nhập nếu trường email hoặc mật khẩu rỗng
+                notification(R.string.null_email_or_password);
+                // Không thực hiện đăng nhập nếu trường email hoặc mật khẩu rỗng
+                return;
+            }
+            //Kiểm tra gmail có hợp lệ hay không
+            else if(regexp.isValidGmailEmail(email)==false){
+                notification(R.string.invalid_email);
+                return;
             }
 
-            // Thực hiện đăng nhập
-            mAuth.signInWithEmailAndPassword(email, password)
-                    .addOnCompleteListener(this, task -> {
-                        if (task.isSuccessful()) {
-                            // Log in success, update UI with the signed-in user's information
-                            FirebaseUser user = mAuth.getCurrentUser();
-                            Intent intent=new Intent(this, MainActivity.class);
-                            startActivity(intent);
-                            Toast.makeText(SignIn.this, "Log in successful.", Toast.LENGTH_SHORT).show();
-                        } else {
-                            // If log in fails, display a message to the user.
-                            Toast.makeText(SignIn.this, "Log in failed.", Toast.LENGTH_SHORT).show();
-                        }
-                    });
+                // Thực hiện đăng nhập
+                mAuth.signInWithEmailAndPassword(email, password)
+                        .addOnCompleteListener(this, task -> {
+                            if (task.isSuccessful()) {
+                                // Log in success, update UI with the signed-in user's information
+                                FirebaseUser user = mAuth.getCurrentUser();
+
+                                Intent intent = new Intent(this, MainActivity.class);
+                                startActivity(intent);
+                                Toast.makeText(SignIn.this, "Log in successful.", Toast.LENGTH_SHORT).show();
+                            } else {
+                                // If log in fails, display a message to the user.
+                                Toast.makeText(SignIn.this, "Log in failed.", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+
         });
 
 
         testButton.setOnClickListener(v -> {
-            Intent intent=new Intent(this, MainActivity.class);
+            Intent intent=new Intent(this, testinterface.class);
             startActivity(intent);
             Toast.makeText(SignIn.this, "Log in successful.", Toast.LENGTH_SHORT).show();
         });
 
+    }
+    //Hiện thông báo regext
+    private void notification(int stringId) {
+        regexp= new Regexp();
+        Context context = this;
+        Resources resources = context.getResources();
+
+        String myNotification = resources.getString(stringId);
+        Toast.makeText(SignIn.this, myNotification, Toast.LENGTH_SHORT).show();
     }
 }
