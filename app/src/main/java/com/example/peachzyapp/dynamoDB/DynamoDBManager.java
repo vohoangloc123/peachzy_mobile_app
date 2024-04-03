@@ -19,6 +19,7 @@ import com.amazonaws.services.dynamodbv2.model.PutItemRequest;
 import com.amazonaws.services.dynamodbv2.model.PutItemResult;
 import com.amazonaws.services.dynamodbv2.model.ScanRequest;
 import com.amazonaws.services.dynamodbv2.model.ScanResult;
+import com.example.peachzyapp.entities.FriendItem;
 import com.example.peachzyapp.fragments.MainFragments.ProfileFragment;
 
 import java.util.ArrayList;
@@ -276,10 +277,94 @@ public class DynamoDBManager {
             listener.onError(e);
         }
     }
+
+    public void getIDFriend(String id,String status, AlreadyFriendListener listener) {
+        try {
+            if (ddbClient == null) {
+                initializeDynamoDB();
+            }
+
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        // Tạo một yêu cầu truy vấn
+                        HashMap<String, Condition> scanFilter = new HashMap<String, Condition>();
+                        Condition condition = new Condition()
+                                .withComparisonOperator(ComparisonOperator.EQ.toString())
+                                .withAttributeValueList(new AttributeValue().withS(id));
+                        scanFilter.put("_id", condition);
+
+                        ScanRequest scanRequest = new ScanRequest("Users").withScanFilter(scanFilter);
+                        ScanResult scanResult = ddbClient.scan(scanRequest);
+                        for (Map<String, AttributeValue> item : scanResult.getItems()) {
+                            List<AttributeValue> friendsList = item.get("friends").getL();
+                            for (AttributeValue friend : friendsList) {
+                                String status_friend = friend.getM().get("status").getS();
+                                if (status.equals(status_friend)) {
+                                    String friendId = friend.getM().get("_idFriend").getS(); // Lấy giá trị của thuộc tính "_idFriend"
+                                    Log.d("email", friendId);
+                                    findFriendByID(friendId,listener);
+                                }
+                            }
+                        }
+                    } catch (Exception e) {
+
+                    }
+                }
+            }).start(); // Khởi chạy thread
+        } catch (Exception e) {
+            Log.e("", "Error checking DynamoDB connection: " + e.getMessage());
+        }
+    }
+
+
+    public void findFriendByID(String id, AlreadyFriendListener listener) {
+
+        try {
+            if (ddbClient == null) {
+                initializeDynamoDB();
+            }
+            Log.d("id", id);
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        // Tạo một yêu cầu truy vấn
+                        HashMap<String, Condition> scanFilter = new HashMap<String, Condition>();
+                        Condition condition = new Condition()
+                                .withComparisonOperator(ComparisonOperator.EQ.toString())
+                                .withAttributeValueList(new AttributeValue().withS(id));
+                        scanFilter.put("_id", condition);
+
+                        ScanRequest scanRequest = new ScanRequest("Users").withScanFilter(scanFilter);
+                        ScanResult scanResult = ddbClient.scan(scanRequest);
+
+                        // Xử lý kết quả
+                        for (Map<String, AttributeValue> item : scanResult.getItems()) {
+                            String friendResult = item.toString(); // Kết quả tìm thấy
+                            Log.d("findbyid", friendResult);
+                            String name = item.get("name").getS();
+                            String avatar = item.get("avatar").getS();
+                            FriendItem friend = new FriendItem(avatar,name);
+                            listener.onFriendAlreadyFound(friend);
+                        }
+                    } catch (Exception e) {
+
+                    }
+                }
+            }).start(); // Khởi chạy thread
+        } catch (Exception e) {
+
+        }
+    }
     public interface FriendFoundForGetUIDByEmailListener {
         void onFriendFound(String uid, String name, String email);
         void onFriendNotFound();
         void onError(Exception e);
+    }
+    public interface AlreadyFriendListener {
+        void onFriendAlreadyFound(FriendItem data);
     }
 
 }

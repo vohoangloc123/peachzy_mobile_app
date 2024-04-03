@@ -33,8 +33,8 @@ public class Regexp {
     }
 
     public boolean isValidName(String name) {
-
-        String namePattern = "^[a-zA-Z]+$";
+        String namePattern = "^[\\p{L}\\s]+";
+        //String namePattern = "^[a-zA-Z]+$";
 
         // Tạo Pattern object
         Pattern pattern = Pattern.compile(namePattern);

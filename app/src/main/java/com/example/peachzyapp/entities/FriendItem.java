@@ -5,6 +5,10 @@ public class FriendItem {
     private String avatar;
     private String name;
 
+    public FriendItem(String name) {
+        this.name = name;
+    }
+
     public FriendItem(String avatar, String name) {
         this.avatar = avatar;
         this.name = name;
