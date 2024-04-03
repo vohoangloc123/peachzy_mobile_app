@@ -97,6 +97,7 @@ public class SignIn extends AppCompatActivity {
                                 FirebaseUser user = mAuth.getCurrentUser();
 
                                 Intent intent = new Intent(this, MainActivity.class);
+                                intent.putExtra("uid", String.valueOf(user.getUid()));
                                 startActivity(intent);
                                 Toast.makeText(SignIn.this, "Log in successful.", Toast.LENGTH_SHORT).show();
                             } else {
