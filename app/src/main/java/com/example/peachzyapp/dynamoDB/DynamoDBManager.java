@@ -1,6 +1,7 @@
 package com.example.peachzyapp.dynamoDB;
 
 import android.content.Context;
+import android.os.Debug;
 import android.util.Log;
 
 import com.amazonaws.auth.AWSCredentials;
@@ -11,13 +12,18 @@ import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.amazonaws.services.dynamodbv2.model.ComparisonOperator;
 import com.amazonaws.services.dynamodbv2.model.Condition;
+import com.amazonaws.services.dynamodbv2.model.GetItemRequest;
+import com.amazonaws.services.dynamodbv2.model.GetItemResult;
 import com.amazonaws.services.dynamodbv2.model.ListTablesResult;
 import com.amazonaws.services.dynamodbv2.model.PutItemRequest;
 import com.amazonaws.services.dynamodbv2.model.PutItemResult;
 import com.amazonaws.services.dynamodbv2.model.ScanRequest;
 import com.amazonaws.services.dynamodbv2.model.ScanResult;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class DynamoDBManager {
@@ -145,15 +151,16 @@ public class DynamoDBManager {
 
                         // Xử lý kết quả
                         for (Map<String, AttributeValue> item : scanResult.getItems()) {
+                            String id=item.get("_id").getS();
                             String name = item.get("name").getS();
                             String avatar = item.get("avatar").getS();
 
                             // Tạo một chuỗi để hiển thị trong ListView, ví dụ: "Name: [Tên], Avatar: [Avatar]"
-                            String friendResult = "Name: " + name + ", Avatar: " + avatar;
+                            String friendResult = "Id"+ id+ "Name: " + name + ", Avatar: " + avatar;
 
                             // Log dữ liệu
                             Log.d("friendResult", friendResult);
-                            listener.onFriendFound(name, avatar);
+                            listener.onFriendFound(id, name, avatar);
                             return; // Đảm bảo chỉ hiển thị một kết quả nếu tìm thấy
                         }
                         // Gọi callback nếu không tìm thấy bạn bè
@@ -170,10 +177,108 @@ public class DynamoDBManager {
 
     // Định nghĩa interface để truyền kết quả tìm kiếm bạn bè
     public interface FriendFoundListener {
-        void onFriendFound(String friendResult, String avatar);
+        void onFriendFound(String id, String friendResult, String avatar);
         void onFriendNotFound();
         void onError(Exception e);
     }
+    public void addFriend(final String userId, final String friendId, final String status) {
+        try {
+            if (ddbClient == null) {
+                initializeDynamoDB();
+            }
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        // Lấy danh sách bạn bè hiện có từ cơ sở dữ liệu
+                        GetItemRequest getRequest = new GetItemRequest().withTableName("Users").withKey(Collections.singletonMap("_id", new AttributeValue(userId)));
+                        GetItemResult getResult = ddbClient.getItem(getRequest);
+                        Map<String, AttributeValue> item = getResult.getItem();
 
+                        // Tạo một đối tượng danh sách bạn mới
+                        Map<String, AttributeValue> friendItem = new HashMap<>();
+                        friendItem.put("_idFriend", new AttributeValue(friendId)); // ID của người bạn
+                        friendItem.put("status", new AttributeValue(status)); // Trạng thái của mối quan hệ
+
+                        // Kiểm tra xem danh sách "friends" đã được tạo chưa
+                        if (item.containsKey("friends")) {
+                            // Nếu danh sách "friends" đã tồn tại, thêm bạn mới vào danh sách
+                            List<AttributeValue> friendsList = item.get("friends").getL();
+                            friendsList.add(new AttributeValue().withM(friendItem)); // Thêm bạn mới vào danh sách
+                        } else {
+                            // Nếu danh sách "friends" chưa tồn tại, tạo mới danh sách
+                            List<AttributeValue> friendsList = new ArrayList<>();
+                            friendsList.add(new AttributeValue().withM(friendItem)); // Thêm bạn mới vào danh sách
+                            item.put("friends", new AttributeValue().withL(friendsList)); // Thêm danh sách vào item
+                        }
+
+                        // Tạo yêu cầu put item để cập nhật danh sách "friends" của người dùng trong cơ sở dữ liệu
+                        PutItemRequest putItemRequest = new PutItemRequest()
+                                .withTableName("Users")
+                                .withItem(item);
+
+                        // Thực hiện cập nhật danh sách "friends" của người dùng trong cơ sở dữ liệu
+                        ddbClient.putItem(putItemRequest);
+
+                        // Debug
+                        Log.d("AddFriend", "Successfully added friend with ID: " + friendId + " to user with ID: " + userId + " with status: " + status);
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }).start(); // Khởi chạy thread
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    public void getUIDByEmail(String email, FriendFoundForGetUIDByEmailListener listener) {
+        try {
+            if (ddbClient == null) {
+                initializeDynamoDB();
+            }
+            Log.d("email", email);
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        // Tạo một yêu cầu truy vấn
+                        HashMap<String, Condition> scanFilter = new HashMap<String, Condition>();
+                        Condition condition = new Condition()
+                                .withComparisonOperator(ComparisonOperator.EQ)
+                                .withAttributeValueList(new AttributeValue(email));
+                        scanFilter.put("email", condition);
+
+                        ScanRequest scanRequest = new ScanRequest("Users").withScanFilter(scanFilter);
+                        ScanResult scanResult = ddbClient.scan(scanRequest);
+
+                        // Xử lý kết quả
+                        for (Map<String, AttributeValue> item : scanResult.getItems()) {
+                            String id = item.get("_id").getS();
+
+                            // Tạo một chuỗi để hiển thị trong ListView, ví dụ: "Name: [Tên], Avatar: [Avatar]"
+                            String userResult = "Id đã nhận: " + id;
+
+                            // Log dữ liệu
+                            Log.d("userResult", userResult);
+                            listener.onFriendFound(id);
+                            return; // Đảm bảo chỉ hiển thị một kết quả nếu tìm thấy
+                        }
+                        // Gọi callback nếu không tìm thấy bạn bè
+                        listener.onFriendNotFound();
+                    } catch (Exception e) {
+                        listener.onError(e);
+                    }
+                }
+            }).start(); // Khởi chạy thread
+        } catch (Exception e) {
+            listener.onError(e);
+        }
+    }
+    public interface FriendFoundForGetUIDByEmailListener {
+        void onFriendFound(String id);
+        void onFriendNotFound();
+        void onError(Exception e);
+    }
 
 }

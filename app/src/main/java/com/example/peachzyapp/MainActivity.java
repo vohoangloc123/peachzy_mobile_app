@@ -27,7 +27,7 @@ import com.google.android.material.navigation.NavigationBarView;
 public class MainActivity extends AppCompatActivity {
     private ViewPager viewPager;
     private BottomNavigationView bottomNavigationView;
-
+    String uid;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
         //số lượng fragment được load
         viewPager.setOffscreenPageLimit(2);
         bottomNavigationView=findViewById(R.id.bottom_navigation);
-
+        uid = getIntent().getStringExtra("uid");
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -138,7 +138,8 @@ public void goToDetailFragment(ChatBox chatBox) {
     public void goToDetailFragmentAddFriend() {
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         AddFriendFragment addFriendFragment=new AddFriendFragment();
-
+        Bundle bundle = new Bundle();
+        bundle.putString("uid", uid);
         // Thêm ChatHistoryFragment
         fragmentTransaction.add(R.id.etFind, addFriendFragment, addFriendFragment.TAG1);
 
@@ -163,6 +164,7 @@ public void goToDetailFragment(ChatBox chatBox) {
 
         // Ẩn bottomNavigationView
         showBottomNavigation(false);
+        addFriendFragment.setArguments(bundle);
         fragmentTransaction.addToBackStack(addFriendFragment.TAG1);
         fragmentTransaction.commit();
     }

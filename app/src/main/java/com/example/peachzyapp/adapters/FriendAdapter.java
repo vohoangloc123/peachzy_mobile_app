@@ -14,20 +14,26 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.example.peachzyapp.R;
+import com.example.peachzyapp.dynamoDB.DynamoDBManager;
 import com.example.peachzyapp.entities.FriendItem;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
 public class FriendAdapter extends ArrayAdapter<FriendItem> {
-
+    DynamoDBManager dynamoDBManager;
     private Context mContext;
     private int mResource;
+    private String uid; // Biến để lưu trữ uid
     String avatarUrl;
     public FriendAdapter(@NonNull Context context, int resource, @NonNull ArrayList<FriendItem> objects) {
         super(context, resource, objects);
         mContext = context;
         mResource = resource;
+    }
+
+    public void setUid(String uid) {
+        this.uid = uid;
     }
 
     @NonNull
@@ -42,11 +48,12 @@ public class FriendAdapter extends ArrayAdapter<FriendItem> {
         Button addFriendButton = convertView.findViewById(R.id.addFriendButton);
 
         FriendItem friendItem = getItem(position); // Lấy đối tượng FriendItem tương ứng với vị trí
-
+        dynamoDBManager=new DynamoDBManager(getContext());
         if (friendItem != null) {
+            String uid = this.uid; // Get uid from instance variable
             String avatarUrl = friendItem.getAvatar();
             String name = friendItem.getName();
-
+            String friendId=friendItem.getId();
             Picasso.get().load(avatarUrl).placeholder(R.drawable.logo).into(avatarImageView);
             nameTextView.setText(name);
 
@@ -54,8 +61,7 @@ public class FriendAdapter extends ArrayAdapter<FriendItem> {
             addFriendButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    // Xử lý thêm bạn ở đây
-                    // Ví dụ: hiển thị thông báo Toast
+                    dynamoDBManager.addFriend(uid, friendId, "1");
                     Toast.makeText(mContext, "Add friend button clicked for " + name, Toast.LENGTH_SHORT).show();
                 }
             });
