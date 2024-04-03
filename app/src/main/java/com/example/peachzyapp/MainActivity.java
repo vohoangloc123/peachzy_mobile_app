@@ -25,6 +25,8 @@ import com.example.peachzyapp.fragments.MainFragments.AddFriendFragment;
 import com.example.peachzyapp.fragments.MainFragments.ChatHistoryFragment;
 import com.example.peachzyapp.fragments.MainFragments.ChatListsFragment;
 import com.example.peachzyapp.fragments.MainFragments.ProfileFragment;
+import com.example.peachzyapp.fragments.MainFragments.RequestReceivedFragment;
+import com.example.peachzyapp.fragments.MainFragments.RequestSendFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 
@@ -180,6 +182,74 @@ public void goToDetailFragment(ChatBox chatBox) {
         showBottomNavigation(false);
         addFriendFragment.setArguments(bundle);
         fragmentTransaction.addToBackStack(addFriendFragment.TAG1);
+        fragmentTransaction.commit();
+    }
+    public void goToRequestReceivedFragment() {
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+        RequestReceivedFragment requestReceivedFragment= new RequestReceivedFragment();
+        Bundle bundle = new Bundle();
+        bundle.putString("uid", uid);
+        // Thêm ChatHistoryFragment
+        fragmentTransaction.add(R.id.etFind, requestReceivedFragment, requestReceivedFragment.TAG2);
+
+        // Tìm và ẩn tất cả các Fragment khác
+        Fragment chatListsFragment = (Fragment) viewPager.getAdapter().instantiateItem(viewPager, 0);
+        Fragment notificationFragment = (Fragment) viewPager.getAdapter().instantiateItem(viewPager, 1);
+        Fragment usersFragment = (Fragment) viewPager.getAdapter().instantiateItem(viewPager, 2);
+        Fragment settingsFragment = (Fragment) viewPager.getAdapter().instantiateItem(viewPager, 3);
+
+        if (chatListsFragment != null) {
+            fragmentTransaction.hide(chatListsFragment);
+        }
+        if (notificationFragment != null) {
+            fragmentTransaction.hide(notificationFragment);
+        }
+        if (usersFragment != null) {
+            fragmentTransaction.hide(usersFragment);
+        }
+        if (settingsFragment != null) {
+            fragmentTransaction.hide(settingsFragment);
+        }
+
+        // Ẩn bottomNavigationView
+        showBottomNavigation(false);
+        requestReceivedFragment.setArguments(bundle);
+        fragmentTransaction.addToBackStack(requestReceivedFragment.TAG2);
+        fragmentTransaction.commit();
+    }
+
+    public void goToRequestSentFragment() {
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+
+        RequestSendFragment requestSendFragment = new RequestSendFragment();
+        Bundle bundle = new Bundle();
+        bundle.putString("uid", uid);
+        // Thêm ChatHistoryFragment
+        fragmentTransaction.add(R.id.etFind, requestSendFragment, requestSendFragment.TAG);
+
+        // Tìm và ẩn tất cả các Fragment khác
+        Fragment chatListsFragment = (Fragment) viewPager.getAdapter().instantiateItem(viewPager, 0);
+        Fragment notificationFragment = (Fragment) viewPager.getAdapter().instantiateItem(viewPager, 1);
+        Fragment usersFragment = (Fragment) viewPager.getAdapter().instantiateItem(viewPager, 2);
+        Fragment settingsFragment = (Fragment) viewPager.getAdapter().instantiateItem(viewPager, 3);
+
+        if (chatListsFragment != null) {
+            fragmentTransaction.hide(chatListsFragment);
+        }
+        if (notificationFragment != null) {
+            fragmentTransaction.hide(notificationFragment);
+        }
+        if (usersFragment != null) {
+            fragmentTransaction.hide(usersFragment);
+        }
+        if (settingsFragment != null) {
+            fragmentTransaction.hide(settingsFragment);
+        }
+
+        // Ẩn bottomNavigationView
+        showBottomNavigation(false);
+        requestSendFragment.setArguments(bundle);
+        fragmentTransaction.addToBackStack(requestSendFragment.TAG);
         fragmentTransaction.commit();
     }
     public void showBottomNavigation(boolean show) {
