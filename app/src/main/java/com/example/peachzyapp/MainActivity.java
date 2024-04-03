@@ -1,6 +1,8 @@
 package com.example.peachzyapp;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
@@ -18,9 +20,11 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.example.peachzyapp.adapters.ViewPagerAdapter;
 import com.example.peachzyapp.entities.ChatBox;
+import com.example.peachzyapp.entities.Profile;
 import com.example.peachzyapp.fragments.MainFragments.AddFriendFragment;
 import com.example.peachzyapp.fragments.MainFragments.ChatHistoryFragment;
 import com.example.peachzyapp.fragments.MainFragments.ChatListsFragment;
+import com.example.peachzyapp.fragments.MainFragments.ProfileFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 
@@ -45,6 +49,15 @@ public class MainActivity extends AppCompatActivity {
         viewPager.setOffscreenPageLimit(2);
         bottomNavigationView=findViewById(R.id.bottom_navigation);
         uid = getIntent().getStringExtra("uid");
+        if (uid != null) {
+            Log.d("checkIntent", uid);
+            SharedPreferences preferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
+            SharedPreferences.Editor editor = preferences.edit();
+            editor.putString("uid", uid);
+            editor.apply();
+        } else {
+            Log.e("checkIntent", "UID is null");
+        }
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -65,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
                             bottomNavigationView.getMenu().findItem(R.id.navigation_users).setChecked(true);
                             break;
                         case 3:
-                            bottomNavigationView.getMenu().findItem(R.id.navigation_settings).setChecked(true);
+                            bottomNavigationView.getMenu().findItem(R.id.navigation_profile).setChecked(true);
 
                             break;
                     }
@@ -93,7 +106,7 @@ public class MainActivity extends AppCompatActivity {
                 } else if (itemId == R.id.navigation_users) {
                     Toast.makeText(MainActivity.this, "Chuyển tab 3", Toast.LENGTH_SHORT).show();
                     viewPager.setCurrentItem(2);
-                } else if (itemId == R.id.navigation_settings) {
+                } else if (itemId == R.id.navigation_profile) {
                     Toast.makeText(MainActivity.this, "Chuyển tab 4", Toast.LENGTH_SHORT).show();
                     viewPager.setCurrentItem(3);
                 }
@@ -115,7 +128,7 @@ public void goToDetailFragment(ChatBox chatBox) {
     Fragment chatListsFragment = (Fragment) viewPager.getAdapter().instantiateItem(viewPager, 0);
     Fragment notificationFragment = (Fragment) viewPager.getAdapter().instantiateItem(viewPager, 1);
     Fragment usersFragment = (Fragment) viewPager.getAdapter().instantiateItem(viewPager, 2);
-    Fragment settingsFragment = (Fragment) viewPager.getAdapter().instantiateItem(viewPager, 3);
+    Fragment profileFragment = (Fragment) viewPager.getAdapter().instantiateItem(viewPager, 3);
 
     if (chatListsFragment != null) {
         fragmentTransaction.hide(chatListsFragment);
@@ -126,8 +139,8 @@ public void goToDetailFragment(ChatBox chatBox) {
     if (usersFragment != null) {
         fragmentTransaction.hide(usersFragment);
     }
-    if (settingsFragment != null) {
-        fragmentTransaction.hide(settingsFragment);
+    if (profileFragment != null) {
+        fragmentTransaction.hide(profileFragment);
     }
 
     // Ẩn bottomNavigationView
@@ -140,6 +153,7 @@ public void goToDetailFragment(ChatBox chatBox) {
         AddFriendFragment addFriendFragment=new AddFriendFragment();
         Bundle bundle = new Bundle();
         bundle.putString("uid", uid);
+
         // Thêm ChatHistoryFragment
         fragmentTransaction.add(R.id.etFind, addFriendFragment, addFriendFragment.TAG1);
 
@@ -147,7 +161,7 @@ public void goToDetailFragment(ChatBox chatBox) {
         Fragment chatListsFragment = (Fragment) viewPager.getAdapter().instantiateItem(viewPager, 0);
         Fragment notificationFragment = (Fragment) viewPager.getAdapter().instantiateItem(viewPager, 1);
         Fragment usersFragment = (Fragment) viewPager.getAdapter().instantiateItem(viewPager, 2);
-        Fragment settingsFragment = (Fragment) viewPager.getAdapter().instantiateItem(viewPager, 3);
+        Fragment profileFragment = (Fragment) viewPager.getAdapter().instantiateItem(viewPager, 3);
 
         if (chatListsFragment != null) {
             fragmentTransaction.hide(chatListsFragment);
@@ -158,8 +172,8 @@ public void goToDetailFragment(ChatBox chatBox) {
         if (usersFragment != null) {
             fragmentTransaction.hide(usersFragment);
         }
-        if (settingsFragment != null) {
-            fragmentTransaction.hide(settingsFragment);
+        if (profileFragment != null) {
+            fragmentTransaction.hide(profileFragment);
         }
 
         // Ẩn bottomNavigationView
