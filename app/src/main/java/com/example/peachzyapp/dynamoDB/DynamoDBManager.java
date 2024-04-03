@@ -19,6 +19,7 @@ import com.amazonaws.services.dynamodbv2.model.PutItemRequest;
 import com.amazonaws.services.dynamodbv2.model.PutItemResult;
 import com.amazonaws.services.dynamodbv2.model.ScanRequest;
 import com.amazonaws.services.dynamodbv2.model.ScanResult;
+import com.example.peachzyapp.fragments.MainFragments.ProfileFragment;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -232,12 +233,12 @@ public class DynamoDBManager {
             e.printStackTrace();
         }
     }
-    public void getUIDByEmail(String email, FriendFoundForGetUIDByEmailListener listener) {
+    public void getProfileByUID(String uid, FriendFoundForGetUIDByEmailListener listener) {
         try {
             if (ddbClient == null) {
                 initializeDynamoDB();
             }
-            Log.d("email", email);
+            Log.d("getProfileByUID",uid);
             new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -246,22 +247,22 @@ public class DynamoDBManager {
                         HashMap<String, Condition> scanFilter = new HashMap<String, Condition>();
                         Condition condition = new Condition()
                                 .withComparisonOperator(ComparisonOperator.EQ)
-                                .withAttributeValueList(new AttributeValue(email));
-                        scanFilter.put("email", condition);
+                                .withAttributeValueList(new AttributeValue().withS(uid));
+                        scanFilter.put("_id", condition);
 
                         ScanRequest scanRequest = new ScanRequest("Users").withScanFilter(scanFilter);
                         ScanResult scanResult = ddbClient.scan(scanRequest);
-
+                        Log.d("getProfileByUID1",uid);
                         // Xử lý kết quả
                         for (Map<String, AttributeValue> item : scanResult.getItems()) {
-                            String id = item.get("_id").getS();
-
+                            String name=item.get("name").getS();
+                            String email = item.get("email").getS();
                             // Tạo một chuỗi để hiển thị trong ListView, ví dụ: "Name: [Tên], Avatar: [Avatar]"
-                            String userResult = "Id đã nhận: " + id;
+                            String userResult = "name đã nhận: " + name+ "email đã nhận: "+ email;
 
                             // Log dữ liệu
                             Log.d("userResult", userResult);
-                            listener.onFriendFound(id);
+                            listener.onFriendFound(uid, name, email);
                             return; // Đảm bảo chỉ hiển thị một kết quả nếu tìm thấy
                         }
                         // Gọi callback nếu không tìm thấy bạn bè
@@ -276,7 +277,7 @@ public class DynamoDBManager {
         }
     }
     public interface FriendFoundForGetUIDByEmailListener {
-        void onFriendFound(String id);
+        void onFriendFound(String uid, String name, String email);
         void onFriendNotFound();
         void onError(Exception e);
     }
