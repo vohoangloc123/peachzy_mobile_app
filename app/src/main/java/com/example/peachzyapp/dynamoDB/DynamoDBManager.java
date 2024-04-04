@@ -387,5 +387,63 @@ public class DynamoDBManager {
         void onFriendAlreadyFound(FriendItem data);
         void onFriendAcceptRequestFound(String id, String name, String avatar);
     }
+    public void updateUser(String userId, String name, String dateOfBirth, String avatarUrl, Boolean sex, UpdateUserListener listener) {
+        try {
+            if (ddbClient == null) {
+                initializeDynamoDB();
+            }
 
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        // Tạo một yêu cầu truy vấn để lấy thông tin người dùng cần cập nhật
+                        HashMap<String, Condition> scanFilter = new HashMap<String, Condition>();
+                        Condition condition = new Condition()
+                                .withComparisonOperator(ComparisonOperator.EQ.toString())
+                                .withAttributeValueList(new AttributeValue().withS(userId));
+                        scanFilter.put("_id", condition);
+
+                        ScanRequest scanRequest = new ScanRequest("Users").withScanFilter(scanFilter);
+                        ScanResult scanResult = ddbClient.scan(scanRequest);
+
+                        // Xử lý kết quả
+                        for (Map<String, AttributeValue> item : scanResult.getItems()) {
+                            // Cập nhật thông tin người dùng
+                            item.put("name", new AttributeValue().withS(name));
+                            item.put("dateOfBirth", new AttributeValue().withS(dateOfBirth));
+                            item.put("avatar", new AttributeValue().withS(avatarUrl));
+                            item.put("sex", new AttributeValue().withBOOL(sex));
+                            // Tạo yêu cầu put item để cập nhật thông tin người dùng trong cơ sở dữ liệu
+                            PutItemRequest putItemRequest = new PutItemRequest()
+                                    .withTableName("Users")
+                                    .withItem(item);
+
+                            // Thực hiện cập nhật thông tin người dùng trong cơ sở dữ liệu
+                            ddbClient.putItem(putItemRequest);
+
+                            // Gọi callback để thông báo cập nhật thành công
+                            listener.onUpdateSuccess();
+                            return;
+                        }
+
+                        // Gọi callback nếu không tìm thấy người dùng cần cập nhật
+                        listener.onUserNotFound();
+                    } catch (Exception e) {
+                        // Gọi callback nếu xảy ra lỗi
+                        listener.onError(e);
+                    }
+                }
+            }).start(); // Khởi chạy thread
+        } catch (Exception e) {
+            // Gọi callback nếu xảy ra lỗi
+            listener.onError(e);
+        }
+    }
+
+    public interface UpdateUserListener {
+        void onUpdateSuccess();
+        void onUserNotFound();
+        void onError(Exception e);
+    }
 }
