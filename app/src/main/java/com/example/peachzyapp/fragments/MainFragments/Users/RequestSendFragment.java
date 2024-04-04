@@ -58,6 +58,11 @@ public class RequestSendFragment extends Fragment {
                     }
                 });
             }
+
+            @Override
+            public void onFriendAcceptRequestFound(String id, String name, String avatar) {
+
+            }
         });
 
 
