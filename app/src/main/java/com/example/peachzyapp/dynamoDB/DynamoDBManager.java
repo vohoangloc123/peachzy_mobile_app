@@ -197,20 +197,34 @@ public class DynamoDBManager {
                         GetItemResult getResult = ddbClient.getItem(getRequest);
                         Map<String, AttributeValue> item = getResult.getItem();
 
-                        // Tạo một đối tượng danh sách bạn mới
-                        Map<String, AttributeValue> friendItem = new HashMap<>();
-                        friendItem.put("_idFriend", new AttributeValue(friendId)); // ID của người bạn
-                        friendItem.put("status", new AttributeValue(status)); // Trạng thái của mối quan hệ
-
                         // Kiểm tra xem danh sách "friends" đã được tạo chưa
                         if (item.containsKey("friends")) {
-                            // Nếu danh sách "friends" đã tồn tại, thêm bạn mới vào danh sách
                             List<AttributeValue> friendsList = item.get("friends").getL();
-                            friendsList.add(new AttributeValue().withM(friendItem)); // Thêm bạn mới vào danh sách
+                            boolean found = false;
+                            // Duyệt qua danh sách bạn bè để kiểm tra xem bạn bè đã tồn tại chưa
+                            for (AttributeValue friend : friendsList) {
+                                String friendIdExisting = friend.getM().get("_idFriend").getS();
+                                if (friendIdExisting.equals(friendId)) {
+                                    // Nếu bạn bè đã tồn tại, cập nhật trạng thái của họ
+                                    friend.getM().put("status", new AttributeValue(status));
+                                    found = true;
+                                    break;
+                                }
+                            }
+                            if (!found) {
+                                // Nếu bạn bè không tồn tại, thêm mới vào danh sách
+                                Map<String, AttributeValue> friendItem = new HashMap<>();
+                                friendItem.put("_idFriend", new AttributeValue(friendId)); // ID của người bạn
+                                friendItem.put("status", new AttributeValue(status)); // Trạng thái của mối quan hệ
+                                friendsList.add(new AttributeValue().withM(friendItem));
+                            }
                         } else {
-                            // Nếu danh sách "friends" chưa tồn tại, tạo mới danh sách
+                            // Nếu danh sách "friends" chưa tồn tại, tạo mới danh sách và thêm bạn bè vào
                             List<AttributeValue> friendsList = new ArrayList<>();
-                            friendsList.add(new AttributeValue().withM(friendItem)); // Thêm bạn mới vào danh sách
+                            Map<String, AttributeValue> friendItem = new HashMap<>();
+                            friendItem.put("_idFriend", new AttributeValue(friendId)); // ID của người bạn
+                            friendItem.put("status", new AttributeValue(status)); // Trạng thái của mối quan hệ
+                            friendsList.add(new AttributeValue().withM(friendItem));
                             item.put("friends", new AttributeValue().withL(friendsList)); // Thêm danh sách vào item
                         }
 
@@ -234,6 +248,7 @@ public class DynamoDBManager {
             e.printStackTrace();
         }
     }
+
     public void getProfileByUID(String uid, FriendFoundForGetUIDByEmailListener listener) {
         try {
             if (ddbClient == null) {
@@ -306,7 +321,7 @@ public class DynamoDBManager {
                                 String status_friend = friend.getM().get("status").getS();
                                 if (status.equals(status_friend)) {
                                     String friendId = friend.getM().get("_idFriend").getS(); // Lấy giá trị của thuộc tính "_idFriend"
-                                    Log.d("email", friendId);
+                                    Log.d("friendID", friendId);
                                     findFriendByID(friendId,listener);
                                 }
                             }
@@ -320,7 +335,6 @@ public class DynamoDBManager {
             Log.e("", "Error checking DynamoDB connection: " + e.getMessage());
         }
     }
-
 
     public void findFriendByID(String id, AlreadyFriendListener listener) {
 
@@ -347,10 +361,12 @@ public class DynamoDBManager {
                         for (Map<String, AttributeValue> item : scanResult.getItems()) {
                             String friendResult = item.toString(); // Kết quả tìm thấy
                             Log.d("findbyid", friendResult);
+                            String id=item.get("_id").getS();
                             String name = item.get("name").getS();
                             String avatar = item.get("avatar").getS();
                             FriendItem friend = new FriendItem(avatar,name);
                             listener.onFriendAlreadyFound(friend);
+                            listener.onFriendAcceptRequestFound(id, name, avatar);
                         }
                     } catch (Exception e) {
 
@@ -366,8 +382,10 @@ public class DynamoDBManager {
         void onFriendNotFound();
         void onError(Exception e);
     }
+
     public interface AlreadyFriendListener {
         void onFriendAlreadyFound(FriendItem data);
+        void onFriendAcceptRequestFound(String id, String name, String avatar);
     }
 
 }

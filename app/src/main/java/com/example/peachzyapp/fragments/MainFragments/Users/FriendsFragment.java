@@ -36,6 +36,7 @@ public class FriendsFragment extends Fragment {
     private FriendAlreadyAdapter friendAdapter;
 
     private ArrayList<FriendItem> friendList;
+    FriendItem friendItem;
     private View view;
     String uid;
     @Override
@@ -54,17 +55,26 @@ public class FriendsFragment extends Fragment {
         } else {
             Log.e("FriendcheckUID", "UID is null");
         }
-
+        Bundle bundle = new Bundle();
+        bundle.putString("uid", uid);
+        AddFriendFragment fragment = new AddFriendFragment();
+        fragment.setArguments(bundle);
         dynamoDBManager = new DynamoDBManager(getActivity());
 
         dynamoDBManager.getIDFriend(uid,"1", new DynamoDBManager.AlreadyFriendListener() {
             @Override
             public void onFriendAlreadyFound(FriendItem data) {
+
+            }
+
+            @Override
+            public void onFriendAcceptRequestFound(String id, String name, String avatar) {
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        Log.d("onDATA", "run: "+data.getName());
-                        friendList.add(data);
+                        friendItem = new FriendItem(id, avatar, name);
+                        friendList.clear();
+                        friendList.add(friendItem);
                         friendAdapter.notifyDataSetChanged();
                     }
                 });
@@ -97,6 +107,5 @@ public class FriendsFragment extends Fragment {
         rcvFriendList.addItemDecoration(itemDecoration);
         return view;
     }
-
 
 }

@@ -16,6 +16,7 @@ import androidx.annotation.Nullable;
 import com.example.peachzyapp.R;
 import com.example.peachzyapp.dynamoDB.DynamoDBManager;
 import com.example.peachzyapp.entities.FriendItem;
+import com.example.peachzyapp.fragments.MainFragments.Users.FriendsFragment;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -46,7 +47,6 @@ public class FriendAdapter extends ArrayAdapter<FriendItem> {
         ImageView avatarImageView = convertView.findViewById(R.id.avatarImageView);
         TextView nameTextView = convertView.findViewById(R.id.nameTextView);
         Button addFriendButton = convertView.findViewById(R.id.addFriendButton);
-
         FriendItem friendItem = getItem(position); // Lấy đối tượng FriendItem tương ứng với vị trí
         dynamoDBManager=new DynamoDBManager(getContext());
         if (friendItem != null) {
@@ -61,12 +61,22 @@ public class FriendAdapter extends ArrayAdapter<FriendItem> {
             addFriendButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    dynamoDBManager.addFriend(uid, friendId, "1");
+                    dynamoDBManager.addFriend(uid, friendId, "2");
+                    dynamoDBManager.addFriend(friendId, uid, "3");
                     Toast.makeText(mContext, "Add friend button clicked for " + name, Toast.LENGTH_SHORT).show();
                 }
             });
+
+
         }
 
         return convertView;
 
-}}
+        }
+        public void updateFriendList(ArrayList<FriendItem> newFriendList) {
+            clear(); // Xóa danh sách bạn bè hiện tại
+            addAll(newFriendList); // Thêm tất cả các bạn bè mới vào danh sách
+            notifyDataSetChanged(); // Thông báo cho RecyclerView về sự thay đổi
+        }
+}
+

@@ -30,7 +30,7 @@ public class RequestReceivedFragment extends Fragment {
     private RequestReceivedAdapter requestReceivedAdapter;
     private View view;
     private MainActivity mainActivity;
-
+    FriendItem friendItem;
 
     private ArrayList<FriendItem> friendList;
 
@@ -40,35 +40,41 @@ public class RequestReceivedFragment extends Fragment {
         // Inflate the layout for this fragment
         friendList = new ArrayList<>();
         dynamoDBManager = new DynamoDBManager(getActivity());
-         view = inflater.inflate(R.layout.activity_request_received_fragments, container, false);
-        Bundle bundleReceive=getArguments();
+        view = inflater.inflate(R.layout.activity_request_received_fragments, container, false);
+        Bundle bundleReceive = getArguments();
         uid = bundleReceive.getString("uid");
-        Log.d("RequestUID", "onCreateView: "+uid);
-
-        mainActivity= (MainActivity) getActivity();
+        Log.d("RequestUID", "onCreateView: " + uid);
+        requestReceivedAdapter = new RequestReceivedAdapter(friendList);
+        requestReceivedAdapter.setUid(uid);
+        mainActivity = (MainActivity) getActivity();
         rcvRequestReceived = view.findViewById(R.id.rcvRequestReceived);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(mainActivity);
         rcvRequestReceived.setLayoutManager(linearLayoutManager);
 
-        dynamoDBManager.getIDFriend(uid,"3", new DynamoDBManager.AlreadyFriendListener() {
+        RecyclerView.ItemDecoration itemDecoration = new DividerItemDecoration(mainActivity, DividerItemDecoration.VERTICAL);
+        rcvRequestReceived.addItemDecoration(itemDecoration);
+
+        dynamoDBManager.getIDFriend(uid, "3", new DynamoDBManager.AlreadyFriendListener() {
             @Override
             public void onFriendAlreadyFound(FriendItem data) {
+
+            }
+
+            @Override
+            public void onFriendAcceptRequestFound(String id, String name, String avatar) {
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        Log.d("onDATAREquest", "run: "+data.getName());
-                        friendList.add(data);
+                        friendItem = new FriendItem(id, avatar, name);
+                        friendList.clear();
+                        friendList.add(friendItem);
                         requestReceivedAdapter.notifyDataSetChanged();
                     }
                 });
             }
         });
 
-
-        requestReceivedAdapter= new RequestReceivedAdapter(friendList);
         rcvRequestReceived.setAdapter(requestReceivedAdapter);
-        RecyclerView.ItemDecoration itemDecoration=new DividerItemDecoration(mainActivity, DividerItemDecoration.VERTICAL);
-        rcvRequestReceived.addItemDecoration(itemDecoration);
 
         return view;
     }
