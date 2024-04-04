@@ -38,6 +38,10 @@ import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+import java.util.Random;
 
 public class ProfileFragment extends Fragment {
     private static final int PICK_IMAGE_REQUEST = 1;
@@ -52,8 +56,12 @@ public class ProfileFragment extends Fragment {
     ImageView ivAvatar;
     MainActivity mainActivity;
     Button btnChangeAvatar;
+    RadioButton rMale;
+    RadioButton rFemale;
     TransferUtility s3TransferUtility;
     private AmazonS3 s3Client;
+    PutObjectRequest request;
+    String urlAvatar;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -68,6 +76,8 @@ public class ProfileFragment extends Fragment {
         btnChangeAvatar=view.findViewById(R.id.btnChangeAvatar);
         dynamoDBManager = new DynamoDBManager(getActivity());
         mainActivity= (MainActivity) getActivity();
+        rMale=view.findViewById(R.id.rMale);
+        rFemale=view.findViewById(R.id.rFemale);
         SharedPreferences preferences = getActivity().getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
         uid = preferences.getString("uid", null);
         if (uid != null) {
@@ -81,22 +91,6 @@ public class ProfileFragment extends Fragment {
         // Tạo Amazon S3 client
         s3Client = new AmazonS3Client(credentials);
         s3Client.setRegion(Region.getRegion(Regions.AP_SOUTHEAST_1));
-
-        // Khởi tạo AWSCredentials
-//        AWSCredentials credentials = new BasicAWSCredentials("AKIAZI2LEH5QNBAXEUHP", "krI7P46llTA2kLj+AZQGSr9lEviTlS4bwQzBXSSi");
-
-        // Khởi tạo AmazonS3Client
-//        AmazonS3 s3Client = AmazonS3ClientBuilder.standard()
-//                .withCredentials(new AWSStaticCredentialsProvider(credentials))
-//                .withRegion(Regions.DEFAULT_REGION) // Thay DEFAULT_REGION bằng region của bạn
-//                .build();
-//
-//        // Khởi tạo TransferUtility
-//        s3TransferUtility = TransferUtility.builder()
-//                .context(getActivity())
-//                .s3Client(s3Client)
-//                .build();
-
         btnChangeAvatar.setOnClickListener(v->{
             Intent intent = new Intent();
             intent.setType("image/*");
@@ -106,6 +100,41 @@ public class ProfileFragment extends Fragment {
         );
         btnChangePassword.setOnClickListener(v->{
             mainActivity.goToRequestChangePasswordFragment();
+        });
+        btnSave.setOnClickListener(v -> {
+            String name = etName.getText().toString().trim();
+            String dateOfBirth = etDateOfBirth.getText().toString().trim();
+
+            Boolean sex;
+            if (rMale.isChecked()) {
+                sex = true; // Nam
+            } else if (rFemale.isChecked()) {
+                sex = false; // Nữ
+            } else {
+                Toast.makeText(getActivity(), "Please select gender", Toast.LENGTH_SHORT).show();
+                return; // Thoát khỏi phương thức khi không có giới tính nào được chọn
+            }
+            // Gọi phương thức updateUser từ DynamoDBManager
+            dynamoDBManager.updateUser(uid, name, dateOfBirth, urlAvatar,sex, new DynamoDBManager.UpdateUserListener() {
+                @Override
+                public void onUpdateSuccess() {
+                    // Xử lý khi cập nhật thành công
+                    Toast.makeText(getActivity(), "User updated successfully", Toast.LENGTH_SHORT).show();
+                }
+
+                @Override
+                public void onUserNotFound() {
+                    // Xử lý khi không tìm thấy người dùng
+                    Toast.makeText(getActivity(), "User not found", Toast.LENGTH_SHORT).show();
+                }
+
+                @Override
+                public void onError(Exception e) {
+                    // Xử lý khi có lỗi xảy ra
+//                    Toast.makeText(getActivity(), "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    e.printStackTrace();
+                }
+            });
         });
         dynamoDBManager.getProfileByUID(uid, new DynamoDBManager.FriendFoundForGetUIDByEmailListener() {
             @Override
@@ -172,22 +201,18 @@ public class ProfileFragment extends Fragment {
                 ivAvatar.setImageBitmap(bitmap);
 
                 // Upload ảnh lên S3
-//                uploadImageToS3(bitmap);
-
-//                InputStream inputStream = getActivity().getContentResolver().openInputStream(uri);
-//                PutObjectRequest request = new PutObjectRequest("chat-app-image-cnm", "test.jpg", inputStream, new ObjectMetadata());
-//                s3Client.putObject(request);
 
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
                         try {
                             // Mở InputStream từ Uri
+                            String fileName=generateFileName();
                             InputStream inputStream = getActivity().getContentResolver().openInputStream(uri);
 
                             // Tạo đối tượng PutObjectRequest và đặt tên bucket và key
-                            PutObjectRequest request = new PutObjectRequest("chat-app-image-cnm", "test.jpg", inputStream, new ObjectMetadata());
-
+                            request = new PutObjectRequest("chat-app-image-cnm", fileName+".jpg", inputStream, new ObjectMetadata());
+                            urlAvatar="https://chat-app-image-cnm.s3.ap-southeast-1.amazonaws.com/"+fileName+".jpg";
                             // Upload ảnh lên S3
                             s3Client.putObject(request);
 
@@ -204,58 +229,15 @@ public class ProfileFragment extends Fragment {
             }
         }
     }
-//    private void uploadImageToS3(Bitmap bitmap) {
-//        // Khởi tạo một AmazonS3Client
-//        AmazonS3Client s3 = new AmazonS3Client(/* khai báo các thông tin xác thực của bạn ở đây */);
-//
-//        // Tạo tên file mới kết hợp giữa ngày giờ hiện tại và dãy số random
-//        String fileName = generateFileName();
-//
-//        // Tạo một yêu cầu PutObjectRequest
-//        PutObjectRequest putObjectRequest = new PutObjectRequest(BUCKET_NAME, fileName, bitmapToInputStream(bitmap), null)
-//                .withCannedAcl(CannedAccessControlList.PublicRead);
-//
-//        // Gửi yêu cầu lên AWS S3
-//        TransferObserver transferObserver = s3TransferUtility.upload(BUCKET_NAME, fileName, bitmapToInputStream(bitmap), null);
-//        // Đăng ký một TransferListener để theo dõi tiến trình tải lên
-//        transferObserver.setTransferListener(new TransferListener() {
-//            @Override
-//            public void onStateChanged(int id, TransferState state) {
-//                if (state == TransferState.COMPLETED) {
-//                    // Upload thành công
-//                    Toast.makeText(getActivity(), "Upload completed", Toast.LENGTH_SHORT).show();
-//                } else if (state == TransferState.FAILED) {
-//                    // Upload thất bại
-//                    Toast.makeText(getActivity(), "Upload failed", Toast.LENGTH_SHORT).show();
-//                }
-//            }
-//
-//            @Override
-//            public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) {
-//                // Cập nhật tiến trình nếu cần
-//            }
-//
-//            @Override
-//            public void onError(int id, Exception ex) {
-//                // Xử lý lỗi nếu có
-//                Log.e("ProfileFragment", "Error uploading image to S3: " + ex.getMessage());
-//            }
-//        });
-//    }
-//
-//    private String generateFileName() {
-//        // Lấy ngày giờ hiện tại
-//        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
-//
-//        // Tạo dãy số random
-//        int randomNumber = new Random().nextInt(10000);
-//
-//        // Kết hợp ngày giờ và dãy số random để tạo tên file
-//        return "avatar_" + timeStamp + "_" + randomNumber + ".jpg";
-//    }
-//    private ByteArrayInputStream bitmapToInputStream(Bitmap bitmap) {
-//        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-//        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
-//        return new ByteArrayInputStream(outputStream.toByteArray());
-//    }
+    private String generateFileName() {
+        // Lấy ngày giờ hiện tại
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
+
+        // Tạo dãy số random
+        int randomNumber = new Random().nextInt(10000);
+
+        // Kết hợp ngày giờ và dãy số random để tạo tên file
+        return "avatar_" + timeStamp + "_" + randomNumber + ".jpg";
+    }
+
 }

@@ -38,6 +38,9 @@ dependencies {
 //    implementation("com.google.guava:guava:20.0") {
 //        exclude(group = "com.google.guava", module = "listenablefuture")
 //    }
+//        implementation("com.amazonaws:aws-android-sdk-core:2.75.0") {
+//        exclude(module = "aws-java-sdk-core")
+//    }
     implementation("com.google.guava:guava:30.1-jre")
     //Firebase Core SDK cung cấp các công cụ cần thiết để khởi tạo và
     // quản lý kết nối giữa ứng dụng của bạn và các dịch vụ Firebase khác.
@@ -55,6 +58,10 @@ dependencies {
     implementation("com.amazonaws:aws-android-sdk-s3:2.75.0")
     //load ảnh
     implementation("com.squareup.picasso:picasso:2.71828")
+    //s3
+    implementation("com.amazonaws:aws-android-sdk-s3:2.75.0")
+    //aws-sdk
+//    implementation("aws-android-sdk-core:2.75.0")
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.activity)
