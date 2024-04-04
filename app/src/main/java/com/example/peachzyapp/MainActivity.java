@@ -20,6 +20,7 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.example.peachzyapp.adapters.ViewPagerAdapter;
 import com.example.peachzyapp.entities.ChatBox;
+import com.example.peachzyapp.fragments.MainFragments.Profiles.ChangePasswordFragment;
 import com.example.peachzyapp.fragments.MainFragments.Users.AddFriendFragment;
 import com.example.peachzyapp.fragments.MainFragments.Chats.ChatHistoryFragment;
 import com.example.peachzyapp.fragments.MainFragments.Chats.ChatListsFragment;
@@ -248,6 +249,39 @@ public void goToDetailFragment(ChatBox chatBox) {
         showBottomNavigation(false);
         requestSendFragment.setArguments(bundle);
         fragmentTransaction.addToBackStack(requestSendFragment.TAG);
+        fragmentTransaction.commit();
+    }
+    public void goToRequestChangePasswordFragment() {
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+        ChangePasswordFragment changePasswordFragment=new ChangePasswordFragment();
+        Bundle bundle = new Bundle();
+        bundle.putString("uid", uid);
+        // Thêm ChatHistoryFragment
+        fragmentTransaction.add(R.id.etFind, changePasswordFragment, changePasswordFragment.TAG);
+
+        // Tìm và ẩn tất cả các Fragment khác
+        Fragment chatListsFragment = (Fragment) viewPager.getAdapter().instantiateItem(viewPager, 0);
+        Fragment notificationFragment = (Fragment) viewPager.getAdapter().instantiateItem(viewPager, 1);
+        Fragment usersFragment = (Fragment) viewPager.getAdapter().instantiateItem(viewPager, 2);
+        Fragment settingsFragment = (Fragment) viewPager.getAdapter().instantiateItem(viewPager, 3);
+
+        if (chatListsFragment != null) {
+            fragmentTransaction.hide(chatListsFragment);
+        }
+        if (notificationFragment != null) {
+            fragmentTransaction.hide(notificationFragment);
+        }
+        if (usersFragment != null) {
+            fragmentTransaction.hide(usersFragment);
+        }
+        if (settingsFragment != null) {
+            fragmentTransaction.hide(settingsFragment);
+        }
+
+        // Ẩn bottomNavigationView
+        showBottomNavigation(false);
+        changePasswordFragment.setArguments(bundle);
+        fragmentTransaction.addToBackStack(changePasswordFragment.TAG);
         fragmentTransaction.commit();
     }
     public void showBottomNavigation(boolean show) {

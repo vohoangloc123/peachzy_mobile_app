@@ -63,4 +63,5 @@
     <string name="day_of_birth">Day of Birth</string>
     <string name="email_">Email</string>
     <string name="save">Save</string>
+    <string name="change_password">Change password</string>
 </resources>

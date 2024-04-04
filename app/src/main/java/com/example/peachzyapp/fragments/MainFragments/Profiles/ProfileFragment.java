@@ -16,6 +16,7 @@ import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
 
+import com.example.peachzyapp.MainActivity;
 import com.example.peachzyapp.R;
 import com.example.peachzyapp.dynamoDB.DynamoDBManager;
 import com.example.peachzyapp.entities.Profile;
@@ -29,7 +30,9 @@ public class ProfileFragment extends Fragment {
     DynamoDBManager dynamoDBManager;
     String uid;
     ImageButton btnSave;
+    ImageButton btnChangePassword;
     ImageView ivAvatar;
+    MainActivity mainActivity;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -40,7 +43,9 @@ public class ProfileFragment extends Fragment {
         ivAvatar=view.findViewById(R.id.ivAvatar);
         btnSave=view.findViewById(R.id.btnSave);
         etDateOfBirth=view.findViewById(R.id.etDateOfBirth);
+        btnChangePassword=view.findViewById(R.id.btnChangePassword);
         dynamoDBManager = new DynamoDBManager(getActivity());
+        mainActivity= (MainActivity) getActivity();
         SharedPreferences preferences = getActivity().getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
         uid = preferences.getString("uid", null);
         if (uid != null) {
@@ -49,6 +54,9 @@ public class ProfileFragment extends Fragment {
         } else {
             Log.e("checkUID", "UID is null");
         }
+        btnChangePassword.setOnClickListener(v->{
+            mainActivity.goToRequestChangePasswordFragment();
+        });
         dynamoDBManager.getProfileByUID(uid, new DynamoDBManager.FriendFoundForGetUIDByEmailListener() {
             @Override
             public void onFriendFound(String id, String name, String email, String avatar, Boolean sex, String dateOfBirth) {
