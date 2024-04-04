@@ -12,7 +12,7 @@
         android:scaleType="centerCrop"/>
 
     <TextView
-        android:id="@+id/tv_friend"
+        android:id="@+id/tvFriend"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Name"
@@ -21,7 +21,7 @@
         android:layout_marginStart="16dp"/>
 
     <Button
-        android:id="@+id/btn_accept"
+        android:id="@+id/btnAccept"
         android:layout_width="130dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"

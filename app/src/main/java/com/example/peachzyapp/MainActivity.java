@@ -20,13 +20,11 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.example.peachzyapp.adapters.ViewPagerAdapter;
 import com.example.peachzyapp.entities.ChatBox;
-import com.example.peachzyapp.entities.Profile;
-import com.example.peachzyapp.fragments.MainFragments.AddFriendFragment;
-import com.example.peachzyapp.fragments.MainFragments.ChatHistoryFragment;
-import com.example.peachzyapp.fragments.MainFragments.ChatListsFragment;
-import com.example.peachzyapp.fragments.MainFragments.ProfileFragment;
-import com.example.peachzyapp.fragments.MainFragments.RequestReceivedFragment;
-import com.example.peachzyapp.fragments.MainFragments.RequestSendFragment;
+import com.example.peachzyapp.fragments.MainFragments.Users.AddFriendFragment;
+import com.example.peachzyapp.fragments.MainFragments.Chats.ChatHistoryFragment;
+import com.example.peachzyapp.fragments.MainFragments.Chats.ChatListsFragment;
+import com.example.peachzyapp.fragments.MainFragments.Users.RequestReceivedFragment;
+import com.example.peachzyapp.fragments.MainFragments.Users.RequestSendFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 

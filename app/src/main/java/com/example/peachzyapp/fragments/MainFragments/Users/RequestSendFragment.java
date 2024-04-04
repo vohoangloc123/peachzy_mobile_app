@@ -1,4 +1,4 @@
-package com.example.peachzyapp.fragments.MainFragments;
+package com.example.peachzyapp.fragments.MainFragments.Users;
 
 import android.os.Bundle;
 import android.util.Log;
@@ -13,16 +13,16 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.peachzyapp.MainActivity;
 import com.example.peachzyapp.R;
-import com.example.peachzyapp.adapters.RequestReceivedAdapter;
 import com.example.peachzyapp.adapters.RequestSentAdapter;
 import com.example.peachzyapp.dynamoDB.DynamoDBManager;
 import com.example.peachzyapp.entities.FriendItem;
+import com.example.peachzyapp.fragments.MainFragments.Chats.ChatHistoryFragment;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class RequestSendFragment extends Fragment {
-    public static final String TAG=ChatHistoryFragment.class.getName();
+    public static final String TAG= ChatHistoryFragment.class.getName();
     RecyclerView rcvRequestSent;
     private View view;
     private MainActivity mainActivity;

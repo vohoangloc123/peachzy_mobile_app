@@ -1,4 +1,4 @@
-package com.example.peachzyapp.fragments.MainFragments;
+package com.example.peachzyapp.fragments.MainFragments.Users;
 
 import android.os.Bundle;
 import android.util.Log;
@@ -16,12 +16,13 @@ import com.example.peachzyapp.R;
 import com.example.peachzyapp.adapters.RequestReceivedAdapter;
 import com.example.peachzyapp.dynamoDB.DynamoDBManager;
 import com.example.peachzyapp.entities.FriendItem;
+import com.example.peachzyapp.fragments.MainFragments.Chats.ChatHistoryFragment;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class RequestReceivedFragment extends Fragment {
-    public static final String TAG2=ChatHistoryFragment.class.getName();
+    public static final String TAG2= ChatHistoryFragment.class.getName();
     String uid;
 
     private DynamoDBManager dynamoDBManager;

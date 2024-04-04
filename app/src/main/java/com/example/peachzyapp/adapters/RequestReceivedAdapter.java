@@ -3,6 +3,7 @@ package com.example.peachzyapp.adapters;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -38,6 +39,7 @@ public class RequestReceivedAdapter extends RecyclerView.Adapter<RequestReceived
     @Override
     public FriendViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.activity_request_received_adapter, parent, false);
+        Button btnAccept=view.findViewById(R.id.btnAccept);
         return new FriendViewHolder(view);
     }
 
@@ -61,7 +63,7 @@ public class RequestReceivedAdapter extends RecyclerView.Adapter<RequestReceived
 
         public FriendViewHolder(@NonNull View itemView) {
             super(itemView);
-            tvFriend= itemView.findViewById(R.id.tv_friend);
+            tvFriend= itemView.findViewById(R.id.tvFriend);
             avatarImageView = itemView.findViewById(R.id.avatarImageView);
         }
     }

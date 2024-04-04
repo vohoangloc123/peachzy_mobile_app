@@ -1,4 +1,4 @@
-package com.example.peachzyapp.fragments.MainFragments;
+package com.example.peachzyapp.fragments.MainFragments.Chats;
 
 import android.content.Context;
 import android.os.Bundle;

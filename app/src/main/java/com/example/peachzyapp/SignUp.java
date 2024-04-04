@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.RadioButton;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -26,6 +27,9 @@ public class SignUp extends AppCompatActivity {
     EditText etEmail;
     EditText etFirstName;
     EditText etLastName;
+    RadioButton rMale;
+    RadioButton rFemale;
+    EditText etDateOfBirth;
     EditText etPassword;
     Button btnSignUp;
 
@@ -46,6 +50,9 @@ public class SignUp extends AppCompatActivity {
         etEmail=findViewById(R.id.etEmail);
         etFirstName=findViewById(R.id.etFirstName);
         etLastName=findViewById(R.id.etLastName);
+        rMale=findViewById(R.id.rMale);
+        rFemale=findViewById(R.id.rFemale);
+        etDateOfBirth=findViewById(R.id.etDateOfBirth);
         etPassword=findViewById(R.id.etPassword);
         btnSignUp=findViewById(R.id.btnSignUp);
         etConfirmPassword=findViewById(R.id.etConfirmPassword);
@@ -65,8 +72,7 @@ public class SignUp extends AppCompatActivity {
             final String lastName=etLastName.getText().toString().trim();
             final String password = etPassword.getText().toString().trim();
             final String cfPassword=etConfirmPassword.getText().toString().trim();
-
-
+            final String dateOfBirth=etDateOfBirth.getText().toString().trim();
             if (email.isEmpty() || password.isEmpty()) {
                 notification(R.string.null_email_or_password);
                 return;
@@ -115,6 +121,21 @@ public class SignUp extends AppCompatActivity {
                                 bundle.putString("firstName", firstName);
                                 bundle.putString("lastName", lastName);
                                 bundle.putString("password", password);
+                                bundle.putString("dateOfBirth", dateOfBirth);
+
+                                // Kiểm tra giới tính và đặt giá trị cho bundle tương ứng
+                                if (rMale.isChecked()) {
+                                    bundle.putBoolean("male", true);
+                                    bundle.putBoolean("female", false);
+                                } else if (rFemale.isChecked()) {
+                                    bundle.putBoolean("male", false);
+                                    bundle.putBoolean("female", true);
+                                } else {
+                                    // Xử lý trường hợp không chọn giới tính
+                                    Toast.makeText(SignUp.this, "Please select gender.", Toast.LENGTH_SHORT).show();
+                                    return;
+                                }
+
                                 OTPFragment otpFragment = new OTPFragment();
                                 otpFragment.setArguments(bundle);
                                 getSupportFragmentManager().beginTransaction()
