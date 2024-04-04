@@ -21,8 +21,15 @@ import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
 
+import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
 
+import com.amazonaws.regions.Region;
+import com.amazonaws.regions.Regions;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.example.peachzyapp.MainActivity;
 import com.example.peachzyapp.R;
 import com.example.peachzyapp.dynamoDB.DynamoDBManager;
@@ -30,6 +37,7 @@ import com.example.peachzyapp.entities.Profile;
 import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 public class ProfileFragment extends Fragment {
     private static final int PICK_IMAGE_REQUEST = 1;
@@ -45,6 +53,7 @@ public class ProfileFragment extends Fragment {
     MainActivity mainActivity;
     Button btnChangeAvatar;
     TransferUtility s3TransferUtility;
+    private AmazonS3 s3Client;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -68,7 +77,10 @@ public class ProfileFragment extends Fragment {
             Log.e("checkUID", "UID is null");
         }
 
-
+        BasicAWSCredentials credentials = new BasicAWSCredentials("AKIAZI2LEH5QNBAXEUHP", "krI7P46llTA2kLj+AZQGSr9lEviTlS4bwQzBXSSi");
+        // Tạo Amazon S3 client
+        s3Client = new AmazonS3Client(credentials);
+        s3Client.setRegion(Region.getRegion(Regions.AP_SOUTHEAST_1));
 
         // Khởi tạo AWSCredentials
 //        AWSCredentials credentials = new BasicAWSCredentials("AKIAZI2LEH5QNBAXEUHP", "krI7P46llTA2kLj+AZQGSr9lEviTlS4bwQzBXSSi");
@@ -161,6 +173,31 @@ public class ProfileFragment extends Fragment {
 
                 // Upload ảnh lên S3
 //                uploadImageToS3(bitmap);
+
+//                InputStream inputStream = getActivity().getContentResolver().openInputStream(uri);
+//                PutObjectRequest request = new PutObjectRequest("chat-app-image-cnm", "test.jpg", inputStream, new ObjectMetadata());
+//                s3Client.putObject(request);
+
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            // Mở InputStream từ Uri
+                            InputStream inputStream = getActivity().getContentResolver().openInputStream(uri);
+
+                            // Tạo đối tượng PutObjectRequest và đặt tên bucket và key
+                            PutObjectRequest request = new PutObjectRequest("chat-app-image-cnm", "test.jpg", inputStream, new ObjectMetadata());
+
+                            // Upload ảnh lên S3
+                            s3Client.putObject(request);
+
+                            // Đóng InputStream sau khi tải lên thành công
+                            inputStream.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }).start();
 
             } catch (IOException e) {
                 e.printStackTrace();

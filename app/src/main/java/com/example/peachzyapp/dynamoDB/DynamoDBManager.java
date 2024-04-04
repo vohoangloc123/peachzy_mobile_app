@@ -110,7 +110,7 @@ public class DynamoDBManager {
                         item.put("_id", new AttributeValue().withS(firebaseUID));
                         item.put("name", new AttributeValue().withS(firstName+" "+lastName));
                         item.put("email", new AttributeValue().withS(email));
-                        item.put("avatar", new AttributeValue().withS("https://chat-app-image-cnm.s3.ap-southeast-1.amazonaws.com/avatar.jpg"));
+                        item.put("avatar", new AttributeValue().withS("https://chat-app-image-cnm.s3.ap-southeast-1.amazonaws.com/test.jpg"));
                         item.put("dateOfBirth", new AttributeValue().withS(dateOfBirth));
                         item.put("sex", new AttributeValue().withBOOL(sex));
                         // Tạo yêu cầu chèn mục vào bảng
