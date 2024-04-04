@@ -1,7 +1,6 @@
 package com.example.peachzyapp.dynamoDB;
 
 import android.content.Context;
-import android.os.Debug;
 import android.util.Log;
 
 import com.amazonaws.auth.AWSCredentials;
@@ -20,7 +19,6 @@ import com.amazonaws.services.dynamodbv2.model.PutItemResult;
 import com.amazonaws.services.dynamodbv2.model.ScanRequest;
 import com.amazonaws.services.dynamodbv2.model.ScanResult;
 import com.example.peachzyapp.entities.FriendItem;
-import com.example.peachzyapp.fragments.MainFragments.ProfileFragment;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -92,7 +90,7 @@ public class DynamoDBManager {
             return false;
         }
     }
-    public void createAccountWithFirebaseUID(String firebaseUID, String firstName, String lastName, String email) {
+    public void createAccountWithFirebaseUID(String firebaseUID, String firstName, String lastName, String email,String dateOfBirth, Boolean sex) {
 
         try {
             if (ddbClient == null) {
@@ -113,6 +111,8 @@ public class DynamoDBManager {
                         item.put("name", new AttributeValue().withS(firstName+" "+lastName));
                         item.put("email", new AttributeValue().withS(email));
                         item.put("avatar", new AttributeValue().withS("https://chat-app-image-cnm.s3.ap-southeast-1.amazonaws.com/avatar.jpg"));
+                        item.put("dateOfBirth", new AttributeValue().withS(dateOfBirth));
+                        item.put("sex", new AttributeValue().withBOOL(sex));
                         // Tạo yêu cầu chèn mục vào bảng
                         PutItemRequest putItemRequest = new PutItemRequest()
                                 .withTableName("Users")
@@ -258,12 +258,15 @@ public class DynamoDBManager {
                         for (Map<String, AttributeValue> item : scanResult.getItems()) {
                             String name=item.get("name").getS();
                             String email = item.get("email").getS();
+                            String avatar=item.get("avatar").getS();
+                            Boolean sex = Boolean.valueOf(item.get("sex").getBOOL()); // Lấy giá trị sex từ item
+                            String dateOfBirth=item.get("dateOfBirth").getS();
                             // Tạo một chuỗi để hiển thị trong ListView, ví dụ: "Name: [Tên], Avatar: [Avatar]"
                             String userResult = "name đã nhận: " + name+ "email đã nhận: "+ email;
 
                             // Log dữ liệu
                             Log.d("userResult", userResult);
-                            listener.onFriendFound(uid, name, email);
+                            listener.onFriendFound(uid, name, email, avatar, sex, dateOfBirth);
                             return; // Đảm bảo chỉ hiển thị một kết quả nếu tìm thấy
                         }
                         // Gọi callback nếu không tìm thấy bạn bè
@@ -359,7 +362,7 @@ public class DynamoDBManager {
         }
     }
     public interface FriendFoundForGetUIDByEmailListener {
-        void onFriendFound(String uid, String name, String email);
+        void onFriendFound(String uid, String name, String email, String avatar, Boolean sex, String dateOfBirth);
         void onFriendNotFound();
         void onError(Exception e);
     }

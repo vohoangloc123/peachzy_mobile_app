@@ -89,7 +89,39 @@
             android:textColor="@color/black"
             android:textColorHint="@color/borderColor"
             android:textSize="16dp" />
+        <RadioGroup
+            android:id="@+id/rSex"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
 
+            <RadioButton
+                android:id="@+id/rMale"
+                android:layout_width="166dp"
+                android:layout_height="wrap_content"
+                android:text="@string/male"
+                android:textColor="@color/black" />
+
+            <RadioButton
+                android:id="@+id/rFemale"
+                android:layout_width="166dp"
+                android:layout_height="wrap_content"
+                android:text="@string/female"
+                android:textColor="@color/black" />
+        </RadioGroup>
+        <EditText
+            android:id="@+id/etDateOfBirth"
+            android:layout_width="match_parent"
+            android:layout_height="58dp"
+            android:layout_marginBottom="15dp"
+            android:background="@drawable/edittext_border"
+            android:ems="10"
+            android:hint="@string/day_of_birth"
+            android:inputType="textEmailAddress"
+            android:padding="20dp"
+            android:textColor="@color/black"
+            android:textColorHint="@color/borderColor"
+            android:textSize="16dp" />
 
         <EditText
             android:id="@+id/etEmail"

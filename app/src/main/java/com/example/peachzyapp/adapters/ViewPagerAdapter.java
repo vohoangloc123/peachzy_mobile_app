@@ -6,9 +6,9 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 
 import com.example.peachzyapp.fragments.MainFragments.BlankFragmentTab1;
-import com.example.peachzyapp.fragments.MainFragments.ChatListsFragment;
-import com.example.peachzyapp.fragments.MainFragments.FriendsFragment;
-import com.example.peachzyapp.fragments.MainFragments.ProfileFragment;
+import com.example.peachzyapp.fragments.MainFragments.Chats.ChatListsFragment;
+import com.example.peachzyapp.fragments.MainFragments.Profiles.ProfileFragment;
+import com.example.peachzyapp.fragments.MainFragments.Users.FriendsFragment;
 
 public class ViewPagerAdapter extends FragmentPagerAdapter {
     public ViewPagerAdapter(@NonNull FragmentManager fm, int behavior) {

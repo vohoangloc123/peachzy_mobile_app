@@ -6,7 +6,7 @@
     android:background="@android:color/holo_blue_dark"
     android:orientation="vertical"
     android:id="@+id/fragment_container"
-    tools:context=".fragments.MainFragments.FriendsFragment">
+    tools:context=".fragments.MainFragments.Users.FriendsFragment">
 
     <!-- TODO: Update blank fragment layout -->
 

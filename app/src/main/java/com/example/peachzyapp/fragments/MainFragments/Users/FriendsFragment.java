@@ -1,4 +1,4 @@
-package com.example.peachzyapp.fragments.MainFragments;
+package com.example.peachzyapp.fragments.MainFragments.Users;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -22,7 +22,6 @@ import com.example.peachzyapp.dynamoDB.DynamoDBManager;
 import com.example.peachzyapp.entities.FriendItem;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class FriendsFragment extends Fragment {
     Button btnAddfriend;

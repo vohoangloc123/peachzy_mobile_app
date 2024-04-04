@@ -20,10 +20,7 @@
             android:name=".adapters.FriendAdapter"
             android:exported="false" />
         <activity
-            android:name=".fragments.MainFragments.AddFriendFragment"
-            android:exported="false" />
-        <activity
-            android:name=".testinterface"
+            android:name=".fragments.MainFragments.Users.AddFriendFragment"
             android:exported="false" />
         <activity
             android:name=".MainActivity"
