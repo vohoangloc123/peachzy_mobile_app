@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -13,79 +13,214 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:background="@color/bgWhiteBlue"
+        android:orientation="vertical"
+        tools:layout_editor_absoluteX="0dp"
+        tools:layout_editor_absoluteY="-37dp">
 
-        <ImageView
-            android:id="@+id/imageView3"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            tools:src="@tools:sample/avatars" />
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
+            android:layout_height="61dp"
+            android:background="@color/btnColor"
+            android:orientation="horizontal">
+
+            <ImageButton
+                android:id="@+id/imageButton"
+                android:layout_width="84dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:backgroundTint="@color/btnColor"
+                android:src="@drawable/arrow_left" />
 
             <TextView
                 android:id="@+id/textView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Name" />
+                android:layout_width="300dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:padding="15dp"
+                android:text="@string/user_information"
+                android:textColor="@color/white"
+                android:textSize="20dp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="131dp"
+            android:layout_marginTop="10dp"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/imageView3"
+                android:layout_width="349dp"
+                android:layout_height="129dp"
+                android:layout_weight="1"
+                android:src="@drawable/user_avatar"
+                android:background="@color/bgWhiteBlue"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="39dp"
+            android:orientation="horizontal"
+            android:paddingLeft="100dp">
 
             <EditText
                 android:id="@+id/etName"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:paddingLeft="5dp"
+                android:layout_width="200dp"
+                android:layout_height="38dp"
+                android:background="@drawable/edittext_profile"
                 android:ems="10"
-                android:inputType="text" />
+                android:inputType="text"
+                android:hint="@string/name"
+                android:textColor="@color/black"
 
-            <LinearLayout
-                android:layout_width="match_parent"
+                />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="63dp"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/edittext_profile_inf"
+            android:orientation="horizontal">
+
+
+            <TextView
+                android:id="@+id/textView1"
+                android:layout_width="129dp"
+                android:layout_height="37dp"
+                android:layout_marginTop="10dp"
+                android:layout_weight="1"
+                android:paddingLeft="20dp"
+                android:text="@string/gender"
+                android:textColor="@color/borderColor"
+                android:textSize="18dp"
+                android:textStyle="bold" />
+
+            <RadioGroup
+                android:id="@+id/radio_group"
+                android:layout_width="250dp"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
 
-                <TextView
-                    android:id="@+id/textView5"
-                    android:layout_width="wrap_content"
+                <RadioButton
+                    android:id="@+id/radio_button1"
+                    android:layout_width="109dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Date of birth" />
+                    android:text="@string/male"
+                    android:textColor="@color/black"
+                    />
 
-                <EditText
-                    android:id="@+id/etDateOfBirth"
-                    android:layout_width="wrap_content"
+                <RadioButton
+                    android:id="@+id/radio_button2"
+                    android:layout_width="100dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:ems="10"
-                    android:inputType="text" />
-            </LinearLayout>
+                    android:text="@string/female"
+                    android:textColor="@color/black"/>
 
-            <LinearLayout
-                android:layout_width="match_parent"
+
+            </RadioGroup>
+
+
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="58dp"
+            android:background="@drawable/edittext_profile_text"
+            android:orientation="horizontal">
+
+
+            <TextView
+                android:id="@+id/textView8"
+                android:layout_width="131dp"
+                android:layout_height="37dp"
+                android:layout_weight="1"
+                android:paddingLeft="20dp"
+                android:text="@string/day_of_birth"
+                android:textColor="@color/borderColor"
+                android:textSize="18dp"
+                android:textStyle="bold" />
+
+            <EditText
+                android:id="@+id/etDateOfBirth"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:layout_weight="1"
+                android:background="@drawable/edittext_profile_text"
+                android:ems="10"
+                android:hint="yyy-mm-dd"
+                android:inputType="text"
+                android:paddingTop="15dp"
+                android:textColor="@color/black"
+                android:textSize="18dp"
+                android:textStyle="bold" />
 
-                <TextView
-                    android:id="@+id/textView6"
-                    android:layout_width="130dp"
-                    android:layout_height="wrap_content"
-                    android:text="Email" />
-
-                <TextView
-                    android:id="@+id/etEmail"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1" />
-
-            </LinearLayout>
-
-            <Button
-                android:id="@+id/btnSave"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Button" />
 
         </LinearLayout>
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="120dp"
+            android:background="@drawable/edittext_profile_inf"
+            android:orientation="horizontal"
+            android:paddingTop="15dp">
+
+
+            <TextView
+                android:id="@+id/textView6"
+                android:layout_width="wrap_content"
+                android:layout_height="42dp"
+                android:layout_weight="1"
+                android:paddingLeft="20dp"
+                android:text="@string/email_"
+                android:textColor="@color/borderColor"
+                android:textSize="18dp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/etEmail"
+                android:layout_width="150dp"
+                android:layout_height="37dp"
+                android:layout_weight="1"
+                android:text="trang02@gmail.com"
+                android:textColor="@color/borderColor"
+                android:textSize="15dp"
+                android:textStyle="bold" />
+
+
+        </LinearLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingLeft="10dp"
+            android:background="@color/btnEdit">
+
+            <ImageButton
+                android:id="@+id/btnSave"
+                android:layout_width="300dp"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/btnEdit"
+                android:src="@drawable/save" />
+
+            <TextView
+                android:id="@+id/text_view"
+                android:layout_width="359dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="-59dp"
+                android:layout_marginBottom="4dp"
+                android:paddingLeft="180dp"
+                android:layout_marginTop="7dp"
+                android:text="@string/save"
+                android:textColor="@android:color/black"
+                android:textSize="22sp"
+                android:textStyle="bold" />
+        </RelativeLayout>
+
+
     </LinearLayout>
-</FrameLayout>
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>

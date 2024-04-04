@@ -55,4 +55,12 @@
     <string name="enter_otp">Enter OTP</string>
     <string name="sign_in">Sign In</string>
     <string name="search">Search</string>
+    <string name="user_information">User Information</string>
+    <string name="name">Name</string>
+    <string name="gender">Gender</string>
+    <string name="male">male</string>
+    <string name="female">female</string>
+    <string name="day_of_birth">Day of Birth</string>
+    <string name="email_">Email</string>
+    <string name="save">Save</string>
 </resources>
