@@ -130,7 +130,7 @@ public class DynamoDBManager {
             // Log exception for debugging
             Log.e("DynamoDBManager", "Error checking DynamoDB connection: " + e.getMessage());
         }
-    }
+    }//update code 2
     public void findFriend(String email, FriendFoundListener listener) {
         try {
             if (ddbClient == null) {
