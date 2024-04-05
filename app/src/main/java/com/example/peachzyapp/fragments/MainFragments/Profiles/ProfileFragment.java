@@ -116,26 +116,62 @@ public class ProfileFragment extends Fragment {
                 return; // Thoát khỏi phương thức khi không có giới tính nào được chọn
             }
             // Gọi phương thức updateUser từ DynamoDBManager
-            dynamoDBManager.updateUser(uid, name, dateOfBirth, urlAvatar,sex, new DynamoDBManager.UpdateUserListener() {
-                @Override
-                public void onUpdateSuccess() {
-                    // Xử lý khi cập nhật thành công
-                    Toast.makeText(getActivity(), "User updated successfully", Toast.LENGTH_SHORT).show();
-                }
+            if(urlAvatar!=null) {
+                dynamoDBManager.updateUser(uid, name, dateOfBirth, urlAvatar, sex, new DynamoDBManager.UpdateUserListener() {
+                    @Override
+                    public void onUpdateSuccess() {
+                        // Xử lý khi cập nhật thành công
+                        Toast.makeText(getActivity(), "User updated successfully", Toast.LENGTH_SHORT).show();
+                    }
 
-                @Override
-                public void onUserNotFound() {
-                    // Xử lý khi không tìm thấy người dùng
-                    Toast.makeText(getActivity(), "User not found", Toast.LENGTH_SHORT).show();
-                }
+                    @Override
+                    public void onUserNotFound() {
+                        // Xử lý khi không tìm thấy người dùng
+                        Toast.makeText(getActivity(), "User not found", Toast.LENGTH_SHORT).show();
+                    }
 
-                @Override
-                public void onError(Exception e) {
-                    // Xử lý khi có lỗi xảy ra
+                    @Override
+                    public void onError(Exception e) {
+                        // Xử lý khi có lỗi xảy ra
 //                    Toast.makeText(getActivity(), "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                    e.printStackTrace();
-                }
-            });
+                        e.printStackTrace();
+                    }
+                });
+            }else if(urlAvatar==null)
+            {
+                dynamoDBManager.findAvatarByUID(uid, new DynamoDBManager.AvatarCallback() {
+                    @Override
+                    public void onSuccess(String avatarUrl) {
+                        // Xử lý đường dẫn avatar ở đây
+                        String urlAvatar = avatarUrl;
+                        dynamoDBManager.updateUser(uid, name, dateOfBirth, urlAvatar, sex, new DynamoDBManager.UpdateUserListener() {
+                            @Override
+                            public void onUpdateSuccess() {
+                                // Xử lý khi cập nhật thành công
+                                Toast.makeText(getActivity(), "User updated successfully", Toast.LENGTH_SHORT).show();
+                            }
+
+                            @Override
+                            public void onUserNotFound() {
+                                // Xử lý khi không tìm thấy người dùng
+                                Toast.makeText(getActivity(), "User not found", Toast.LENGTH_SHORT).show();
+                            }
+
+                            @Override
+                            public void onError(Exception e) {
+                                // Xử lý khi có lỗi xảy ra
+//                    Toast.makeText(getActivity(), "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                e.printStackTrace();
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onError(Exception e) {
+                        // Xử lý lỗi ở đây
+                    }
+                });
+            }
         });
         dynamoDBManager.getProfileByUID(uid, new DynamoDBManager.FriendFoundForGetUIDByEmailListener() {
             @Override
