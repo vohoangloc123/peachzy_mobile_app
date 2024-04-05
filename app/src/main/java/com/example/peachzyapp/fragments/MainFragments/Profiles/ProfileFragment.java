@@ -98,6 +98,7 @@ public class ProfileFragment extends Fragment {
             startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
         }
         );
+        //update code
         btnChangePassword.setOnClickListener(v->{
             mainActivity.goToRequestChangePasswordFragment();
         });
