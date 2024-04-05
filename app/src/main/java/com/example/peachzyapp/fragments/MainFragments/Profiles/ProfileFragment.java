@@ -32,6 +32,7 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.example.peachzyapp.MainActivity;
 import com.example.peachzyapp.R;
+import com.example.peachzyapp.Regexp.Regexp;
 import com.example.peachzyapp.dynamoDB.DynamoDBManager;
 import com.example.peachzyapp.entities.Profile;
 import com.squareup.picasso.Picasso;
@@ -62,9 +63,11 @@ public class ProfileFragment extends Fragment {
     private AmazonS3 s3Client;
     PutObjectRequest request;
     String urlAvatar;
+    Regexp regexp;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        regexp= new Regexp();
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
         etName = view.findViewById(R.id.etName);
         etDateOfBirth = view.findViewById(R.id.etDateOfBirth);
@@ -80,6 +83,7 @@ public class ProfileFragment extends Fragment {
         rFemale=view.findViewById(R.id.rFemale);
         SharedPreferences preferences = getActivity().getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
         uid = preferences.getString("uid", null);
+
         if (uid != null) {
             Log.d("checkUID", uid);
             // Sử dụng "uid" ở đây cho các mục đích của bạn
@@ -107,6 +111,10 @@ public class ProfileFragment extends Fragment {
             String dateOfBirth = etDateOfBirth.getText().toString().trim();
 
             Boolean sex;
+            if(regexp.isValidName(name)==false){
+                Toast.makeText(getActivity(), "Tên phải là chữ cái và không được trống", Toast.LENGTH_SHORT).show();
+                return;
+            }
             if (rMale.isChecked()) {
                 sex = true; // Nam
             } else if (rFemale.isChecked()) {
