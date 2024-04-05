@@ -1,5 +1,6 @@
 package com.example.peachzyapp;
 
+import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.res.Resources;
 import android.os.Bundle;
@@ -21,6 +22,7 @@ import com.example.peachzyapp.Regexp.Regexp;
 import com.example.peachzyapp.fragments.SignUpFragments.OTPFragment;
 import com.google.firebase.auth.FirebaseAuth;
 
+import java.util.Calendar;
 import java.util.List;
 
 public class SignUp extends AppCompatActivity {
@@ -53,6 +55,14 @@ public class SignUp extends AppCompatActivity {
         rMale=findViewById(R.id.rMale);
         rFemale=findViewById(R.id.rFemale);
         etDateOfBirth=findViewById(R.id.etDateOfBirth);
+        etDateOfBirth.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (hasFocus) {
+                    showDatePickerDialog();
+                }
+            }
+        });
         etPassword=findViewById(R.id.etPassword);
         btnSignUp=findViewById(R.id.btnSignUp);
         etConfirmPassword=findViewById(R.id.etConfirmPassword);
@@ -160,5 +170,24 @@ public class SignUp extends AppCompatActivity {
         String myNotification = resources.getString(stringId);
         Toast.makeText(SignUp.this, myNotification, Toast.LENGTH_SHORT).show();
     }
+    private void showDatePickerDialog() {
+        Calendar calendar = Calendar.getInstance();
+        int year = calendar.get(Calendar.YEAR);
+        int month = calendar.get(Calendar.MONTH);
+        int day = calendar.get(Calendar.DAY_OF_MONTH);
+
+        DatePickerDialog datePickerDialog = new DatePickerDialog(this,
+                new DatePickerDialog.OnDateSetListener() {
+                    @Override
+                    public void onDateSet(android.widget.DatePicker view, int year, int month, int dayOfMonth) {
+                        // Xử lý khi người dùng chọn ngày
+                        String selectedDate = year + "-" + (month + 1) + "-" + dayOfMonth;
+                        etDateOfBirth.setText(selectedDate);
+                    }
+                }, year, month, day);
+
+        datePickerDialog.show();
     }
+
+}
 

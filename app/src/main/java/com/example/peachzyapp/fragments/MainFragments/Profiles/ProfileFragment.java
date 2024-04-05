@@ -1,5 +1,6 @@
 package com.example.peachzyapp.fragments.MainFragments.Profiles;
 import android.app.Activity;
+import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -12,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CalendarView;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -40,6 +42,7 @@ import com.squareup.picasso.Picasso;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Random;
@@ -90,6 +93,15 @@ public class ProfileFragment extends Fragment {
         } else {
             Log.e("checkUID", "UID is null");
         }
+
+        etDateOfBirth.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (hasFocus) {
+                    showDatePickerDialog();
+                }
+            }
+        });
 
         BasicAWSCredentials credentials = new BasicAWSCredentials("AKIAZI2LEH5QNBAXEUHP", "krI7P46llTA2kLj+AZQGSr9lEviTlS4bwQzBXSSi");
         // Tạo Amazon S3 client
@@ -284,5 +296,24 @@ public class ProfileFragment extends Fragment {
         // Kết hợp ngày giờ và dãy số random để tạo tên file
         return "avatar_" + timeStamp + "_" + randomNumber + ".jpg";
     }
+    private void showDatePickerDialog() {
+        Calendar calendar = Calendar.getInstance();
+        int year = calendar.get(Calendar.YEAR);
+        int month = calendar.get(Calendar.MONTH);
+        int day = calendar.get(Calendar.DAY_OF_MONTH);
+
+        DatePickerDialog datePickerDialog = new DatePickerDialog(getActivity(),
+                new DatePickerDialog.OnDateSetListener() {
+                    @Override
+                    public void onDateSet(android.widget.DatePicker view, int year, int month, int dayOfMonth) {
+                        // Xử lý khi người dùng chọn ngày
+                        String selectedDate = year + "-" + (month + 1) + "-" + dayOfMonth;
+                        etDateOfBirth.setText(selectedDate);
+                    }
+                }, year, month, day);
+
+        datePickerDialog.show();
+    }
+
 
 }
