@@ -51,7 +51,7 @@ public class ProfileFragment extends Fragment {
     private static final int PICK_IMAGE_REQUEST = 1;
     private static final String BUCKET_NAME = "chat-app-image-cnm";
     EditText etName;
-    EditText etDateOfBirth;
+    TextView etDateOfBirth;
     TextView tvEmail;
     DynamoDBManager dynamoDBManager;
     String uid;
@@ -94,12 +94,10 @@ public class ProfileFragment extends Fragment {
             Log.e("checkUID", "UID is null");
         }
 
-        etDateOfBirth.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+        etDateOfBirth.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if (hasFocus) {
-                    showDatePickerDialog();
-                }
+            public void onClick(View v) {
+                showDatePickerDialog();
             }
         });
 
