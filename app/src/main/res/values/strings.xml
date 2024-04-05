@@ -64,4 +64,8 @@
     <string name="email_">Email</string>
     <string name="save">Save</string>
     <string name="change_password">Change password</string>
+    <string name="change_password_2">Change Password</string>
+    <string name="current_password">Current password</string>
+    <string name="new_password">New password</string>
+    <string name="Renew_password">Renew password</string>
 </resources>

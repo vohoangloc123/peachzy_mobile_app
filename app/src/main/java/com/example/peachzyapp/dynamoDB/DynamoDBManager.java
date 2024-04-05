@@ -418,7 +418,7 @@ public class DynamoDBManager {
                             PutItemRequest putItemRequest = new PutItemRequest()
                                     .withTableName("Users")
                                     .withItem(item);
-
+                            Log.d("putItemRequest", String.valueOf(putItemRequest));
                             // Thực hiện cập nhật thông tin người dùng trong cơ sở dữ liệu
                             ddbClient.putItem(putItemRequest);
 
