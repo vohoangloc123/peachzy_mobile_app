@@ -446,4 +446,49 @@ public class DynamoDBManager {
         void onUserNotFound();
         void onError(Exception e);
     }
+    public void findAvatarByUID(String id, final AvatarCallback callback) {
+
+        try {
+            if (ddbClient == null) {
+                initializeDynamoDB();
+            }
+            Log.d("id", id);
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        // Tạo một yêu cầu truy vấn
+                        HashMap<String, Condition> scanFilter = new HashMap<String, Condition>();
+                        Condition condition = new Condition()
+                                .withComparisonOperator(ComparisonOperator.EQ.toString())
+                                .withAttributeValueList(new AttributeValue().withS(id));
+                        scanFilter.put("_id", condition);
+
+                        ScanRequest scanRequest = new ScanRequest("Users").withScanFilter(scanFilter);
+                        ScanResult scanResult = ddbClient.scan(scanRequest);
+
+                        // Xử lý kết quả
+                        for (Map<String, AttributeValue> item : scanResult.getItems()) {
+                            String friendResult = item.toString(); // Kết quả tìm thấy
+                            Log.d("findbyid", friendResult);
+                            String avatar = item.get("avatar").getS();
+                            // Gọi callback để trả về avatar
+                            callback.onSuccess(avatar);
+                        }
+                    } catch (Exception e) {
+                        // Gọi callback nếu có lỗi xảy ra
+                        callback.onError(e);
+                    }
+                }
+            }).start(); // Khởi chạy thread
+        } catch (Exception e) {
+            // Gọi callback nếu có lỗi xảy ra
+            callback.onError(e);
+        }
+
+    }
+    public interface AvatarCallback {
+        void onSuccess(String avatar);
+        void onError(Exception e);
+    }
 }
