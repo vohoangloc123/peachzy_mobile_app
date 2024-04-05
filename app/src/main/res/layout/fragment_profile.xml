@@ -210,6 +210,7 @@
         </LinearLayout>
 
         <RelativeLayout
+            android:layout_marginBottom="30dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingLeft="10dp"
@@ -217,7 +218,8 @@
 
             <ImageButton
                 android:id="@+id/btnSave"
-                android:layout_width="300dp"
+                android:layout_width="400dp"
+                android:paddingRight="100dp"
                 android:layout_height="wrap_content"
                 android:backgroundTint="@color/btnEdit"
                 android:src="@drawable/save" />
@@ -228,7 +230,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="-59dp"
                 android:layout_marginBottom="4dp"
-                android:paddingLeft="180dp"
+                android:paddingLeft="170dp"
                 android:layout_marginTop="7dp"
                 android:text="@string/save"
                 android:textColor="@android:color/black"
@@ -242,12 +244,12 @@
             android:background="@color/btnEdit">
 
             <ImageButton
+                android:paddingRight="180dp"
                 android:id="@+id/btnChangePassword"
-                android:layout_width="300dp"
+                android:layout_width="400dp"
                 android:layout_height="wrap_content"
                 android:backgroundTint="@color/btnEdit"
-                android:src="@drawable/password"
-                 />
+                android:src="@drawable/password" />
 
             <TextView
                 android:id="@+id/tv1"
@@ -255,7 +257,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="-59dp"
                 android:layout_marginBottom="4dp"
-                android:paddingLeft="180dp"
+                android:paddingLeft="130dp"
                 android:layout_marginTop="7dp"
                 android:text="@string/change_password"
                 android:textColor="@android:color/black"
