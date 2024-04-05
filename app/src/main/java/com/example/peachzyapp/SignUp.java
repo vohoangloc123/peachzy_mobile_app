@@ -8,6 +8,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RadioButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -31,7 +32,7 @@ public class SignUp extends AppCompatActivity {
     EditText etLastName;
     RadioButton rMale;
     RadioButton rFemale;
-    EditText etDateOfBirth;
+    TextView etDateOfBirth;
     EditText etPassword;
     Button btnSignUp;
 
@@ -55,12 +56,10 @@ public class SignUp extends AppCompatActivity {
         rMale=findViewById(R.id.rMale);
         rFemale=findViewById(R.id.rFemale);
         etDateOfBirth=findViewById(R.id.etDateOfBirth);
-        etDateOfBirth.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+        etDateOfBirth.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if (hasFocus) {
-                    showDatePickerDialog();
-                }
+            public void onClick(View v) {
+                showDatePickerDialog();
             }
         });
         etPassword=findViewById(R.id.etPassword);
