@@ -14,6 +14,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.example.peachzyapp.Other.Utils;
+import com.example.peachzyapp.SocketIO.MySocketManager;
 import com.example.peachzyapp.adapters.MyAdapter;
 import com.example.peachzyapp.entities.Item;
 import com.example.peachzyapp.fragments.MainFragments.Chats.ChatHistoryFragment;
@@ -28,7 +30,7 @@ public class ChatBoxFragment extends Fragment {
     private List<Item> listMessage = new ArrayList<>();
     private MyAdapter adapter;
     public static final String TAG= ChatBoxFragment.class.getName();
-
+    private MySocketManager socketManager;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -40,6 +42,9 @@ public class ChatBoxFragment extends Fragment {
         // Initialize the adapter only once
         adapter = new MyAdapter(getContext(), listMessage);
         recyclerView.setAdapter(adapter);
+        // Initialize and connect Socket.IO manager
+        socketManager = new MySocketManager();
+        socketManager.connect();
 
         // Set up RecyclerView layout manager
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -50,9 +55,11 @@ public class ChatBoxFragment extends Fragment {
                 String message = etMessage.getText().toString().trim();
                 if (!message.isEmpty()) {
                     // Add the new message to the list and notify adapter
-                    listMessage.add(new Item("10:10", message));
+                    String currentTime = Utils.getCurrentTime();
+                    listMessage.add(new Item(currentTime, message));
                     adapter.notifyItemInserted(listMessage.size() - 1);
                     recyclerView.scrollToPosition(listMessage.size() - 1);
+                    socketManager.sendMessage(message);
                 } else {
                     Toast.makeText(getContext(), "Please enter a message", Toast.LENGTH_SHORT).show();
                 }
@@ -62,5 +69,11 @@ public class ChatBoxFragment extends Fragment {
         });
 
         return view;
+    }
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        // Disconnect from Socket.IO when fragment is destroyed
+        socketManager.disconnect();
     }
 }

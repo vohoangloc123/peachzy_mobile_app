@@ -61,8 +61,9 @@ dependencies {
     implementation("com.squareup.picasso:picasso:2.71828")
     //s3
     implementation("com.amazonaws:aws-android-sdk-s3:2.75.0")
-    //aws-sdk
-//    implementation("aws-android-sdk-core:2.75.0")
+    //socket.io
+    implementation("io.socket:socket.io-client:1.0.0")
+
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.activity)
