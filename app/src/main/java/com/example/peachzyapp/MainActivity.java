@@ -284,6 +284,41 @@ public void goToDetailFragment(ChatBox chatBox) {
         fragmentTransaction.addToBackStack(changePasswordFragment.TAG);
         fragmentTransaction.commit();
     }
+    public void goToChatBoxFragment() {
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+        ChatBoxFragment chatBoxFragment=new ChatBoxFragment();
+//            Bundle bundle = new Bundle();
+//            bundle.putSerializable("object_chatbox", chatBox);
+//            chatHistoryFragment.setArguments(bundle);
+
+        // Thêm ChatHistoryFragment
+        fragmentTransaction.add(R.id.etFind, chatBoxFragment, chatBoxFragment.TAG);
+
+        // Tìm và ẩn tất cả các Fragment khác
+        Fragment chatListsFragment = (Fragment) viewPager.getAdapter().instantiateItem(viewPager, 0);
+        Fragment notificationFragment = (Fragment) viewPager.getAdapter().instantiateItem(viewPager, 1);
+        Fragment usersFragment = (Fragment) viewPager.getAdapter().instantiateItem(viewPager, 2);
+        Fragment profileFragment = (Fragment) viewPager.getAdapter().instantiateItem(viewPager, 3);
+
+        if (chatListsFragment != null) {
+            fragmentTransaction.hide(chatListsFragment);
+        }
+        if (notificationFragment != null) {
+            fragmentTransaction.hide(notificationFragment);
+        }
+        if (usersFragment != null) {
+            fragmentTransaction.hide(usersFragment);
+        }
+        if (profileFragment != null) {
+            fragmentTransaction.hide(profileFragment);
+        }
+
+        // Ẩn bottomNavigationView
+        showBottomNavigation(false);
+        fragmentTransaction.addToBackStack(chatBoxFragment.TAG);
+        fragmentTransaction.commit();
+
+    }
     public void showBottomNavigation(boolean show) {
         if (show) {
             bottomNavigationView.setVisibility(View.VISIBLE);

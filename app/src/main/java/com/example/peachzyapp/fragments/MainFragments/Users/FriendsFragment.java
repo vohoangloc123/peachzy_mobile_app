@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -20,6 +21,8 @@ import com.example.peachzyapp.R;
 import com.example.peachzyapp.adapters.FriendAlreadyAdapter;
 import com.example.peachzyapp.dynamoDB.DynamoDBManager;
 import com.example.peachzyapp.entities.FriendItem;
+import com.example.peachzyapp.fragments.ForgotPasswordFragments.ForgetPasswordOTPFragments;
+import com.example.peachzyapp.fragments.MainFragments.Chats.ChatHistoryFragment;
 
 import java.util.ArrayList;
 
@@ -73,7 +76,7 @@ public class FriendsFragment extends Fragment {
                     @Override
                     public void run() {
                         friendItem = new FriendItem(id, avatar, name);
-                        friendList.clear();
+
                         friendList.add(friendItem);
                         friendAdapter.notifyDataSetChanged();
                     }
@@ -99,10 +102,19 @@ public class FriendsFragment extends Fragment {
         btnRequestSent.setOnClickListener(v->{
             mainActivity.goToRequestSentFragment();
         });
-
-        //      FriendAdapter friendAdapter= new FriendAdapter(getListFriends());
         friendAdapter= new FriendAlreadyAdapter(friendList);
         rcvFriendList.setAdapter(friendAdapter);
+        friendAdapter.setOnItemClickListener(new FriendAlreadyAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(String id) {
+                // Xử lý khi một mục được nhấn, ví dụ: chuyển id qua fragment khác
+                Bundle bundle = new Bundle();
+                bundle.putString("friend_id", id);
+                Log.d("FriendsFragmentCheckFriendAdapter","YES");
+                mainActivity.goToChatBoxFragment();
+
+            }
+        });
         RecyclerView.ItemDecoration itemDecoration=new DividerItemDecoration(mainActivity, DividerItemDecoration.VERTICAL);
         rcvFriendList.addItemDecoration(itemDecoration);
         return view;
