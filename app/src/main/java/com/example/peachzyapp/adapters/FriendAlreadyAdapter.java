@@ -19,11 +19,16 @@ public class FriendAlreadyAdapter extends RecyclerView.Adapter<FriendAlreadyAdap
 
     private List<FriendItem> listFriend;
     public ImageView avatarImageView;
+    private OnItemClickListener mListener;
+    public interface OnItemClickListener {
+        void onItemClick(String id);
+    }
+    public void setOnItemClickListener(OnItemClickListener listener) {
+        mListener = listener;
+    }
 
     public FriendAlreadyAdapter(List<FriendItem> mListFriend) {
         this.listFriend = mListFriend;
-
-
     }
 
     @Override
@@ -51,7 +56,14 @@ public class FriendAlreadyAdapter extends RecyclerView.Adapter<FriendAlreadyAdap
 
         holder.tvFriend.setText(friends.getName());
         Picasso.get().load(friends.getAvatar()).into(avatarImageView);
-
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mListener != null) {
+                    mListener.onItemClick(friends.getId());
+                }
+            }
+        });
     }
 
 
