@@ -15,6 +15,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
@@ -39,6 +40,7 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
     public static final String TAG= ChatBoxFragment.class.getName();
     MyWebSocket myWebSocket;
     RecyclerView recyclerView;
+    int newPosition;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -70,6 +72,7 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
         LiveData<List<Item>> messageLiveData = new MutableLiveData<>();
         getActivity().getWindow().setSoftInputMode(
                 WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+        scrollToBottom();
         messageLiveData.observe(getViewLifecycleOwner(), new Observer<List<Item>>() {
             @Override
             public void onChanged(List<Item> items) {
@@ -83,11 +86,13 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
                 String message = etMessage.getText().toString().trim();
                 if (!message.isEmpty()) {
                     // Add the new message to the list and notify adapter
+                    scrollToBottom();
                     String currentTime = Utils.getCurrentTime();
                     listMessage.add(new Item(currentTime, message, true));
                     adapter.notifyItemInserted(listMessage.size() - 1);
                     recyclerView.scrollToPosition(listMessage.size() - 1);
                     myWebSocket.sendMessage(message);
+                    scrollToBottom();
                 } else {
                     Toast.makeText(getContext(), "Please enter a message", Toast.LENGTH_SHORT).show();
                 }
@@ -119,15 +124,31 @@ public void onMessageReceived(String message) {
             break;
         }
     }
-
+    scrollToBottom();
     if (!isDuplicate) {
         // Tin nhắn không trùng, thêm nó vào danh sách và cập nhật giao diện
         String currentTime = Utils.getCurrentTime();
         listMessage.add(new Item(currentTime, message, false));
-        adapter.notifyItemInserted(listMessage.size() - 1);
-        recyclerView.scrollToPosition(listMessage.size() - 1);
+        newPosition = listMessage.size() - 1; // Vị trí mới của tin nhắn
+        adapter.notifyItemInserted(newPosition);
+
+        // Kiểm tra nếu RecyclerView đã được attach vào layout
+        if (recyclerView.getLayoutManager() != null) {
+            // Cuộn xuống vị trí mới
+            recyclerView.post(() -> recyclerView.smoothScrollToPosition(newPosition));
+        } else {
+            // Nếu RecyclerView chưa được attach, thì cuộn xuống khi RecyclerView được attach vào layout
+            recyclerView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                @Override
+                public void onGlobalLayout() {
+                    recyclerView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                    recyclerView.smoothScrollToPosition(newPosition);
+                }
+            });
+        }
     }
 }
+
     @Override
     public void onConnectionStateChanged(boolean isConnected) {
 
@@ -138,6 +159,15 @@ public void onMessageReceived(String message) {
         super.onDestroyView();
         // Ngắt kết nối khi Fragment bị hủy
         myWebSocket.closeWebSocket();
+    }
+    private void scrollToBottom() {
+        if (recyclerView != null && recyclerView.getAdapter() != null) {
+            int itemCount = recyclerView.getAdapter().getItemCount();
+            if (itemCount > 0) {
+                recyclerView.smoothScrollToPosition(itemCount - 1);
+                // Hoặc có thể sử dụng recyclerView.scrollToPosition(itemCount - 1); nếu muốn cuộn mà không có hiệu ứng smooth
+            }
+        }
     }
 
 
