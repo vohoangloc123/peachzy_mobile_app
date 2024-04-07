@@ -11,6 +11,8 @@
     <color name="textColorBtn">#453d40</color>
     <color name="bgWhiteBlue">#f5f5f5</color>
     <color name="btnEdit">#FFCEC2</color>
+    <color name="sentColor">#6457FC</color>
+
 
 
 </resources>

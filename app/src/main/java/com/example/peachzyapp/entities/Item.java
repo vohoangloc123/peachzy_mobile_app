@@ -4,16 +4,25 @@ public class Item {
     private String time;
     private String message;
     private String avatar;
+    private boolean isSentByMe;
 
-    public Item(String time, String name, String avatar) {
+    public Item(String time, String message, boolean isSentByMe) {
         this.time = time;
-        this.message = name;
-        this.avatar = avatar;
+        this.message = message;
+        this.isSentByMe = isSentByMe;
     }
 
     public Item(String time, String message) {
         this.time = time;
         this.message = message;
+    }
+
+    public boolean isSentByMe() {
+        return isSentByMe;
+    }
+
+    public void setSentByMe(boolean sentByMe) {
+        isSentByMe = sentByMe;
     }
 
     public String getTime() {
