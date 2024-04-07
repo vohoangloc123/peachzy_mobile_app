@@ -21,6 +21,10 @@ public class MyAdapter extends RecyclerView.Adapter<MyViewHolder> {
         this.context = context;
         this.items = items;
     }
+    public void setItems(List<Item> items) {
+        this.items = items;
+        notifyDataSetChanged(); // Cập nhật giao diện khi dữ liệu thay đổi
+    }
 
     @NonNull
     @Override

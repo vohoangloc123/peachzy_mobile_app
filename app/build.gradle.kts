@@ -63,7 +63,7 @@ dependencies {
     implementation("com.amazonaws:aws-android-sdk-s3:2.75.0")
     //socket.io
     implementation("io.socket:socket.io-client:1.0.0")
-
+    //recycle animator
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.activity)

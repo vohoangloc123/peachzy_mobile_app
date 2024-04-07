@@ -16,62 +16,78 @@ import okhttp3.WebSocket;
 import okhttp3.WebSocketListener;
 import okio.ByteString;
 
-public class MyWebSocket extends WebSocketListener {
+public class MyWebSocket {
     private WebSocket webSocket;
     private OkHttpClient client;
-    String url;
-    Request request;
-    private WebSocketListener listener; // Biến tham chiếu tới giao diện mới
+    private String url;
+    private WebSocketListener listener;
+
     public interface WebSocketListener {
         void onMessageReceived(String message);
+        void onConnectionStateChanged(boolean isConnected);
     }
+
     public MyWebSocket(String url, WebSocketListener listener) {
-        this.listener = listener; // Lưu trữ listener được chuyển từ ChatBoxFragment
-        OkHttpClient client = new OkHttpClient();
-        request = new Request.Builder()
+        this.url = url;
+        this.listener = listener;
+        this.client = new OkHttpClient();
+        connect();
+    }
+
+    private void connect() {
+        Request request = new Request.Builder()
                 .url(url)
                 .build();
-        webSocket = client.newWebSocket(request, this);
+
+        webSocket = client.newWebSocket(request, new okhttp3.WebSocketListener() {
+            @Override
+            public void onOpen(WebSocket webSocket, okhttp3.Response response) {
+                super.onOpen(webSocket, response);
+                listener.onConnectionStateChanged(true);
+            }
+
+            @Override
+            public void onMessage(WebSocket webSocket, String text) {
+                super.onMessage(webSocket, text);
+                listener.onMessageReceived(text);
+            }
+
+            @Override
+            public void onClosed(WebSocket webSocket, int code, String reason) {
+                super.onClosed(webSocket, code, reason);
+                listener.onConnectionStateChanged(false);
+                reconnect();
+            }
+
+            @Override
+            public void onFailure(WebSocket webSocket, Throwable t, okhttp3.Response response) {
+                super.onFailure(webSocket, t, response);
+                listener.onConnectionStateChanged(false);
+                reconnect();
+            }
+        });
     }
 
-    @Override
-    public void onOpen(WebSocket webSocket, okhttp3.Response response) {
-        super.onOpen(webSocket, response);
-        // Khi kết nối mở thành công, bạn có thể thực hiện hành động tại đây.
+    private void reconnect() {
+        // Reconnect logic
+        if (webSocket != null) {
+            webSocket.cancel();
+            webSocket = null;
+        }
+        connect();
     }
 
-    @Override
-    public void onMessage(WebSocket webSocket, String text) {
-        super.onMessage(webSocket, text);
-        // Nhận tin nhắn văn bản từ máy chủ và xử lý ở đây.
-        Log.d("WebSocket", "Received message: " + text);
-        listener.onMessageReceived(text);
-
-    }
-
-    @Override
-    public void onClosed(WebSocket webSocket, int code, String reason) {
-        super.onClosed(webSocket, code, reason);
-        // Xử lý khi kết nối đóng.
-    }
-
-    @Override
-    public void onFailure(WebSocket webSocket, Throwable t, okhttp3.Response response) {
-        super.onFailure(webSocket, t, response);
-        // Xử lý khi xảy ra lỗi.
-        Log.d("Lost connect", "YES");
-    }
-    private void connect() {
-        webSocket = client.newWebSocket(request, this);
-    }
     public void sendMessage(String message) {
-        Log.d("SendMessage", message);
-        webSocket.send(message);
+        if (webSocket != null && webSocket.send(message)) {
+            Log.d("SendMessage", message);
+        } else {
+            Log.e("SendMessage", "Failed to send message: " + message);
+        }
     }
-
 
     public void closeWebSocket() {
-        webSocket.close(1000, "Closing connection");
+        if (webSocket != null) {
+            webSocket.close(1000, "Closing connection");
+        }
     }
-
 }

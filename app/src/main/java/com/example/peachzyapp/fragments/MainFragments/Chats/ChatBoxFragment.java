@@ -1,8 +1,12 @@
-package com.example.peachzyapp;
+package com.example.peachzyapp.fragments.MainFragments.Chats;
 
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
+import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -15,10 +19,10 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.example.peachzyapp.Other.Utils;
+import com.example.peachzyapp.R;
 import com.example.peachzyapp.SocketIO.MyWebSocket;
 import com.example.peachzyapp.adapters.MyAdapter;
 import com.example.peachzyapp.entities.Item;
-import com.example.peachzyapp.fragments.MainFragments.Chats.ChatHistoryFragment;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,7 +53,22 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
 
         // Set up RecyclerView layout manager
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
+        adapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+            @Override
+            public void onChanged() {
+                super.onChanged();
+                recyclerView.scrollToPosition(adapter.getItemCount() - 1);
+            }
+        });
+        LiveData<List<Item>> messageLiveData = new MutableLiveData<>();
+        messageLiveData.observe(getViewLifecycleOwner(), new Observer<List<Item>>() {
+            @Override
+            public void onChanged(List<Item> items) {
+                adapter.setItems(items);
+                recyclerView.scrollToPosition(adapter.getItemCount() - 1);
+            }
+        });
         btnSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -72,20 +91,46 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
 
         return view;
     }
-    @Override
-    public void onMessageReceived(String message) {
-        Log.d("MessageReceived", message);
+//    @Override
+//    public void onMessageReceived(String message) {
+//        Log.d("MessageReceived", message);
+//        String currentTime = Utils.getCurrentTime();
+//        listMessage.add(new Item(currentTime, message));
+//        adapter.notifyItemInserted(listMessage.size() - 1);
+//        recyclerView.scrollToPosition(listMessage.size() - 1);
+//    }
+@Override
+public void onMessageReceived(String message) {
+    Log.d("MessageReceived", message);
+
+    // Kiểm tra xem tin nhắn nhận được có trùng với tin nhắn đã gửi không
+    boolean isDuplicate = false;
+    for (Item item : listMessage) {
+        if (item.getMessage().equals(message)) {
+            isDuplicate = true;
+            break;
+        }
+    }
+
+    if (!isDuplicate) {
+        // Tin nhắn không trùng, thêm nó vào danh sách và cập nhật giao diện
         String currentTime = Utils.getCurrentTime();
         listMessage.add(new Item(currentTime, message));
         adapter.notifyItemInserted(listMessage.size() - 1);
         recyclerView.scrollToPosition(listMessage.size() - 1);
     }
-//    @Override
-//    public void onDestroyView() {
-//        super.onDestroyView();
-//        // Ngắt kết nối khi Fragment bị hủy
-//        myWebSocket.closeWebSocket();
-//    }
+}
+    @Override
+    public void onConnectionStateChanged(boolean isConnected) {
+
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        // Ngắt kết nối khi Fragment bị hủy
+        myWebSocket.closeWebSocket();
+    }
 
 
 }
