@@ -76,7 +76,7 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
                 if (!message.isEmpty()) {
                     // Add the new message to the list and notify adapter
                     String currentTime = Utils.getCurrentTime();
-                    listMessage.add(new Item(currentTime, message));
+                    listMessage.add(new Item(currentTime, message, true));
                     adapter.notifyItemInserted(listMessage.size() - 1);
                     recyclerView.scrollToPosition(listMessage.size() - 1);
                     myWebSocket.sendMessage(message);
@@ -115,7 +115,7 @@ public void onMessageReceived(String message) {
     if (!isDuplicate) {
         // Tin nhắn không trùng, thêm nó vào danh sách và cập nhật giao diện
         String currentTime = Utils.getCurrentTime();
-        listMessage.add(new Item(currentTime, message));
+        listMessage.add(new Item(currentTime, message, false));
         adapter.notifyItemInserted(listMessage.size() - 1);
         recyclerView.scrollToPosition(listMessage.size() - 1);
     }

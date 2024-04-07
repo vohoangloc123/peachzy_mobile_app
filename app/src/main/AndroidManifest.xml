@@ -41,6 +41,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".fragments.MainFragments.Chats.ChatBoxFragment"
+            android:windowSoftInputMode="adjustResize"
+            android:isScrollContainer="true"
+        />
+
     </application>
 
 </manifest>
