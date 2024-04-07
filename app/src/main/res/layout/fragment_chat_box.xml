@@ -8,8 +8,10 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycleview"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_above="@id/layout_input" />
+        android:layout_height="0dp"
+        android:layout_above="@+id/layout_input"
+        android:layout_alignParentTop="true"
+        android:layout_marginBottom="8dp" />
 
     <LinearLayout
         android:id="@+id/layout_input"
