@@ -15,6 +15,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 
 import com.example.peachzyapp.MainActivity;
 import com.example.peachzyapp.R;
@@ -27,10 +28,10 @@ import com.example.peachzyapp.fragments.MainFragments.Chats.ChatHistoryFragment;
 import java.util.ArrayList;
 
 public class FriendsFragment extends Fragment {
-    Button btnAddfriend;
+    ImageButton btnAddfriend;
 
-    Button btnRequestReceived;
-    Button btnRequestSent;
+    ImageButton btnRequestReceived;
+    ImageButton btnRequestSent;
     RecyclerView rcvFriendList;
     private MainActivity mainActivity;
     public static final String TAG= AddFriendFragment.class.getName();

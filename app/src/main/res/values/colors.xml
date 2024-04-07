@@ -5,10 +5,12 @@
     <color name="bgGrey">#f4f4f4</color>
     <color name="bgGreyBlue">#e2e5e9</color>
     <color name="borderColor">#acb5bf</color>
+    <color name="textColorGrey">#737373</color>
     <color name="btnColor">#ff9377</color>
     <color name="red">#FF0000</color>
     <color name="textColorBtn">#453d40</color>
     <color name="bgWhiteBlue">#f5f5f5</color>
     <color name="btnEdit">#FFCEC2</color>
+
 
 </resources>
