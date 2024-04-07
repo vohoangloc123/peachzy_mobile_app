@@ -15,7 +15,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.example.peachzyapp.Other.Utils;
-import com.example.peachzyapp.SocketIO.MySocketManager;
+import com.example.peachzyapp.SocketIO.MyWebSocket;
 import com.example.peachzyapp.adapters.MyAdapter;
 import com.example.peachzyapp.entities.Item;
 import com.example.peachzyapp.fragments.MainFragments.Chats.ChatHistoryFragment;
@@ -24,18 +24,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class ChatBoxFragment extends Fragment {
+public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketListener {
     Button btnSend;
     EditText etMessage;
     private List<Item> listMessage = new ArrayList<>();
     private MyAdapter adapter;
     public static final String TAG= ChatBoxFragment.class.getName();
-    private MySocketManager socketManager;
+    MyWebSocket myWebSocket;
+    RecyclerView recyclerView;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view= inflater.inflate(R.layout.fragment_chat_box, container, false);
-        RecyclerView recyclerView = view.findViewById(R.id.recycleview);
+        recyclerView = view.findViewById(R.id.recycleview);
         btnSend = view.findViewById(R.id.btnSend);
         etMessage = view.findViewById(R.id.etMessage);
 
@@ -43,8 +44,8 @@ public class ChatBoxFragment extends Fragment {
         adapter = new MyAdapter(getContext(), listMessage);
         recyclerView.setAdapter(adapter);
         // Initialize and connect Socket.IO manager
-        socketManager = new MySocketManager();
-        socketManager.connect();
+
+        myWebSocket = new MyWebSocket("wss://s12275.nyc1.piesocket.com/v3/1?api_key=CIL9dbE6489dDCZhDUngwMm43Btfp4J9bdnxEK4m&notify_self=1", this);
 
         // Set up RecyclerView layout manager
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -59,7 +60,7 @@ public class ChatBoxFragment extends Fragment {
                     listMessage.add(new Item(currentTime, message));
                     adapter.notifyItemInserted(listMessage.size() - 1);
                     recyclerView.scrollToPosition(listMessage.size() - 1);
-                    socketManager.sendMessage(message);
+                    myWebSocket.sendMessage(message);
                 } else {
                     Toast.makeText(getContext(), "Please enter a message", Toast.LENGTH_SHORT).show();
                 }
@@ -68,12 +69,23 @@ public class ChatBoxFragment extends Fragment {
             }
         });
 
+
         return view;
     }
     @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        // Disconnect from Socket.IO when fragment is destroyed
-        socketManager.disconnect();
+    public void onMessageReceived(String message) {
+        Log.d("MessageReceived", message);
+        String currentTime = Utils.getCurrentTime();
+        listMessage.add(new Item(currentTime, message));
+        adapter.notifyItemInserted(listMessage.size() - 1);
+        recyclerView.scrollToPosition(listMessage.size() - 1);
     }
+//    @Override
+//    public void onDestroyView() {
+//        super.onDestroyView();
+//        // Ngắt kết nối khi Fragment bị hủy
+//        myWebSocket.closeWebSocket();
+//    }
+
+
 }

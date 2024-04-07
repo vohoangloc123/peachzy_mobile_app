@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -10,36 +11,133 @@
 
     <!-- TODO: Update blank fragment layout -->
 
+
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        tools:layout_editor_absoluteX="0dp"
+        tools:layout_editor_absoluteY="0dp"
+        android:background="@color/bgWhiteBlue">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:background="@color/btnColor"
+            android:orientation="horizontal"
+            android:paddingLeft="10dp">
 
-        <Button
-            android:id="@+id/btnAddFriend"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Add Friend" />
+            <RelativeLayout
+                android:layout_width="100dp"
+                android:layout_height="75dp"
+                android:layout_weight="1"
+                android:background="@color/btnColor"
+                android:orientation="vertical">
 
-        <Button
-            android:id="@+id/btnRequestReceived"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Request Received" />
+                <ImageButton
+                    android:id="@+id/btnAddFriend"
+                    android:layout_width="100dp"
+                    android:layout_height="70dp"
+                    android:layout_weight="1"
+                    android:background="@color/btnColor"
+                    android:src="@drawable/add_fr" />
 
-        <Button
-            android:id="@+id/btnRequestSent"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Request Sent" />
+                <TextView
+                    android:id="@+id/textview1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginTop="55dp"
+                    android:layout_weight="1"
+                    android:text="@string/add_friend_2"
+                    android:textColor="@color/white"
+                    android:textSize="12dp"
+                    android:textStyle="bold" />
+
+                <ImageView
+                    android:id="@+id/imageView3"
+                    android:layout_width="33dp"
+                    android:layout_height="20dp"
+                    android:layout_marginLeft="100dp"
+                    android:layout_marginTop="33dp"
+                    android:src="@drawable/vertical_line" />
+
+
+            </RelativeLayout>
+            <RelativeLayout
+                android:layout_width="107dp"
+                android:layout_height="75dp"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:background="@color/btnColor">
+
+                <ImageButton
+                    android:id="@+id/btnRequestReceived"
+                    android:layout_width="110dp"
+                    android:layout_height="70dp"
+                    android:layout_weight="1"
+                    android:background="@color/btnColor"
+                    android:src="@drawable/received" />
+
+                <TextView
+                    android:id="@+id/textview2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginTop="55dp"
+                    android:layout_weight="1"
+                    android:text="@string/request_received"
+                    android:textColor="@color/white"
+                    android:textStyle="bold"
+                    android:textSize="12dp"/>
+
+                <ImageView
+                    android:id="@+id/imageView4"
+                    android:layout_width="36dp"
+                    android:layout_height="30dp"
+                    android:layout_marginLeft="110dp"
+                    android:layout_marginTop="28dp"
+                    android:src="@drawable/vertical_line" />
+
+
+            </RelativeLayout>
+            <RelativeLayout
+                android:layout_width="114dp"
+                android:layout_height="75dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <ImageButton
+                    android:id="@+id/btnRequestSent"
+                    android:layout_width="match_parent"
+                    android:layout_height="70dp"
+                    android:layout_weight="1"
+                    android:background="@color/btnColor"
+                    android:src="@drawable/sent" />
+
+                <TextView
+                    android:id="@+id/textview3"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="25dp"
+                    android:layout_marginTop="55dp"
+                    android:layout_weight="1"
+                    android:text="@string/request_sent_2"
+                    android:textColor="@color/white"
+                    android:textStyle="bold"
+                    android:textSize="12dp"/>
+
+
+            </RelativeLayout>
+
+
+
+        </LinearLayout>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rcvFriendList"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
 
     </LinearLayout>
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rcvFriendList"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
-
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

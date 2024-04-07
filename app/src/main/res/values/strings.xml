@@ -68,4 +68,7 @@
     <string name="current_password">Current password</string>
     <string name="new_password">New password</string>
     <string name="Renew_password">Renew password</string>
+    <string name="add_friend_2">Add friend</string>
+    <string name="request_received">Request received</string>
+    <string name="request_sent_2">Request sent</string>
 </resources>
