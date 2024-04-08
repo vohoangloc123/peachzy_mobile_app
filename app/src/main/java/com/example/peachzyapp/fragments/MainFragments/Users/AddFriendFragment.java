@@ -20,6 +20,7 @@ import com.example.peachzyapp.entities.FriendItem;
 import java.util.ArrayList;
 
 public class AddFriendFragment extends Fragment {
+    private String test;
     EditText etEmail;
     ImageButton btnFind;
     private DynamoDBManager dynamoDBManager;

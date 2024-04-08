@@ -35,6 +35,7 @@ import java.util.List;
 
 
 public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketListener {
+    private String test;
     Button btnSend;
     EditText etMessage;
     private List<Item> listMessage = new ArrayList<>();

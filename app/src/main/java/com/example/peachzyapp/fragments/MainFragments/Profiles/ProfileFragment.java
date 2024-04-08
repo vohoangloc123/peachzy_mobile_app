@@ -49,6 +49,7 @@ import java.util.Locale;
 import java.util.Random;
 
 public class ProfileFragment extends Fragment {
+    private String test;
     private static final int PICK_IMAGE_REQUEST = 1;
     private static final String BUCKET_NAME = "chat-app-image-cnm";
     EditText etName;

@@ -18,7 +18,7 @@ import com.example.peachzyapp.entities.Item;
 
 public class MyAdapter extends RecyclerView.Adapter<MyViewHolder> {
 
-
+    private String test;
     Context context;
     List<Item> items;
 

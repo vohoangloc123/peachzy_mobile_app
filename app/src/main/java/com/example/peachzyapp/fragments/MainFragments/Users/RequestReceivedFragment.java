@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class RequestReceivedFragment extends Fragment {
+    private String test;
     public static final String TAG2= ChatHistoryFragment.class.getName();
     String uid;
 
