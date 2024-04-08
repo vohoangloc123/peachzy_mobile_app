@@ -132,8 +132,7 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
                     adapter.notifyItemInserted(listMessage.size() - 1);
                     recyclerView.scrollToPosition(listMessage.size() - 1);
                     myWebSocket.sendMessage(message);
-                    saveMessage(message,currentTime);
- //                   dynamoDBManager.saveMessage(uid+friendId, message,currentTime, true);
+                    dynamoDBManager.saveMessage(uid+friend_id, message,currentTime, true);
                     scrollToBottom();
                 } else {
                     Toast.makeText(getContext(), "Please enter a message", Toast.LENGTH_SHORT).show();
@@ -147,17 +146,7 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
         return view;
     }
 
-    private void saveMessage(String message, String currentTime){
-        dynamoDBManager.getChannelID(uid, friend_id, new DynamoDBManager.ChannelIDinterface() {
-            @Override
-            public void GetChannelId(String channelID) {
-                channel_id= channelID;
-                Log.d("channelIDhere", channel_id);
-                dynamoDBManager.saveMessage(channel_id, message,currentTime, true);
 
-            }
-        });
-    }
     private void initWebSocket() {
         // Kiểm tra xem channel_id đã được thiết lập chưa
         if (channel_id != null) {
@@ -195,7 +184,7 @@ public void onMessageReceived(String message) {
         String currentTime = Utils.getCurrentTime();
         listMessage.add(new Item(currentTime, message, false));
         //saveMessage(message,currentTime);
-       // dynamoDBManager.saveMessage(uid + friendId, message, currentTime, false);
+        dynamoDBManager.saveMessage(uid+friend_id, message, currentTime, false);
         newPosition = listMessage.size() - 1; // Vị trí mới của tin nhắn
         adapter.notifyItemInserted(newPosition);
 
