@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CalendarView;
 import android.widget.EditText;
@@ -59,7 +60,7 @@ public class ProfileFragment extends Fragment {
     ImageButton btnChangePassword;
     ImageView ivAvatar;
     MainActivity mainActivity;
-    Button btnChangeAvatar;
+    ImageButton btnChangeAvatar;
     RadioButton rMale;
     RadioButton rFemale;
     TransferUtility s3TransferUtility;
@@ -84,6 +85,8 @@ public class ProfileFragment extends Fragment {
         mainActivity= (MainActivity) getActivity();
         rMale=view.findViewById(R.id.rMale);
         rFemale=view.findViewById(R.id.rFemale);
+//        getActivity().getWindow().setSoftInputMode(
+//                WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
         SharedPreferences preferences = getActivity().getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
         uid = preferences.getString("uid", null);
 
@@ -112,10 +115,18 @@ public class ProfileFragment extends Fragment {
                     startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
                 }
         );
+
+        //resize
+        Picasso.get()
+                .load(urlAvatar)
+                .resize(200, 200) // Điều chỉnh kích thước theo yêu cầu
+                .centerCrop()
+                .into(ivAvatar);
         //update code
         btnChangePassword.setOnClickListener(v->{
             mainActivity.goToRequestChangePasswordFragment();
         });
+
         btnSave.setOnClickListener(v -> {
             String name = etName.getText().toString().trim();
             String dateOfBirth = etDateOfBirth.getText().toString().trim();
