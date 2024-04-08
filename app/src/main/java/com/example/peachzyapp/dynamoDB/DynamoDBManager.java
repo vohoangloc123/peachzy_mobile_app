@@ -323,7 +323,7 @@ public void addFriend(final String userId, final String friendId, final String s
         e.printStackTrace();
     }
 }
-
+//.
     public void getProfileByUID(String uid, FriendFoundForGetUIDByEmailListener listener) {
         try {
             if (ddbClient == null) {
