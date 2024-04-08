@@ -8,7 +8,9 @@ import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
+import com.amazonaws.services.dynamodbv2.model.AttributeAction;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
+import com.amazonaws.services.dynamodbv2.model.AttributeValueUpdate;
 import com.amazonaws.services.dynamodbv2.model.ComparisonOperator;
 import com.amazonaws.services.dynamodbv2.model.Condition;
 import com.amazonaws.services.dynamodbv2.model.GetItemRequest;
@@ -16,15 +18,21 @@ import com.amazonaws.services.dynamodbv2.model.GetItemResult;
 import com.amazonaws.services.dynamodbv2.model.ListTablesResult;
 import com.amazonaws.services.dynamodbv2.model.PutItemRequest;
 import com.amazonaws.services.dynamodbv2.model.PutItemResult;
+import com.amazonaws.services.dynamodbv2.model.ReturnValue;
 import com.amazonaws.services.dynamodbv2.model.ScanRequest;
 import com.amazonaws.services.dynamodbv2.model.ScanResult;
+import com.amazonaws.services.dynamodbv2.model.UpdateItemRequest;
+import com.amazonaws.services.dynamodbv2.model.UpdateItemResult;
 import com.example.peachzyapp.entities.FriendItem;
+import com.google.gson.Gson;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class DynamoDBManager {
     private Context context;
@@ -491,4 +499,65 @@ public class DynamoDBManager {
         void onSuccess(String avatar);
         void onError(Exception e);
     }
+    public void saveMessage(String messageId, String message, String time, Boolean sentByMe) {
+        Log.d("SaveMessageInfo", messageId + message + time + sentByMe);
+        try {
+            if (ddbClient == null) {
+                initializeDynamoDB();
+            }
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    GetItemRequest getItemRequest = new GetItemRequest()
+                            .withTableName("ChatHistory")
+                            .withKey(Collections.singletonMap("_id", new AttributeValue().withS(messageId)));
+                    GetItemResult getItemResult = ddbClient.getItem(getItemRequest);
+
+                    if (getItemResult.getItem() == null) {
+                        // Nếu cuộc trò chuyện chưa tồn tại, tạo mới và lưu vào DynamoDB
+                        Map<String, AttributeValue> item = new HashMap<>();
+                        item.put("_id", new AttributeValue().withS(messageId));
+                        List<Map<String, AttributeValue>> messages = new ArrayList<>();
+                        Map<String, AttributeValue> messageItem = new HashMap<>();
+                        messageItem.put("time", new AttributeValue().withS(time));
+                        messageItem.put("message", new AttributeValue().withS(message));
+                        messageItem.put("sentByMe", new AttributeValue().withBOOL(sentByMe));
+                        messages.add(messageItem);
+                        item.put("messages", new AttributeValue().withL(messages.stream()
+                                .map(msg -> new AttributeValue().withM(msg))
+                                .collect(Collectors.toList())));
+
+                        PutItemRequest putItemRequest = new PutItemRequest()
+                                .withTableName("ChatHistory")
+                                .withItem(item);
+
+                        ddbClient.putItem(putItemRequest);
+                    } else {
+                        // Nếu cuộc trò chuyện đã tồn tại, thêm tin nhắn mới vào mảng messages
+                        Map<String, AttributeValueUpdate> updates = new HashMap<>();
+                        Map<String, AttributeValue> messageItem = new HashMap<>();
+                        messageItem.put("time", new AttributeValue().withS(time));
+                        messageItem.put("message", new AttributeValue().withS(message));
+                        messageItem.put("sentByMe", new AttributeValue().withBOOL(sentByMe));
+                        updates.put("messages", new AttributeValueUpdate()
+                                .withAction(AttributeAction.ADD)
+                                .withValue(new AttributeValue().withL(Collections.singletonList(new AttributeValue().withM(messageItem)))));
+
+                        UpdateItemRequest updateItemRequest = new UpdateItemRequest()
+                                .withTableName("ChatHistory")
+                                .withKey(Collections.singletonMap("_id", new AttributeValue().withS(messageId)))
+                                .withAttributeUpdates(updates);
+
+                        ddbClient.updateItem(updateItemRequest);
+                    }
+
+                }
+            }).start(); // Khởi chạy thread
+        } catch (Exception e) {
+            // Gọi callback nếu có lỗi xảy ra
+
+        }
+    }
+
+
 }

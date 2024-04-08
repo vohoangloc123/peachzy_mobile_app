@@ -1,6 +1,7 @@
 package com.example.peachzyapp.fragments.MainFragments.Chats;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -26,6 +27,7 @@ import com.example.peachzyapp.Other.Utils;
 import com.example.peachzyapp.R;
 import com.example.peachzyapp.SocketIO.MyWebSocket;
 import com.example.peachzyapp.adapters.MyAdapter;
+import com.example.peachzyapp.dynamoDB.DynamoDBManager;
 import com.example.peachzyapp.entities.Item;
 
 import java.util.ArrayList;
@@ -41,6 +43,9 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
     MyWebSocket myWebSocket;
     RecyclerView recyclerView;
     int newPosition;
+    String uid;
+    String friendId;
+    DynamoDBManager dynamoDBManager;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -55,7 +60,8 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
         // Initialize and connect Socket.IO manager
 
         myWebSocket = new MyWebSocket("wss://s12275.nyc1.piesocket.com/v3/1?api_key=CIL9dbE6489dDCZhDUngwMm43Btfp4J9bdnxEK4m&notify_self=1", this);
-
+        // initialize dynamoDB
+        dynamoDBManager=new DynamoDBManager(getContext());
         // Set up RecyclerView layout manager
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setItemAnimator(new DefaultItemAnimator());
@@ -66,8 +72,16 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
                 recyclerView.scrollToPosition(adapter.getItemCount() - 1);
             }
         });
+        //xử lý resize giao diện và đẩy edit text và button lên khi chat ngoài ra còn load tin nhắn mói từ dưới lên
         InputMethodManager inputManager = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
         inputManager.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT);
+        //nhận uid của bản thân và id của người bạn
+        //bản thân
+        SharedPreferences preferences = getActivity().getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
+        uid = preferences.getString("uid", null);
+        //người bạn
+//        friendId = getArguments().getString("friend_id");
+        friendId = "ur gon";
         ((LinearLayoutManager)recyclerView.getLayoutManager()).setStackFromEnd(true);
         LiveData<List<Item>> messageLiveData = new MutableLiveData<>();
         getActivity().getWindow().setSoftInputMode(
@@ -92,6 +106,7 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
                     adapter.notifyItemInserted(listMessage.size() - 1);
                     recyclerView.scrollToPosition(listMessage.size() - 1);
                     myWebSocket.sendMessage(message);
+                    dynamoDBManager.saveMessage(uid+friendId, message,currentTime, true);
                     scrollToBottom();
                 } else {
                     Toast.makeText(getContext(), "Please enter a message", Toast.LENGTH_SHORT).show();
@@ -129,6 +144,7 @@ public void onMessageReceived(String message) {
         // Tin nhắn không trùng, thêm nó vào danh sách và cập nhật giao diện
         String currentTime = Utils.getCurrentTime();
         listMessage.add(new Item(currentTime, message, false));
+        dynamoDBManager.saveMessage(uid + friendId, message, currentTime, false);
         newPosition = listMessage.size() - 1; // Vị trí mới của tin nhắn
         adapter.notifyItemInserted(newPosition);
 
