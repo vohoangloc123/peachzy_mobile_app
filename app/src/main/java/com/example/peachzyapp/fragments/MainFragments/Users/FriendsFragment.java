@@ -28,6 +28,7 @@ import com.example.peachzyapp.fragments.MainFragments.Chats.ChatHistoryFragment;
 import java.util.ArrayList;
 
 public class FriendsFragment extends Fragment {
+    private String test;
     ImageButton btnAddfriend;
 
     ImageButton btnRequestReceived;

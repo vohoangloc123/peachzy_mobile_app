@@ -27,7 +27,7 @@ import com.squareup.picasso.Picasso;
 import java.util.ArrayList;
 import java.util.List;
 public class RequestReceivedAdapter extends RecyclerView.Adapter<RequestReceivedAdapter.FriendViewHolder>{
-
+    private String test;
     private List<FriendItem> listFriend;
     public ImageView ivAvatar;
     Button btnAccept;

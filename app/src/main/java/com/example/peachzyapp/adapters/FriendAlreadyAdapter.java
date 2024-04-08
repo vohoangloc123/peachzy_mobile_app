@@ -16,7 +16,7 @@ import com.squareup.picasso.Picasso;
 import java.util.List;
 
 public class FriendAlreadyAdapter extends RecyclerView.Adapter<FriendAlreadyAdapter.FriendViewHolder>{
-
+    private String test;
     private List<FriendItem> listFriend;
     public ImageView avatarImageView;
     private OnItemClickListener mListener;

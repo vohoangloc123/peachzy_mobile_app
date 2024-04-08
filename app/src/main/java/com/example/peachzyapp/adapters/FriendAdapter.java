@@ -22,6 +22,7 @@ import com.squareup.picasso.Picasso;
 import java.util.ArrayList;
 
 public class FriendAdapter extends ArrayAdapter<FriendItem> {
+    private String test;
     DynamoDBManager dynamoDBManager;
     private Context mContext;
     private int mResource;
