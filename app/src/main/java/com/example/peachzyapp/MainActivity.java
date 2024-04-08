@@ -285,10 +285,10 @@ public void goToDetailFragment(ChatBox chatBox) {
         fragmentTransaction.addToBackStack(changePasswordFragment.TAG);
         fragmentTransaction.commit();
     }
-    public void goToChatBoxFragment() {
+    public void goToChatBoxFragment(Bundle bundle) {
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         ChatBoxFragment chatBoxFragment=new ChatBoxFragment();
-//            Bundle bundle = new Bundle();
+        bundle.putString("uid", uid);
 //            bundle.putSerializable("object_chatbox", chatBox);
 //            chatHistoryFragment.setArguments(bundle);
 
@@ -316,6 +316,7 @@ public void goToDetailFragment(ChatBox chatBox) {
 
         // Ẩn bottomNavigationView
         showBottomNavigation(false);
+        chatBoxFragment.setArguments(bundle);
         fragmentTransaction.addToBackStack(chatBoxFragment.TAG);
         fragmentTransaction.commit();
 
