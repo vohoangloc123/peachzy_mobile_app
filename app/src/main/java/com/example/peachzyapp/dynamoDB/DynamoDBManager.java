@@ -191,71 +191,138 @@ public class DynamoDBManager {
         void onFriendNotFound();
         void onError(Exception e);
     }
-    public void addFriend(final String userId, final String friendId, final String status) {
-        try {
-            if (ddbClient == null) {
-                initializeDynamoDB();
-            }
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        // Lấy danh sách bạn bè hiện có từ cơ sở dữ liệu
-                        GetItemRequest getRequest = new GetItemRequest().withTableName("Users").withKey(Collections.singletonMap("_id", new AttributeValue(userId)));
-                        GetItemResult getResult = ddbClient.getItem(getRequest);
-                        Map<String, AttributeValue> item = getResult.getItem();
+//    public void addFriend(final String userId, final String friendId, final String status) {
+//        try {
+//            if (ddbClient == null) {
+//                initializeDynamoDB();
+//            }
+//            new Thread(new Runnable() {
+//                @Override
+//                public void run() {
+//                    try {
+//                        // Lấy danh sách bạn bè hiện có từ cơ sở dữ liệu
+//                        GetItemRequest getRequest = new GetItemRequest().withTableName("Users").withKey(Collections.singletonMap("_id", new AttributeValue(userId)));
+//                        GetItemResult getResult = ddbClient.getItem(getRequest);
+//                        Map<String, AttributeValue> item = getResult.getItem();
+//
+//                        // Kiểm tra xem danh sách "friends" đã được tạo chưa
+//                        if (item.containsKey("friends")) {
+//                            List<AttributeValue> friendsList = item.get("friends").getL();
+//                            boolean found = false;
+//                            // Duyệt qua danh sách bạn bè để kiểm tra xem bạn bè đã tồn tại chưa
+//                            for (AttributeValue friend : friendsList) {
+//                                String friendIdExisting = friend.getM().get("_idFriend").getS();
+//                                if (friendIdExisting.equals(friendId)) {
+//                                    // Nếu bạn bè đã tồn tại, cập nhật trạng thái của họ
+//                                    friend.getM().put("status", new AttributeValue(status));
+//                                    found = true;
+//                                    break;
+//                                }
+//                            }
+//                            if (!found) {
+//                                // Nếu bạn bè không tồn tại, thêm mới vào danh sách
+//                                Map<String, AttributeValue> friendItem = new HashMap<>();
+//                                friendItem.put("_idFriend", new AttributeValue(friendId)); // ID của người bạn
+//                                friendItem.put("status", new AttributeValue(status)); // Trạng thái của mối quan hệ
+//                                friendsList.add(new AttributeValue().withM(friendItem));
+//                            }
+//                        } else {
+//                            // Nếu danh sách "friends" chưa tồn tại, tạo mới danh sách và thêm bạn bè vào
+//                            List<AttributeValue> friendsList = new ArrayList<>();
+//                            Map<String, AttributeValue> friendItem = new HashMap<>();
+//                            friendItem.put("_idFriend", new AttributeValue(friendId)); // ID của người bạn
+//                            friendItem.put("status", new AttributeValue(status)); // Trạng thái của mối quan hệ
+//                            friendsList.add(new AttributeValue().withM(friendItem));
+//                            item.put("friends", new AttributeValue().withL(friendsList)); // Thêm danh sách vào item
+//                        }
+//
+//                        // Tạo yêu cầu put item để cập nhật danh sách "friends" của người dùng trong cơ sở dữ liệu
+//                        PutItemRequest putItemRequest = new PutItemRequest()
+//                                .withTableName("Users")
+//                                .withItem(item);
+//
+//                        // Thực hiện cập nhật danh sách "friends" của người dùng trong cơ sở dữ liệu
+//                        ddbClient.putItem(putItemRequest);
+//
+//                        // Debug
+//                        Log.d("AddFriend", "Successfully added friend with ID: " + friendId + " to user with ID: " + userId + " with status: " + status);
+//
+//                    } catch (Exception e) {
+//                        e.printStackTrace();
+//                    }
+//                }
+//            }).start(); // Khởi chạy thread
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//    }
+public void addFriend(final String userId, final String friendId, final String status, final String channelID) {
+    try {
+        if (ddbClient == null) {
+            initializeDynamoDB();
+        }
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    // Lấy danh sách bạn bè hiện có từ cơ sở dữ liệu
+                    GetItemRequest getRequest = new GetItemRequest().withTableName("Users").withKey(Collections.singletonMap("_id", new AttributeValue(userId)));
+                    GetItemResult getResult = ddbClient.getItem(getRequest);
+                    Map<String, AttributeValue> item = getResult.getItem();
 
-                        // Kiểm tra xem danh sách "friends" đã được tạo chưa
-                        if (item.containsKey("friends")) {
-                            List<AttributeValue> friendsList = item.get("friends").getL();
-                            boolean found = false;
-                            // Duyệt qua danh sách bạn bè để kiểm tra xem bạn bè đã tồn tại chưa
-                            for (AttributeValue friend : friendsList) {
-                                String friendIdExisting = friend.getM().get("_idFriend").getS();
-                                if (friendIdExisting.equals(friendId)) {
-                                    // Nếu bạn bè đã tồn tại, cập nhật trạng thái của họ
-                                    friend.getM().put("status", new AttributeValue(status));
-                                    found = true;
-                                    break;
-                                }
+                    // Kiểm tra xem danh sách "friends" đã được tạo chưa
+                    if (item.containsKey("friends")) {
+                        List<AttributeValue> friendsList = item.get("friends").getL();
+                        boolean found = false;
+                        // Duyệt qua danh sách bạn bè để kiểm tra xem bạn bè đã tồn tại chưa
+                        for (AttributeValue friend : friendsList) {
+                            String friendIdExisting = friend.getM().get("_idFriend").getS();
+                            if (friendIdExisting.equals(friendId)) {
+                                // Nếu bạn bè đã tồn tại, cập nhật trạng thái của họ
+                                friend.getM().put("status", new AttributeValue(status));
+                                found = true;
+                                break;
                             }
-                            if (!found) {
-                                // Nếu bạn bè không tồn tại, thêm mới vào danh sách
-                                Map<String, AttributeValue> friendItem = new HashMap<>();
-                                friendItem.put("_idFriend", new AttributeValue(friendId)); // ID của người bạn
-                                friendItem.put("status", new AttributeValue(status)); // Trạng thái của mối quan hệ
-                                friendsList.add(new AttributeValue().withM(friendItem));
-                            }
-                        } else {
-                            // Nếu danh sách "friends" chưa tồn tại, tạo mới danh sách và thêm bạn bè vào
-                            List<AttributeValue> friendsList = new ArrayList<>();
+                        }
+                        if (!found) {
+                            // Nếu bạn bè không tồn tại, thêm mới vào danh sách
                             Map<String, AttributeValue> friendItem = new HashMap<>();
                             friendItem.put("_idFriend", new AttributeValue(friendId)); // ID của người bạn
-                            friendItem.put("status", new AttributeValue(status)); // Trạng thái của mối quan hệ
+                            friendItem.put("status", new AttributeValue(status));
+                            friendItem.put("channel_id", new AttributeValue(channelID));// Trạng thái của mối quan hệ
                             friendsList.add(new AttributeValue().withM(friendItem));
-                            item.put("friends", new AttributeValue().withL(friendsList)); // Thêm danh sách vào item
                         }
-
-                        // Tạo yêu cầu put item để cập nhật danh sách "friends" của người dùng trong cơ sở dữ liệu
-                        PutItemRequest putItemRequest = new PutItemRequest()
-                                .withTableName("Users")
-                                .withItem(item);
-
-                        // Thực hiện cập nhật danh sách "friends" của người dùng trong cơ sở dữ liệu
-                        ddbClient.putItem(putItemRequest);
-
-                        // Debug
-                        Log.d("AddFriend", "Successfully added friend with ID: " + friendId + " to user with ID: " + userId + " with status: " + status);
-
-                    } catch (Exception e) {
-                        e.printStackTrace();
+                    } else {
+                        // Nếu danh sách "friends" chưa tồn tại, tạo mới danh sách và thêm bạn bè vào
+                        List<AttributeValue> friendsList = new ArrayList<>();
+                        Map<String, AttributeValue> friendItem = new HashMap<>();
+                        friendItem.put("_idFriend", new AttributeValue(friendId)); // ID của người bạn
+                        friendItem.put("status", new AttributeValue(status));// Trạng thái của mối quan hệ
+                        friendItem.put("channel_id", new AttributeValue(channelID));
+                        friendsList.add(new AttributeValue().withM(friendItem));
+                        item.put("friends", new AttributeValue().withL(friendsList)); // Thêm danh sách vào item
                     }
+
+                    // Tạo yêu cầu put item để cập nhật danh sách "friends" của người dùng trong cơ sở dữ liệu
+                    PutItemRequest putItemRequest = new PutItemRequest()
+                            .withTableName("Users")
+                            .withItem(item);
+
+                    // Thực hiện cập nhật danh sách "friends" của người dùng trong cơ sở dữ liệu
+                    ddbClient.putItem(putItemRequest);
+
+                    // Debug
+                    Log.d("AddFriend", "Successfully added friend with ID: " + friendId + " to user with ID: " + userId + " with status: " + status);
+
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
-            }).start(); // Khởi chạy thread
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+            }
+        }).start(); // Khởi chạy thread
+    } catch (Exception e) {
+        e.printStackTrace();
     }
+}
 
     public void getProfileByUID(String uid, FriendFoundForGetUIDByEmailListener listener) {
         try {
@@ -499,8 +566,8 @@ public class DynamoDBManager {
         void onSuccess(String avatar);
         void onError(Exception e);
     }
-    public void saveMessage(String messageId, String message, String time, Boolean sentByMe) {
-        Log.d("SaveMessageInfo", messageId + message + time + sentByMe);
+    public void saveMessage(String channelID, String message, String time, Boolean sentByMe) {
+        Log.d("SaveMessageInfo", channelID + message + time + sentByMe);
         try {
             if (ddbClient == null) {
                 initializeDynamoDB();
@@ -510,13 +577,13 @@ public class DynamoDBManager {
                 public void run() {
                     GetItemRequest getItemRequest = new GetItemRequest()
                             .withTableName("ChatHistory")
-                            .withKey(Collections.singletonMap("_id", new AttributeValue().withS(messageId)));
+                            .withKey(Collections.singletonMap("_id", new AttributeValue().withS(channelID)));
                     GetItemResult getItemResult = ddbClient.getItem(getItemRequest);
 
                     if (getItemResult.getItem() == null) {
                         // Nếu cuộc trò chuyện chưa tồn tại, tạo mới và lưu vào DynamoDB
                         Map<String, AttributeValue> item = new HashMap<>();
-                        item.put("_id", new AttributeValue().withS(messageId));
+                        item.put("_id", new AttributeValue().withS(channelID));
                         List<Map<String, AttributeValue>> messages = new ArrayList<>();
                         Map<String, AttributeValue> messageItem = new HashMap<>();
                         messageItem.put("time", new AttributeValue().withS(time));
@@ -545,7 +612,7 @@ public class DynamoDBManager {
 
                         UpdateItemRequest updateItemRequest = new UpdateItemRequest()
                                 .withTableName("ChatHistory")
-                                .withKey(Collections.singletonMap("_id", new AttributeValue().withS(messageId)))
+                                .withKey(Collections.singletonMap("_id", new AttributeValue().withS(channelID)))
                                 .withAttributeUpdates(updates);
 
                         ddbClient.updateItem(updateItemRequest);
@@ -559,5 +626,50 @@ public class DynamoDBManager {
         }
     }
 
+    public void getChannelID(String id,String _idFriend, ChannelIDinterface listener) {
+        try {
+            if (ddbClient == null) {
+                initializeDynamoDB();
+            }
 
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        // Tạo một yêu cầu truy vấn
+                        HashMap<String, Condition> scanFilter = new HashMap<String, Condition>();
+                        Condition condition = new Condition()
+                                .withComparisonOperator(ComparisonOperator.EQ.toString())
+                                .withAttributeValueList(new AttributeValue().withS(id));
+                        scanFilter.put("_id", condition);
+
+                        ScanRequest scanRequest = new ScanRequest("Users").withScanFilter(scanFilter);
+                        ScanResult scanResult = ddbClient.scan(scanRequest);
+                        for (Map<String, AttributeValue> item : scanResult.getItems()) {
+                            List<AttributeValue> friendsList = item.get("friends").getL();
+                            for (AttributeValue friend : friendsList) {
+                                String friendID = friend.getM().get("_idFriend").getS();
+                                if (friendID.equals(_idFriend)) {
+                                    String channel_id = friend.getM().get("channel_id").getS(); // Lấy giá trị của thuộc tính "_idFriend"
+                                    Log.d("channel_id", channel_id);
+                                    listener.GetChannelId(channel_id);
+//                                    findFriendByID(friendId,listener);
+                                }
+                            }
+                        }
+                    } catch (Exception e) {
+
+                    }
+                }
+            }).start(); // Khởi chạy thread
+        } catch (Exception e) {
+            Log.e("", "Error checking DynamoDB connection: " + e.getMessage());
+        }
+    }
+
+    public interface ChannelIDinterface {
+
+        void GetChannelId(String channelID);
+
+    }
 }

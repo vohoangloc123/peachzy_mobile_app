@@ -80,9 +80,12 @@ public class RequestReceivedAdapter extends RecyclerView.Adapter<RequestReceived
             Picasso.get().load(avatarUrl).placeholder(R.drawable.logo).into(ivAvatar);
 
             btnAccept.setOnClickListener(v -> {
+                Button btnAccept = (Button) holder.itemView.findViewById(R.id.btnAccept);
+                btnAccept.setEnabled(false);
+                btnAccept.setAlpha(0.5f);
                 // Gửi yêu cầu chấp nhận lời mời kết bạn
-                dynamoDBManager.addFriend(uid, friendId, "1");
-                dynamoDBManager.addFriend(friendId, uid, "1");
+                dynamoDBManager.addFriend(uid, friendId, "1",uid+"-"+friendId);
+                dynamoDBManager.addFriend(friendId, uid, "1",uid+"-"+friendId);
 
                 Toast.makeText(v.getContext(), "Đã chấp nhận lời mời kết bạn từ " + name, Toast.LENGTH_SHORT).show();
             });

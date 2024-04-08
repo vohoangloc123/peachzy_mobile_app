@@ -61,8 +61,10 @@ public class FriendAdapter extends ArrayAdapter<FriendItem> {
             addFriendButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    dynamoDBManager.addFriend(uid, friendId, "2");
-                    dynamoDBManager.addFriend(friendId, uid, "3");
+                    addFriendButton.setEnabled(false);
+                    addFriendButton.setAlpha(0.5f);
+                    dynamoDBManager.addFriend(uid, friendId, "2",uid+"-"+friendId);
+                    dynamoDBManager.addFriend(friendId, uid, "3",uid+"-"+friendId);
                     Toast.makeText(mContext, "Add friend button clicked for " + name, Toast.LENGTH_SHORT).show();
                 }
             });

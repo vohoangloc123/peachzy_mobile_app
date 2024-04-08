@@ -112,7 +112,7 @@ public class FriendsFragment extends Fragment {
                 Bundle bundle = new Bundle();
                 bundle.putString("friend_id", id);
                 Log.d("FriendsFragmentCheckFriendAdapter","YES");
-                mainActivity.goToChatBoxFragment();
+                mainActivity.goToChatBoxFragment(bundle);
 
             }
         });

@@ -39,13 +39,19 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
     EditText etMessage;
     private List<Item> listMessage = new ArrayList<>();
     private MyAdapter adapter;
-    public static final String TAG= ChatBoxFragment.class.getName();
+    public static final String TAG= ChatHistoryFragment.class.getName();
     MyWebSocket myWebSocket;
     RecyclerView recyclerView;
     int newPosition;
-    String uid;
+
     String friendId;
-    DynamoDBManager dynamoDBManager;
+
+    //// new
+    String uid;
+    String friend_id;
+    View view;
+    private String channel_id = null;
+     DynamoDBManager dynamoDBManager;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -59,7 +65,7 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
         recyclerView.setAdapter(adapter);
         // Initialize and connect Socket.IO manager
 
-        myWebSocket = new MyWebSocket("wss://s12275.nyc1.piesocket.com/v3/1?api_key=CIL9dbE6489dDCZhDUngwMm43Btfp4J9bdnxEK4m&notify_self=1", this);
+       // myWebSocket = new MyWebSocket("wss://s12275.nyc1.piesocket.com/v3/1?api_key=CIL9dbE6489dDCZhDUngwMm43Btfp4J9bdnxEK4m&notify_self=1", this);
         // initialize dynamoDB
         dynamoDBManager=new DynamoDBManager(getContext());
         // Set up RecyclerView layout manager
@@ -72,6 +78,24 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
                 recyclerView.scrollToPosition(adapter.getItemCount() - 1);
             }
         });
+
+        //Get ID
+        Bundle bundleReceive=getArguments();
+        uid = bundleReceive.getString("uid");
+        Log.d("RequestUIDChat", "onCreateView: "+uid);
+        friend_id= bundleReceive.getString("friend_id");
+        Log.d("RequestUIDfriend", "onCreateView: "+friend_id);
+
+        dynamoDBManager.getChannelID(uid, friend_id, new DynamoDBManager.ChannelIDinterface() {
+            @Override
+            public void GetChannelId(String channelID) {
+                channel_id= channelID;
+                Log.d("RequestUIDchannel1", "onCreateView: "+channel_id);
+                initWebSocket();
+
+            }
+        });
+        Log.d("RequestUIDchannel2", "onCreateView: "+channel_id);
         //xử lý resize giao diện và đẩy edit text và button lên khi chat ngoài ra còn load tin nhắn mói từ dưới lên
         InputMethodManager inputManager = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
         inputManager.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT);
@@ -79,9 +103,10 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
         //bản thân
         SharedPreferences preferences = getActivity().getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
         uid = preferences.getString("uid", null);
+
         //người bạn
 //        friendId = getArguments().getString("friend_id");
-        friendId = "ur gon";
+ //       friendId = "ur gon";
         ((LinearLayoutManager)recyclerView.getLayoutManager()).setStackFromEnd(true);
         LiveData<List<Item>> messageLiveData = new MutableLiveData<>();
         getActivity().getWindow().setSoftInputMode(
@@ -106,7 +131,8 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
                     adapter.notifyItemInserted(listMessage.size() - 1);
                     recyclerView.scrollToPosition(listMessage.size() - 1);
                     myWebSocket.sendMessage(message);
-                    dynamoDBManager.saveMessage(uid+friendId, message,currentTime, true);
+                    saveMessage(message,currentTime);
+ //                   dynamoDBManager.saveMessage(uid+friendId, message,currentTime, true);
                     scrollToBottom();
                 } else {
                     Toast.makeText(getContext(), "Please enter a message", Toast.LENGTH_SHORT).show();
@@ -119,6 +145,29 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
 
         return view;
     }
+
+    private void saveMessage(String message, String currentTime){
+        dynamoDBManager.getChannelID(uid, friend_id, new DynamoDBManager.ChannelIDinterface() {
+            @Override
+            public void GetChannelId(String channelID) {
+                channel_id= channelID;
+                Log.d("channelIDhere", channel_id);
+                dynamoDBManager.saveMessage(channel_id, message,currentTime, true);
+
+            }
+        });
+    }
+    private void initWebSocket() {
+        // Kiểm tra xem channel_id đã được thiết lập chưa
+        if (channel_id != null) {
+            // Nếu đã có channel_id, thì khởi tạo myWebSocket
+            myWebSocket = new MyWebSocket("wss://s12275.nyc1.piesocket.com/v3/"+channel_id+"?api_key=CIL9dbE6489dDCZhDUngwMm43Btfp4J9bdnxEK4m&notify_self=1", this);
+        } else {
+            // Nếu channel_id vẫn chưa được thiết lập, hiển thị thông báo hoặc xử lý lỗi tương ứng
+            Log.e("WebSocket", "Error: Channel ID is null");
+        }
+    }
+
 //    @Override
 //    public void onMessageReceived(String message) {
 //        Log.d("MessageReceived", message);
@@ -144,7 +193,8 @@ public void onMessageReceived(String message) {
         // Tin nhắn không trùng, thêm nó vào danh sách và cập nhật giao diện
         String currentTime = Utils.getCurrentTime();
         listMessage.add(new Item(currentTime, message, false));
-        dynamoDBManager.saveMessage(uid + friendId, message, currentTime, false);
+        saveMessage(message,currentTime);
+       // dynamoDBManager.saveMessage(uid + friendId, message, currentTime, false);
         newPosition = listMessage.size() - 1; // Vị trí mới của tin nhắn
         adapter.notifyItemInserted(newPosition);
 
