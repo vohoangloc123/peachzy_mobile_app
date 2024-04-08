@@ -193,7 +193,7 @@ public void onMessageReceived(String message) {
         // Tin nhắn không trùng, thêm nó vào danh sách và cập nhật giao diện
         String currentTime = Utils.getCurrentTime();
         listMessage.add(new Item(currentTime, message, false));
-        saveMessage(message,currentTime);
+        //saveMessage(message,currentTime);
        // dynamoDBManager.saveMessage(uid + friendId, message, currentTime, false);
         newPosition = listMessage.size() - 1; // Vị trí mới của tin nhắn
         adapter.notifyItemInserted(newPosition);
