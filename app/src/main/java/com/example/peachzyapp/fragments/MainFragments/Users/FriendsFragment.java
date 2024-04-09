@@ -6,6 +6,8 @@ import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -17,6 +19,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
 
+import com.example.peachzyapp.LiveData.MyViewModel;
 import com.example.peachzyapp.MainActivity;
 import com.example.peachzyapp.R;
 import com.example.peachzyapp.adapters.FriendAlreadyAdapter;
@@ -44,6 +47,7 @@ public class FriendsFragment extends Fragment {
     FriendItem friendItem;
     private View view;
     String uid;
+    private MyViewModel viewModel;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -86,6 +90,18 @@ public class FriendsFragment extends Fragment {
             }
         });
 
+        //Live data
+        viewModel = new ViewModelProvider(requireActivity()).get(MyViewModel.class);
+        viewModel.getData().observe(getViewLifecycleOwner(), new Observer<String>() {
+            @Override
+            public void onChanged(String newData) {
+                Log.d("Livedata", "onChanged: Yes");
+                // Cập nhật RecyclerView hoặc bất kỳ thành phần UI nào khác ở đây
+                // newData chứa dữ liệu mới từ Fragment con
+                resetRecycleView();
+            }
+        });
+
         mainActivity= (MainActivity) getActivity();
         btnAddfriend=view.findViewById(R.id.btnAddFriend);
         btnAddfriend.setOnClickListener(v->{
@@ -120,6 +136,29 @@ public class FriendsFragment extends Fragment {
         RecyclerView.ItemDecoration itemDecoration=new DividerItemDecoration(mainActivity, DividerItemDecoration.VERTICAL);
         rcvFriendList.addItemDecoration(itemDecoration);
         return view;
+    }
+
+    public void resetRecycleView(){
+        friendList.clear();
+        dynamoDBManager.getIDFriend(uid,"1", new DynamoDBManager.AlreadyFriendListener() {
+            @Override
+            public void onFriendAlreadyFound(FriendItem data) {
+
+            }
+
+            @Override
+            public void onFriendAcceptRequestFound(String id, String name, String avatar) {
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        friendItem = new FriendItem(id, avatar, name);
+
+                        friendList.add(friendItem);
+                        friendAdapter.notifyDataSetChanged();
+                    }
+                });
+            }
+        });
     }
 
 }
