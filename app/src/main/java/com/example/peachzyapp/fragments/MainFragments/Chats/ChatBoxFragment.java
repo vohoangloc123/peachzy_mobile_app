@@ -21,6 +21,7 @@ import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.example.peachzyapp.Other.Utils;
@@ -36,7 +37,7 @@ import java.util.List;
 
 public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketListener {
     private String test;
-    Button btnSend;
+    ImageButton btnSend;
     EditText etMessage;
     private List<Item> listMessage = new ArrayList<>();
     private MyAdapter adapter;
@@ -44,7 +45,7 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
     MyWebSocket myWebSocket;
     RecyclerView recyclerView;
     int newPosition;
-
+    String avatar;
 
     //// new
     String uid;
@@ -85,7 +86,9 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
         Log.d("RequestUIDChat", "onCreateView: "+uid);
         friend_id= bundleReceive.getString("friend_id");
         Log.d("RequestUIDfriend", "onCreateView: "+friend_id);
+        avatar="https://chat-app-image-cnm.s3.ap-southeast-1.amazonaws.com/avatar_20240409_151015_1719.jpg.jpg";
         updateRecyclerView();
+        Log.d("CheckAvatarReceived", avatar);
         dynamoDBManager.getChannelID(uid, friend_id, new DynamoDBManager.ChannelIDinterface() {
             @Override
             public void GetChannelId(String channelID) {
@@ -103,10 +106,6 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
         //bản thân
         SharedPreferences preferences = getActivity().getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
         uid = preferences.getString("uid", null);
-
-        //người bạn
-//        friendId = getArguments().getString("friend_id");
- //       friendId = "ur gon";
         ((LinearLayoutManager)recyclerView.getLayoutManager()).setStackFromEnd(true);
         LiveData<List<Item>> messageLiveData = new MutableLiveData<>();
         getActivity().getWindow().setSoftInputMode(
@@ -127,7 +126,7 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
                     // Add the new message to the list and notify adapter
                     scrollToBottom();
                     String currentTime = Utils.getCurrentTime();
-                    listMessage.add(new Item(currentTime, message, true));
+                    listMessage.add(new Item(currentTime, message, avatar ,true));
                     adapter.notifyItemInserted(listMessage.size() - 1);
                     recyclerView.scrollToPosition(listMessage.size() - 1);
                     myWebSocket.sendMessage(message);
@@ -157,14 +156,6 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
         }
     }
 
-//    @Override
-//    public void onMessageReceived(String message) {
-//        Log.d("MessageReceived", message);
-//        String currentTime = Utils.getCurrentTime();
-//        listMessage.add(new Item(currentTime, message));
-//        adapter.notifyItemInserted(listMessage.size() - 1);
-//        recyclerView.scrollToPosition(listMessage.size() - 1);
-//    }
 @Override
 public void onMessageReceived(String message) {
     Log.d("MessageReceived", message);
@@ -181,7 +172,8 @@ public void onMessageReceived(String message) {
     if (!isDuplicate) {
         // Tin nhắn không trùng, thêm nó vào danh sách và cập nhật giao diện
         String currentTime = Utils.getCurrentTime();
-        listMessage.add(new Item(currentTime, message, false));
+        listMessage.add(new Item(currentTime, message, avatar,false));
+        Log.d("CheckingListMessage", listMessage.toString());
         //saveMessage(message,currentTime);
         dynamoDBManager.saveMessage(uid+friend_id, message, currentTime, false);
         newPosition = listMessage.size() - 1; // Vị trí mới của tin nhắn
@@ -230,7 +222,11 @@ public void onMessageReceived(String message) {
 
         // Thêm các tin nhắn mới từ DynamoDB vào danh sách hiện tại
         List<Item> newMessages = dynamoDBManager.loadMessages(uid+friend_id);
-        listMessage.addAll(newMessages);
+        for (Item message : newMessages) {
+            // Tạo một đối tượng Message mới với thông tin từ tin nhắn và avatar
+            Item newMessage = new Item(message.getTime(), message.getMessage(), avatar,message.isSentByMe());
+            listMessage.add(newMessage);
+        }
 
         // Cập nhật RecyclerView
         adapter.notifyDataSetChanged();

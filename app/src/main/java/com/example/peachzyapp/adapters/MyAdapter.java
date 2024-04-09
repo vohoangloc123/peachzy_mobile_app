@@ -1,9 +1,16 @@
 package com.example.peachzyapp.adapters;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
+import android.util.Base64;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
@@ -15,6 +22,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.peachzyapp.R;
 import com.example.peachzyapp.entities.Item;
+import com.squareup.picasso.Picasso;
 
 public class MyAdapter extends RecyclerView.Adapter<MyViewHolder> {
 
@@ -52,18 +60,18 @@ public class MyAdapter extends RecyclerView.Adapter<MyViewHolder> {
 //            holder.itemView.setBackgroundResource(R.color.sentColor); // Đặt background cho tin nhắn của người gửi
             holder.tvMessage.setTextColor(context.getColor(R.color.white)); // Đặt màu cho nội dung tin nhắn của người gửi
             holder.tvMessage.setBackgroundColor(ContextCompat.getColor(context, R.color.sentColor));
+            holder.ivAvatar.setVisibility(View.GONE);
             params.addRule(RelativeLayout.ALIGN_PARENT_END);
         } else {
             // Tin nhắn của người nhận (bên trái)
 //            holder.itemView.setBackgroundResource(R.color.bgGrey); // Đặt background cho tin nhắn của người nhận
             holder.tvMessage.setTextColor(context.getColor(R.color.black)); // Đặt màu cho nội dung tin nhắn của người nhận
         }
-
+        Picasso.get().load(currentItem.getAvatar()).into(holder.ivAvatar);
         // Đặt dữ liệu cho các TextView trong ViewHolder
         holder.tvTime.setText(currentItem.getTime());
         holder.tvMessage.setText(currentItem.getMessage());
     }
-
     @Override
     public int getItemCount() {
         return items.size();

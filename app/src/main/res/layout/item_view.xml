@@ -12,16 +12,24 @@
         android:layout_height="36dp"
         android:gravity="center"
         android:textSize="12sp"
-        tools:text="11:40"
-        android:background="@color/btnEdit"/>
+        tools:text="11:40"/>
+
+    <ImageView
+        android:id="@+id/ivAvatar"
+        android:layout_width="38dp"
+        android:layout_height="39dp"
+        android:layout_below="@id/tvTime"
+        android:padding="8dp"
+        android:src="@drawable/logo" />
 
     <TextView
         android:id="@+id/tvMessage"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/tvTime"
-        android:layout_gravity="start"
-        android:layout_marginStart="12dp"
+        android:layout_gravity="end"
+        android:layout_marginStart="30dp"
+        android:layout_marginTop="2dp"
         android:background="@drawable/rounded_rectangle_secondary"
         android:maxWidth="240dp"
         android:paddingLeft="12dp"
@@ -30,7 +38,7 @@
         android:paddingBottom="6dp"
         android:textColor="@android:color/black"
         android:textSize="16sp"
-        tools:text="This is a message"/>
+        tools:text="This is a message" />
 
     <LinearLayout
         android:layout_width="match_parent"

@@ -12,6 +12,6 @@
     <color name="bgWhiteBlue">#f5f5f5</color>
     <color name="btnEdit">#FFCEC2</color>
     <color name="sentColor">#6457FC</color>
-
+    <color name="textHintChat">#9FA9B3</color>
 
 </resources>

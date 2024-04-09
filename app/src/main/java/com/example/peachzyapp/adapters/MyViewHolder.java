@@ -11,12 +11,13 @@ import com.example.peachzyapp.R;
 
 public class MyViewHolder extends RecyclerView.ViewHolder {
 
-    ImageView imageView;
+    ImageView ivAvatar;
     TextView tvTime, tvMessage;
 
     public MyViewHolder(@NonNull View itemView) {
         super(itemView);
         tvTime = itemView.findViewById(R.id.tvTime);
         tvMessage = itemView.findViewById(R.id.tvMessage);
+        ivAvatar=itemView.findViewById(R.id.ivAvatar);
     }
 }
