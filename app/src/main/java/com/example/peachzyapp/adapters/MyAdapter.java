@@ -46,31 +46,57 @@ public class MyAdapter extends RecyclerView.Adapter<MyViewHolder> {
     }
 
     @Override
-    public void onBindViewHolder(@NonNull  MyViewHolder holder, int position) {
-//        holder.tvTime.setText(items.get(position).getTime());
-//        holder.tvMessage.setText(items.get(position).getMessage());
+    public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
         Item currentItem = items.get(position);
 
         // Kiểm tra xem tin nhắn có phải của người gửi hay không
-        boolean isSentByMe = currentItem.isSentByMe(); // Bạn cần cung cấp một cách nào đó để xác định tin nhắn của người gửi
+        boolean isSentByMe = currentItem.isSentByMe();
         RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) holder.tvMessage.getLayoutParams();
-        // Hiển thị tin nhắn với màu nền tương ứng
+        RelativeLayout.LayoutParams paramsOfImage = (RelativeLayout.LayoutParams) holder.ivMessage.getLayoutParams();
+
+        // Hiển thị avatar
+        Picasso.get().load(currentItem.getAvatar()).into(holder.ivAvatar);
+
+        // Hiển thị thời gian
+        holder.tvTime.setText(currentItem.getTime());
+
+        // Nếu tin nhắn là của người gửi
         if (isSentByMe) {
-            // Tin nhắn của người gửi (bên phải)
-//            holder.itemView.setBackgroundResource(R.color.sentColor); // Đặt background cho tin nhắn của người gửi
-            holder.tvMessage.setTextColor(context.getColor(R.color.white)); // Đặt màu cho nội dung tin nhắn của người gửi
+            holder.tvMessage.setTextColor(context.getColor(R.color.white));
             holder.tvMessage.setBackgroundColor(ContextCompat.getColor(context, R.color.sentColor));
             holder.ivAvatar.setVisibility(View.GONE);
             params.addRule(RelativeLayout.ALIGN_PARENT_END);
-        } else {
-            // Tin nhắn của người nhận (bên trái)
-//            holder.itemView.setBackgroundResource(R.color.bgGrey); // Đặt background cho tin nhắn của người nhận
-            holder.tvMessage.setTextColor(context.getColor(R.color.black)); // Đặt màu cho nội dung tin nhắn của người nhận
+            paramsOfImage.addRule(RelativeLayout.ALIGN_PARENT_END);
+            // Nếu tin nhắn chứa đường dẫn của hình ảnh từ S3
+            if (isS3ImageUrl(currentItem.getMessage())) {
+                Picasso.get().load(currentItem.getMessage()).into(holder.ivMessage);
+                holder.tvMessage.setVisibility(View.GONE);
+                holder.ivMessage.setVisibility(View.VISIBLE); // Hiển thị ivMessage
+            } else {
+                // Hiển thị văn bản tin nhắn
+                holder.ivMessage.setVisibility(View.GONE);
+                holder.tvMessage.setVisibility(View.VISIBLE);
+                holder.tvMessage.setText(currentItem.getMessage());
+            }
+        } else { // Nếu tin nhắn là của người nhận
+            holder.tvMessage.setTextColor(context.getColor(R.color.black));
+            holder.ivMessage.setVisibility(View.GONE);
+            holder.tvMessage.setVisibility(View.VISIBLE);
+            // Nếu tin nhắn chứa đường dẫn của hình ảnh từ S3
+            if (isS3ImageUrl(currentItem.getMessage())) {
+                Picasso.get().load(currentItem.getMessage()).into(holder.ivMessage);
+                holder.ivMessage.setVisibility(View.VISIBLE); // Hiển thị ivMessage
+            } else {
+                // Hiển thị văn bản tin nhắn
+                holder.ivMessage.setVisibility(View.GONE);
+                holder.tvMessage.setVisibility(View.VISIBLE);
+                holder.tvMessage.setText(currentItem.getMessage());
+            }
         }
-        Picasso.get().load(currentItem.getAvatar()).into(holder.ivAvatar);
-        // Đặt dữ liệu cho các TextView trong ViewHolder
-        holder.tvTime.setText(currentItem.getTime());
-        holder.tvMessage.setText(currentItem.getMessage());
+    }
+
+    private boolean isS3ImageUrl(String url) {
+        return url != null && url.startsWith("https://chat-app-image-cnm.s3.ap-southeast-1.amazonaws.com/");
     }
     @Override
     public int getItemCount() {

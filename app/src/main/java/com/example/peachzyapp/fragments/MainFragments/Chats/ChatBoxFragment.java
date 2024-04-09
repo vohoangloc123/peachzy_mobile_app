@@ -1,7 +1,12 @@
 package com.example.peachzyapp.fragments.MainFragments.Chats;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.media.Image;
+import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -12,6 +17,8 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.provider.MediaStore;
+import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,8 +29,17 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.regions.Region;
+import com.amazonaws.regions.Regions;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.example.peachzyapp.Other.Utils;
 import com.example.peachzyapp.R;
 import com.example.peachzyapp.SocketIO.MyWebSocket;
@@ -31,13 +47,20 @@ import com.example.peachzyapp.adapters.MyAdapter;
 import com.example.peachzyapp.dynamoDB.DynamoDBManager;
 import com.example.peachzyapp.entities.Item;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
+import java.util.Random;
 
 
 public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketListener {
-    private String test;
     ImageButton btnSend;
+    ImageButton btnImage;
     EditText etMessage;
     private List<Item> listMessage = new ArrayList<>();
     private MyAdapter adapter;
@@ -46,28 +69,34 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
     RecyclerView recyclerView;
     int newPosition;
     String avatar;
-
-    //// new
     String uid;
     String friend_id;
-    View view;
     private String channel_id = null;
     DynamoDBManager dynamoDBManager;
     private String urlAvatar;
+    private static final int PICK_IMAGE_REQUEST = 1;
+    private static final String BUCKET_NAME = "chat-app-image-cnm";
+    PutObjectRequest request;
+    private AmazonS3 s3Client;
+    String urlImage;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view= inflater.inflate(R.layout.fragment_chat_box, container, false);
         recyclerView = view.findViewById(R.id.recycleview);
         btnSend = view.findViewById(R.id.btnSend);
+        btnImage=view.findViewById(R.id.btnImage);
         etMessage = view.findViewById(R.id.etMessage);
-
         // Initialize the adapter only once
         adapter = new MyAdapter(getContext(), listMessage);
         recyclerView.setAdapter(adapter);
         // Initialize and connect Socket.IO manager
         // initialize dynamoDB
         dynamoDBManager=new DynamoDBManager(getContext());
+        BasicAWSCredentials credentials = new BasicAWSCredentials("AKIAZI2LEH5QNBAXEUHP", "krI7P46llTA2kLj+AZQGSr9lEviTlS4bwQzBXSSi");
+        // Tạo Amazon S3 client
+        s3Client = new AmazonS3Client(credentials);
+        s3Client.setRegion(Region.getRegion(Regions.AP_SOUTHEAST_1));
         // Set up RecyclerView layout manager
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setItemAnimator(new DefaultItemAnimator());
@@ -141,11 +170,92 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
                 etMessage.getText().clear();
             }
         });
+        btnImage.setOnClickListener(v->{
+            Intent intent = new Intent();
+            intent.setType("image/*");
+            intent.setAction(Intent.ACTION_GET_CONTENT);
+            startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
+        });
 
 
         return view;
     }
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
 
+        if (requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK && data != null && data.getData() != null) {
+            Uri uri = data.getData();
+            try {
+                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), uri);
+                Log.d("CheckUri", uri.toString());
+
+                // Chuyển đổi bitmap thành chuỗi Base64
+                ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
+                byte[] byteArray = byteArrayOutputStream.toByteArray();
+                String encodedBitmap = Base64.encodeToString(byteArray, Base64.DEFAULT);
+
+                // Tạo tin nhắn mới với ảnh và thêm vào danh sách
+                String currentTime = Utils.getCurrentTime();
+                Item newItem = new Item(currentTime, null, urlAvatar, true); // Khởi tạo newItem với imageUrl = null
+                newItem.setBitmapString(encodedBitmap); // Đặt chuỗi Base64 vào đối tượng Item
+                listMessage.add(newItem);
+                adapter.notifyItemInserted(listMessage.size() - 1);
+                recyclerView.scrollToPosition(listMessage.size() - 1);
+                uploadImageToS3AndSocketAndDynamoDB(uri);
+//
+//                // Lưu tin nhắn vào DynamoDB (nếu cần)
+//                 dynamoDBManager.saveMessage(uid + friend_id, urlImage, currentTime, true);
+
+                // Cuộn đến cuối danh sách
+                scrollToBottom();
+
+                // Upload ảnh lên S3 (nếu cần)
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    private void uploadImageToS3AndSocketAndDynamoDB(Uri uri) {
+        new Thread(() -> {
+            try {
+                // Mở InputStream từ Uri
+                InputStream inputStream = getActivity().getContentResolver().openInputStream(uri);
+
+                // Tạo tên file duy nhất
+                String fileName = generateFileName();
+
+                // Tạo đối tượng PutObjectRequest và đặt tên bucket và key
+                request = new PutObjectRequest(BUCKET_NAME, fileName + ".jpg", inputStream, new ObjectMetadata());
+
+                // Upload ảnh lên S3
+                s3Client.putObject(request);
+
+                // Đóng InputStream sau khi tải lên thành công
+                inputStream.close();
+                String currentTime = Utils.getCurrentTime();
+                // Lưu URL của ảnh vào biến để sử dụng sau này
+                urlImage = "https://chat-app-image-cnm.s3.ap-southeast-1.amazonaws.com/" + fileName + ".jpg";
+                myWebSocket.sendMessage(urlImage);
+                dynamoDBManager.saveMessage(uid + friend_id, urlImage, currentTime, true);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }).start();
+    }
+
+    private String generateFileName() {
+        // Lấy ngày giờ hiện tại
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
+
+        // Tạo dãy số random
+        int randomNumber = new Random().nextInt(10000);
+
+        // Kết hợp ngày giờ và dãy số random để tạo tên file
+        return "image_" + timeStamp + "_" + randomNumber;
+    }
 
     private void initWebSocket() {
         // Kiểm tra xem channel_id đã được thiết lập chưa

@@ -7,12 +7,15 @@ public class Item {
     private String message;
     private String avatar;
     private boolean isSentByMe;
+    private String imageUrl;
+    private String bitmapString;
 
     public Item(String time, String message, String avatar, boolean isSentByMe) {
         this.time = time;
         this.message = message;
         this.avatar = avatar;
         this.isSentByMe = isSentByMe;
+        this.imageUrl = null;
     }
 
     public Item(String time, String message, boolean isSentByMe) {
@@ -25,7 +28,13 @@ public class Item {
         this.time = time;
         this.message = message;
     }
+    public String getBitmapString() {
+        return bitmapString;
+    }
 
+    public void setBitmapString(String bitmapString) {
+        this.bitmapString = bitmapString;
+    }
     public boolean isSentByMe() {
         return isSentByMe;
     }
@@ -52,6 +61,13 @@ public class Item {
 
     public String getAvatar() {
         return avatar;
+    }
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 
     public void setAvatar(String avatar) {

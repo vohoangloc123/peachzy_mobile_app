@@ -137,13 +137,13 @@ public class FriendsFragment extends Fragment {
                         Log.d("CheckAvatarUrl", avatarUrl);
                         //Bundle bundle = new Bundle();
                         bundle.putString("avatarUrl", avatarUrl);
-
+                        mainActivity.goToChatBoxFragment(bundle);
                     }
                     @Override
                     public void onError(Exception e) {
                     }
                 });
-                mainActivity.goToChatBoxFragment(bundle);
+
 
             }
         });
