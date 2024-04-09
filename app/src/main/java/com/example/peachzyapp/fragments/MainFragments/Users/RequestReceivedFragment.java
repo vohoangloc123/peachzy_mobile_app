@@ -7,10 +7,12 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.peachzyapp.LiveData.MyViewModel;
 import com.example.peachzyapp.MainActivity;
 import com.example.peachzyapp.R;
 import com.example.peachzyapp.adapters.RequestReceivedAdapter;
@@ -34,6 +36,13 @@ public class RequestReceivedFragment extends Fragment {
     FriendItem friendItem;
 
     private ArrayList<FriendItem> friendList;
+
+    private MyViewModel viewModel;
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        viewModel = new ViewModelProvider(this).get(MyViewModel.class);
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -76,6 +85,8 @@ public class RequestReceivedFragment extends Fragment {
         });
 
         rcvRequestReceived.setAdapter(requestReceivedAdapter);
+        viewModel = new ViewModelProvider(requireActivity()).get(MyViewModel.class);
+        changeData();
 
         return view;
     }
@@ -86,5 +97,15 @@ public class RequestReceivedFragment extends Fragment {
             list.add(new FriendItem("name"+i));
         }
         return list;
+    }
+    private void changeData() {
+        viewModel.setData("New data");
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        viewModel.setData("Change");
+        Log.d("Detach", "onDetach: ");
     }
 }
