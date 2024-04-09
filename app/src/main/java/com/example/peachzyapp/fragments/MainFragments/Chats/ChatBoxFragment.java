@@ -85,7 +85,7 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
         friend_id= bundleReceive.getString("friend_id");
         Log.d("RequestUIDfriend", "onCreateView: "+friend_id);
         urlAvatar= bundleReceive.getString("avatarUrl");
-        Log.d("RequestUIDfriend", "onCreateView: "+friend_id);
+        Log.d("RequesturlAvatar", "onCreateView: "+urlAvatar);
         avatar="https://chat-app-image-cnm.s3.ap-southeast-1.amazonaws.com/avatar_20240409_151015_1719.jpg.jpg";
 
         Log.d("CheckAvatarReceived", avatar);
