@@ -135,7 +135,7 @@ public class FriendsFragment extends Fragment {
                     public void onSuccess(String avatarUrl) {
                         // Xử lý đường dẫn avatar ở đây
                         Log.d("CheckAvatarUrl", avatarUrl);
-                        Bundle bundle = new Bundle();
+                        //Bundle bundle = new Bundle();
                         bundle.putString("avatarUrl", avatarUrl);
 
                     }
