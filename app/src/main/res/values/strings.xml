@@ -71,4 +71,5 @@
     <string name="add_friend_2">Add friend</string>
     <string name="request_received">Request received</string>
     <string name="request_sent_2">Request sent</string>
+    <string name="nhap_tin_nhan">Nhập tin nhắn...</string>
 </resources>

@@ -1,10 +1,19 @@
 package com.example.peachzyapp.entities;
 
+import android.graphics.Bitmap;
+
 public class Item {
     private String time;
     private String message;
     private String avatar;
     private boolean isSentByMe;
+
+    public Item(String time, String message, String avatar, boolean isSentByMe) {
+        this.time = time;
+        this.message = message;
+        this.avatar = avatar;
+        this.isSentByMe = isSentByMe;
+    }
 
     public Item(String time, String message, boolean isSentByMe) {
         this.time = time;
@@ -47,5 +56,14 @@ public class Item {
 
     public void setAvatar(String avatar) {
         this.avatar = avatar;
+    }
+    @Override
+    public String toString() {
+        return "Item{" +
+                "time='" + time + '\'' +
+                ", message='" + message + '\'' +
+                ", avatar='" + avatar + '\'' +
+                ", sentByMe=" + isSentByMe +
+                '}';
     }
 }

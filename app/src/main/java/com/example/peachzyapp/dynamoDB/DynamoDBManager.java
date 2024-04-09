@@ -18,17 +18,13 @@ import com.amazonaws.services.dynamodbv2.model.GetItemResult;
 import com.amazonaws.services.dynamodbv2.model.ListTablesResult;
 import com.amazonaws.services.dynamodbv2.model.PutItemRequest;
 import com.amazonaws.services.dynamodbv2.model.PutItemResult;
-import com.amazonaws.services.dynamodbv2.model.ReturnValue;
 import com.amazonaws.services.dynamodbv2.model.ScanRequest;
 import com.amazonaws.services.dynamodbv2.model.ScanResult;
 import com.amazonaws.services.dynamodbv2.model.UpdateItemRequest;
-import com.amazonaws.services.dynamodbv2.model.UpdateItemResult;
 import com.example.peachzyapp.entities.FriendItem;
 import com.example.peachzyapp.entities.Item;
-import com.google.gson.Gson;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -723,5 +719,35 @@ public class DynamoDBManager {
         }
 
         return messages;
+    }
+    public String getAvatarByUIDOfFriend(String friendUID) {
+        try {
+            if (ddbClient == null) {
+                initializeDynamoDB();
+            }
+
+            // Tạo một yêu cầu truy vấn
+            HashMap<String, Condition> scanFilter = new HashMap<String, Condition>();
+            Condition condition = new Condition()
+                    .withComparisonOperator(ComparisonOperator.EQ.toString())
+                    .withAttributeValueList(new AttributeValue().withS(friendUID));
+            scanFilter.put("_id", condition);
+
+            ScanRequest scanRequest = new ScanRequest("Users").withScanFilter(scanFilter);
+            ScanResult scanResult = ddbClient.scan(scanRequest);
+
+            // Lấy avatar từ kết quả của truy vấn
+            for (Map<String, AttributeValue> item : scanResult.getItems()) {
+                AttributeValue avatarAttributeValue = item.get("avatar");
+                if (avatarAttributeValue != null) {
+                    return avatarAttributeValue.getS();
+                }
+            }
+            // Trả về null nếu không tìm thấy avatar
+            return null;
+        } catch (Exception e) {
+            Log.e("", "Error checking DynamoDB connection: " + e.getMessage());
+            return null;
+        }
     }
 }
