@@ -52,7 +52,8 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
     String friend_id;
     View view;
     private String channel_id = null;
-     DynamoDBManager dynamoDBManager;
+    DynamoDBManager dynamoDBManager;
+    private String urlAvatar;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -65,8 +66,6 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
         adapter = new MyAdapter(getContext(), listMessage);
         recyclerView.setAdapter(adapter);
         // Initialize and connect Socket.IO manager
-
-       // myWebSocket = new MyWebSocket("wss://s12275.nyc1.piesocket.com/v3/1?api_key=CIL9dbE6489dDCZhDUngwMm43Btfp4J9bdnxEK4m&notify_self=1", this);
         // initialize dynamoDB
         dynamoDBManager=new DynamoDBManager(getContext());
         // Set up RecyclerView layout manager
@@ -79,15 +78,16 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
                 recyclerView.scrollToPosition(adapter.getItemCount() - 1);
             }
         });
-
         //Get ID
         Bundle bundleReceive=getArguments();
         uid = bundleReceive.getString("uid");
         Log.d("RequestUIDChat", "onCreateView: "+uid);
         friend_id= bundleReceive.getString("friend_id");
         Log.d("RequestUIDfriend", "onCreateView: "+friend_id);
+        urlAvatar= bundleReceive.getString("avatarUrl");
+        Log.d("RequestUIDfriend", "onCreateView: "+friend_id);
         avatar="https://chat-app-image-cnm.s3.ap-southeast-1.amazonaws.com/avatar_20240409_151015_1719.jpg.jpg";
-        updateRecyclerView();
+
         Log.d("CheckAvatarReceived", avatar);
         dynamoDBManager.getChannelID(uid, friend_id, new DynamoDBManager.ChannelIDinterface() {
             @Override
@@ -106,6 +106,8 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
         //bản thân
         SharedPreferences preferences = getActivity().getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
         uid = preferences.getString("uid", null);
+
+        updateRecyclerView();
         ((LinearLayoutManager)recyclerView.getLayoutManager()).setStackFromEnd(true);
         LiveData<List<Item>> messageLiveData = new MutableLiveData<>();
         getActivity().getWindow().setSoftInputMode(
@@ -126,7 +128,7 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
                     // Add the new message to the list and notify adapter
                     scrollToBottom();
                     String currentTime = Utils.getCurrentTime();
-                    listMessage.add(new Item(currentTime, message, avatar ,true));
+                    listMessage.add(new Item(currentTime, message,urlAvatar ,true));
                     adapter.notifyItemInserted(listMessage.size() - 1);
                     recyclerView.scrollToPosition(listMessage.size() - 1);
                     myWebSocket.sendMessage(message);
@@ -172,7 +174,7 @@ public void onMessageReceived(String message) {
     if (!isDuplicate) {
         // Tin nhắn không trùng, thêm nó vào danh sách và cập nhật giao diện
         String currentTime = Utils.getCurrentTime();
-        listMessage.add(new Item(currentTime, message, avatar,false));
+        listMessage.add(new Item(currentTime, message, urlAvatar,false));
         Log.d("CheckingListMessage", listMessage.toString());
         //saveMessage(message,currentTime);
         dynamoDBManager.saveMessage(uid+friend_id, message, currentTime, false);
@@ -224,7 +226,7 @@ public void onMessageReceived(String message) {
         List<Item> newMessages = dynamoDBManager.loadMessages(uid+friend_id);
         for (Item message : newMessages) {
             // Tạo một đối tượng Message mới với thông tin từ tin nhắn và avatar
-            Item newMessage = new Item(message.getTime(), message.getMessage(), avatar,message.isSentByMe());
+            Item newMessage = new Item(message.getTime(), message.getMessage(), urlAvatar,message.isSentByMe());
             listMessage.add(newMessage);
         }
 
