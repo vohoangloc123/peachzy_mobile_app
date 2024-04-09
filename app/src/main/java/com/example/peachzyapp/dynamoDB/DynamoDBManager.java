@@ -688,7 +688,6 @@ public class DynamoDBManager {
                             .withTableName("ChatHistory")
                             .withKey(Collections.singletonMap("_id", new AttributeValue().withS(messageId)));
                     GetItemResult getItemResult = ddbClient.getItem(getItemRequest);
-                    Log.d("SaveMessageInfo", String.valueOf(getItemResult));
                     if (getItemResult.getItem() != null) {
                         // Nếu cuộc trò chuyện đã tồn tại, trích xuất tin nhắn và load lên giao diện
                         Map<String, AttributeValue> item = getItemResult.getItem();

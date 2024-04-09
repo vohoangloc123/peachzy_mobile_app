@@ -225,10 +225,18 @@ public void onMessageReceived(String message) {
         }
     }
     public void updateRecyclerView() {
+        // Xóa bỏ các tin nhắn cũ từ listMessage
+        listMessage.clear();
+
+        // Thêm các tin nhắn mới từ DynamoDB vào danh sách hiện tại
         List<Item> newMessages = dynamoDBManager.loadMessages(uid+friend_id);
-        listMessage.addAll(newMessages); // Thêm các tin nhắn mới vào danh sách hiện tại
-        adapter.notifyDataSetChanged(); // Cập nhật RecyclerView
-        recyclerView.scrollToPosition(listMessage.size() - 1); // Cuộn đến vị trí cuối cùng
+        listMessage.addAll(newMessages);
+
+        // Cập nhật RecyclerView
+        adapter.notifyDataSetChanged();
+
+        // Cuộn đến vị trí cuối cùng
+        recyclerView.scrollToPosition(listMessage.size() - 1);
     }
 
 
