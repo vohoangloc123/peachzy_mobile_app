@@ -42,6 +42,7 @@ public class DynamoDBManager {
         }
         this.context = context;
     }
+
     private static AWSCredentials getAWSCredentials() {
         // Đây có thể là nơi bạn truy xuất thông tin xác thực từ nơi nào đó, chẳng hạn như SharedPreferences hoặc cơ sở dữ liệu
         // Trong ví dụ này, tôi sẽ trả về thông tin xác thực cố định, bạn có thể điều chỉnh theo nhu cầu của mình
@@ -58,12 +59,10 @@ public class DynamoDBManager {
             ListTablesResult tables = ddbClient.listTables();
 
 
-
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-
 
 
     public boolean checkDynamoDBConnection() {
@@ -96,7 +95,8 @@ public class DynamoDBManager {
             return false;
         }
     }
-    public void createAccountWithFirebaseUID(String firebaseUID, String firstName, String lastName, String email,String dateOfBirth, Boolean sex) {
+
+    public void createAccountWithFirebaseUID(String firebaseUID, String firstName, String lastName, String email, String dateOfBirth, Boolean sex) {
 
         try {
             if (ddbClient == null) {
@@ -114,7 +114,7 @@ public class DynamoDBManager {
                         // Tạo một mục mới
                         Map<String, AttributeValue> item = new HashMap<>();
                         item.put("_id", new AttributeValue().withS(firebaseUID));
-                        item.put("name", new AttributeValue().withS(firstName+" "+lastName));
+                        item.put("name", new AttributeValue().withS(firstName + " " + lastName));
                         item.put("email", new AttributeValue().withS(email));
                         item.put("avatar", new AttributeValue().withS("https://chat-app-image-cnm.s3.ap-southeast-1.amazonaws.com/avatar.jpg"));
                         item.put("dateOfBirth", new AttributeValue().withS(dateOfBirth));
@@ -137,6 +137,7 @@ public class DynamoDBManager {
             Log.e("DynamoDBManager", "Error checking DynamoDB connection: " + e.getMessage());
         }
     }//update code 2
+
     public void findFriend(String email, FriendFoundListener listener) {
         try {
             if (ddbClient == null) {
@@ -159,12 +160,12 @@ public class DynamoDBManager {
 
                         // Xử lý kết quả
                         for (Map<String, AttributeValue> item : scanResult.getItems()) {
-                            String id=item.get("_id").getS();
+                            String id = item.get("_id").getS();
                             String name = item.get("name").getS();
                             String avatar = item.get("avatar").getS();
 
                             // Tạo một chuỗi để hiển thị trong ListView, ví dụ: "Name: [Tên], Avatar: [Avatar]"
-                            String friendResult = "Id"+ id+ "Name: " + name + ", Avatar: " + avatar;
+                            String friendResult = "Id" + id + "Name: " + name + ", Avatar: " + avatar;
 
                             // Log dữ liệu
                             Log.d("friendResult", friendResult);
@@ -186,9 +187,12 @@ public class DynamoDBManager {
     // Định nghĩa interface để truyền kết quả tìm kiếm bạn bè
     public interface FriendFoundListener {
         void onFriendFound(String id, String friendResult, String avatar);
+
         void onFriendNotFound();
+
         void onError(Exception e);
     }
+
     //    public void addFriend(final String userId, final String friendId, final String status) {
 //        try {
 //            if (ddbClient == null) {
@@ -321,13 +325,14 @@ public class DynamoDBManager {
             e.printStackTrace();
         }
     }
-//.
+
+    //.
     public void getProfileByUID(String uid, FriendFoundForGetUIDByEmailListener listener) {
         try {
             if (ddbClient == null) {
                 initializeDynamoDB();
             }
-            Log.d("getProfileByUID",uid);
+            Log.d("getProfileByUID", uid);
             new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -341,16 +346,16 @@ public class DynamoDBManager {
 
                         ScanRequest scanRequest = new ScanRequest("Users").withScanFilter(scanFilter);
                         ScanResult scanResult = ddbClient.scan(scanRequest);
-                        Log.d("getProfileByUID1",uid);
+                        Log.d("getProfileByUID1", uid);
                         // Xử lý kết quả
                         for (Map<String, AttributeValue> item : scanResult.getItems()) {
-                            String name=item.get("name").getS();
+                            String name = item.get("name").getS();
                             String email = item.get("email").getS();
-                            String avatar=item.get("avatar").getS();
+                            String avatar = item.get("avatar").getS();
                             Boolean sex = Boolean.valueOf(item.get("sex").getBOOL()); // Lấy giá trị sex từ item
-                            String dateOfBirth=item.get("dateOfBirth").getS();
+                            String dateOfBirth = item.get("dateOfBirth").getS();
                             // Tạo một chuỗi để hiển thị trong ListView, ví dụ: "Name: [Tên], Avatar: [Avatar]"
-                            String userResult = "name đã nhận: " + name+ "email đã nhận: "+ email;
+                            String userResult = "name đã nhận: " + name + "email đã nhận: " + email;
 
                             // Log dữ liệu
                             Log.d("userResult", userResult);
@@ -369,7 +374,7 @@ public class DynamoDBManager {
         }
     }
 
-    public void getIDFriend(String id,String status, AlreadyFriendListener listener) {
+    public void getIDFriend(String id, String status, AlreadyFriendListener listener) {
         try {
             if (ddbClient == null) {
                 initializeDynamoDB();
@@ -395,7 +400,7 @@ public class DynamoDBManager {
                                 if (status.equals(status_friend)) {
                                     String friendId = friend.getM().get("_idFriend").getS(); // Lấy giá trị của thuộc tính "_idFriend"
                                     Log.d("friendID", friendId);
-                                    findFriendByID(friendId,listener);
+                                    findFriendByID(friendId, listener);
                                 }
                             }
                         }
@@ -434,10 +439,10 @@ public class DynamoDBManager {
                         for (Map<String, AttributeValue> item : scanResult.getItems()) {
                             String friendResult = item.toString(); // Kết quả tìm thấy
                             Log.d("findbyid", friendResult);
-                            String id=item.get("_id").getS();
+                            String id = item.get("_id").getS();
                             String name = item.get("name").getS();
                             String avatar = item.get("avatar").getS();
-                            FriendItem friend = new FriendItem(avatar,name);
+                            FriendItem friend = new FriendItem(avatar, name);
                             listener.onFriendAlreadyFound(friend);
                             listener.onFriendAcceptRequestFound(id, name, avatar);
                         }
@@ -450,16 +455,21 @@ public class DynamoDBManager {
 
         }
     }
+
     public interface FriendFoundForGetUIDByEmailListener {
         void onFriendFound(String uid, String name, String email, String avatar, Boolean sex, String dateOfBirth);
+
         void onFriendNotFound();
+
         void onError(Exception e);
     }
 
     public interface AlreadyFriendListener {
         void onFriendAlreadyFound(FriendItem data);
+
         void onFriendAcceptRequestFound(String id, String name, String avatar);
     }
+
     public void updateUser(String userId, String name, String dateOfBirth, String avatarUrl, Boolean sex, UpdateUserListener listener) {
         try {
             if (ddbClient == null) {
@@ -516,9 +526,12 @@ public class DynamoDBManager {
 
     public interface UpdateUserListener {
         void onUpdateSuccess();
+
         void onUserNotFound();
+
         void onError(Exception e);
     }
+
     public void findAvatarByUID(String id, final AvatarCallback callback) {
 
         try {
@@ -560,10 +573,13 @@ public class DynamoDBManager {
         }
 
     }
+
     public interface AvatarCallback {
         void onSuccess(String avatar);
+
         void onError(Exception e);
     }
+
     public void saveMessage(String channelID, String message, String time, Boolean sentByMe) {
         Log.d("SaveMessageInfo", channelID + message + time + sentByMe);
         try {
@@ -624,7 +640,7 @@ public class DynamoDBManager {
         }
     }
 
-    public void getChannelID(String id,String _idFriend, ChannelIDinterface listener) {
+    public void getChannelID(String id, String _idFriend, ChannelIDinterface listener) {
         try {
             if (ddbClient == null) {
                 initializeDynamoDB();
@@ -670,6 +686,7 @@ public class DynamoDBManager {
         void GetChannelId(String channelID);
 
     }
+
     public List<Item> loadMessages(String messageId) {
         List<Item> messages = new ArrayList<>();
         CountDownLatch latch = new CountDownLatch(1); // Khởi tạo CountDownLatch với giá trị ban đầu là 1
@@ -720,34 +737,5 @@ public class DynamoDBManager {
 
         return messages;
     }
-    public String getAvatarByUIDOfFriend(String friendUID) {
-        try {
-            if (ddbClient == null) {
-                initializeDynamoDB();
-            }
 
-            // Tạo một yêu cầu truy vấn
-            HashMap<String, Condition> scanFilter = new HashMap<String, Condition>();
-            Condition condition = new Condition()
-                    .withComparisonOperator(ComparisonOperator.EQ.toString())
-                    .withAttributeValueList(new AttributeValue().withS(friendUID));
-            scanFilter.put("_id", condition);
-
-            ScanRequest scanRequest = new ScanRequest("Users").withScanFilter(scanFilter);
-            ScanResult scanResult = ddbClient.scan(scanRequest);
-
-            // Lấy avatar từ kết quả của truy vấn
-            for (Map<String, AttributeValue> item : scanResult.getItems()) {
-                AttributeValue avatarAttributeValue = item.get("avatar");
-                if (avatarAttributeValue != null) {
-                    return avatarAttributeValue.getS();
-                }
-            }
-            // Trả về null nếu không tìm thấy avatar
-            return null;
-        } catch (Exception e) {
-            Log.e("", "Error checking DynamoDB connection: " + e.getMessage());
-            return null;
-        }
-    }
 }

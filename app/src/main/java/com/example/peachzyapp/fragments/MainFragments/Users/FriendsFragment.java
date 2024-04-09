@@ -129,6 +129,20 @@ public class FriendsFragment extends Fragment {
                 Bundle bundle = new Bundle();
                 bundle.putString("friend_id", id);
                 Log.d("FriendsFragmentCheckFriendAdapter","YES");
+
+                dynamoDBManager.findAvatarByUID(id, new DynamoDBManager.AvatarCallback() {
+                    @Override
+                    public void onSuccess(String avatarUrl) {
+                        // Xử lý đường dẫn avatar ở đây
+                        Log.d("CheckAvatarUrl", avatarUrl);
+                        Bundle bundle = new Bundle();
+                        bundle.putString("avatarUrl", avatarUrl);
+
+                    }
+                    @Override
+                    public void onError(Exception e) {
+                    }
+                });
                 mainActivity.goToChatBoxFragment(bundle);
 
             }
