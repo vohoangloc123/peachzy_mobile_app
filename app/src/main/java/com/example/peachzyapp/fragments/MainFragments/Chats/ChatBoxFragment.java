@@ -45,7 +45,6 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
     RecyclerView recyclerView;
     int newPosition;
 
-    String friendId;
 
     //// new
     String uid;
@@ -86,7 +85,7 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
         Log.d("RequestUIDChat", "onCreateView: "+uid);
         friend_id= bundleReceive.getString("friend_id");
         Log.d("RequestUIDfriend", "onCreateView: "+friend_id);
-
+        updateRecyclerView();
         dynamoDBManager.getChannelID(uid, friend_id, new DynamoDBManager.ChannelIDinterface() {
             @Override
             public void GetChannelId(String channelID) {
@@ -224,6 +223,12 @@ public void onMessageReceived(String message) {
                 // Hoặc có thể sử dụng recyclerView.scrollToPosition(itemCount - 1); nếu muốn cuộn mà không có hiệu ứng smooth
             }
         }
+    }
+    public void updateRecyclerView() {
+        List<Item> newMessages = dynamoDBManager.loadMessages(uid+friend_id);
+        listMessage.addAll(newMessages); // Thêm các tin nhắn mới vào danh sách hiện tại
+        adapter.notifyDataSetChanged(); // Cập nhật RecyclerView
+        recyclerView.scrollToPosition(listMessage.size() - 1); // Cuộn đến vị trí cuối cùng
     }
 
 
