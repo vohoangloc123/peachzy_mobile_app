@@ -24,6 +24,7 @@ import com.amazonaws.services.dynamodbv2.model.ScanResult;
 import com.amazonaws.services.dynamodbv2.model.UpdateItemRequest;
 import com.amazonaws.services.dynamodbv2.model.UpdateItemResult;
 import com.example.peachzyapp.entities.FriendItem;
+import com.example.peachzyapp.entities.Item;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
@@ -32,6 +33,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
 
 public class DynamoDBManager {
@@ -671,5 +673,56 @@ public class DynamoDBManager {
 
         void GetChannelId(String channelID);
 
+    }
+    public List<Item> loadMessages(String messageId) {
+        List<Item> messages = new ArrayList<>();
+        CountDownLatch latch = new CountDownLatch(1); // Khởi tạo CountDownLatch với giá trị ban đầu là 1
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    if (ddbClient == null) {
+                        initializeDynamoDB();
+                    }
+                    GetItemRequest getItemRequest = new GetItemRequest()
+                            .withTableName("ChatHistory")
+                            .withKey(Collections.singletonMap("_id", new AttributeValue().withS(messageId)));
+                    GetItemResult getItemResult = ddbClient.getItem(getItemRequest);
+                    Log.d("SaveMessageInfo", String.valueOf(getItemResult));
+                    if (getItemResult.getItem() != null) {
+                        // Nếu cuộc trò chuyện đã tồn tại, trích xuất tin nhắn và load lên giao diện
+                        Map<String, AttributeValue> item = getItemResult.getItem();
+                        AttributeValue messagesAttributeValue = item.get("messages");
+                        if (messagesAttributeValue != null) {
+                            List<AttributeValue> messagesAttributeList = messagesAttributeValue.getL();
+                            if (messagesAttributeList != null) {
+                                for (AttributeValue messageAttribute : messagesAttributeList) {
+                                    Map<String, AttributeValue> messageMap = messageAttribute.getM();
+                                    String message = messageMap.get("message").getS();
+                                    String time = messageMap.get("time").getS();
+                                    Boolean sentByMe = Boolean.parseBoolean(messageMap.get("sentByMe").getBOOL().toString());
+                                    Item newItem = new Item(time, message, sentByMe);
+                                    messages.add(newItem);
+                                }
+                            }
+                        }
+                    } else {
+                        // Nếu cuộc trò chuyện chưa tồn tại, tạo mới và lưu vào DynamoDB
+                    }
+                } catch (Exception e) {
+                    // Gọi callback nếu có lỗi xảy ra
+                } finally {
+                    latch.countDown(); // Giảm số lượng của CountDownLatch về 0 khi luồng hoàn thành công việc
+                }
+            }
+        }).start(); // Khởi chạy thread
+
+        try {
+            latch.await(); // Đợi cho đến khi CountDownLatch đếm về 0
+        } catch (InterruptedException e) {
+            // Xử lý ngoại lệ nếu có
+        }
+
+        return messages;
     }
 }
