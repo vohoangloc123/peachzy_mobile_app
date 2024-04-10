@@ -162,6 +162,7 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
                     recyclerView.scrollToPosition(listMessage.size() - 1);
                     myWebSocket.sendMessage(message);
                     dynamoDBManager.saveMessage(uid+friend_id, message,currentTime, true);
+                    dynamoDBManager.saveConversation(uid,uid+friend_id, message, currentTime,urlAvatar,"Loc");
                     scrollToBottom();
                 } else {
                     Toast.makeText(getContext(), "Please enter a message", Toast.LENGTH_SHORT).show();

@@ -21,6 +21,7 @@ import com.amazonaws.services.dynamodbv2.model.PutItemResult;
 import com.amazonaws.services.dynamodbv2.model.ScanRequest;
 import com.amazonaws.services.dynamodbv2.model.ScanResult;
 import com.amazonaws.services.dynamodbv2.model.UpdateItemRequest;
+import com.example.peachzyapp.entities.Conversation;
 import com.example.peachzyapp.entities.FriendItem;
 import com.example.peachzyapp.entities.Item;
 
@@ -613,6 +614,8 @@ public class DynamoDBManager {
                                 .withItem(item);
 
                         ddbClient.putItem(putItemRequest);
+                        //đồng thời tạo lu
+
                     } else {
                         // Nếu cuộc trò chuyện đã tồn tại, thêm tin nhắn mới vào mảng messages
                         Map<String, AttributeValueUpdate> updates = new HashMap<>();
@@ -637,6 +640,91 @@ public class DynamoDBManager {
         } catch (Exception e) {
             // Gọi callback nếu có lỗi xảy ra
 
+        }
+    }
+    public void saveConversation(String userUID, String conversationID, String message, String time, String avatar, String name) {
+        try {
+            if (ddbClient == null) {
+                initializeDynamoDB();
+            }
+
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    GetItemRequest getItemRequest = new GetItemRequest()
+                            .withTableName("Conversation")
+                            .withKey(Collections.singletonMap("_id", new AttributeValue().withS(userUID)));
+
+                    GetItemResult getItemResult = ddbClient.getItem(getItemRequest);
+
+                    if (getItemResult.getItem() == null) {
+                        // Nếu cuộc trò chuyện chưa tồn tại, tạo mới và lưu vào DynamoDB
+                        Map<String, AttributeValue> item = new HashMap<>();
+                        item.put("_id", new AttributeValue().withS(userUID));
+                        List<Map<String, AttributeValue>> conversations = new ArrayList<>();
+                        Map<String, AttributeValue> conversationItem = new HashMap<>();
+                        conversationItem.put("conversationID", new AttributeValue().withS(conversationID));
+                        conversationItem.put("time", new AttributeValue().withS(time));
+                        conversationItem.put("message", new AttributeValue().withS(message));
+                        conversationItem.put("avatar", new AttributeValue().withS(avatar));
+                        conversationItem.put("name", new AttributeValue().withS(name));
+                        conversations.add(conversationItem);
+                        item.put("conversations", new AttributeValue().withL(conversations.stream()
+                                .map(msg -> new AttributeValue().withM(msg))
+                                .collect(Collectors.toList())));
+
+                        PutItemRequest putItemRequest = new PutItemRequest()
+                                .withTableName("Conversation")
+                                .withItem(item);
+
+                        ddbClient.putItem(putItemRequest);
+                    } else {
+                        // Nếu cuộc trò chuyện đã tồn tại, kiểm tra và cập nhật hoặc thêm mới tin nhắn
+                        List<AttributeValue> existingConversations = getItemResult.getItem().get("conversations").getL();
+                        boolean conversationExists = false;
+
+                        // Kiểm tra xem cuộc trò chuyện đã tồn tại hay chưa bằng cách so sánh conversationID
+                        for (AttributeValue conversation : existingConversations) {
+                            String existingConversationID = conversation.getM().get("conversationID").getS();
+                            if (existingConversationID.equals(conversationID)) {
+                                // Nếu cuộc trò chuyện đã tồn tại, cập nhật nội dung
+                                conversation.getM().put("time", new AttributeValue().withS(time));
+                                conversation.getM().put("message", new AttributeValue().withS(message));
+                                conversation.getM().put("avatar", new AttributeValue().withS(avatar));
+                                conversation.getM().put("name", new AttributeValue().withS(name));
+                                conversationExists = true;
+                                break;
+                            }
+                        }
+
+                        if (!conversationExists) {
+                            // Nếu cuộc trò chuyện chưa tồn tại, thêm mới cuộc trò chuyện vào mảng
+                            Map<String, AttributeValue> conversationItem = new HashMap<>();
+                            conversationItem.put("conversationID", new AttributeValue().withS(conversationID));
+                            conversationItem.put("time", new AttributeValue().withS(time));
+                            conversationItem.put("message", new AttributeValue().withS(message));
+                            conversationItem.put("avatar", new AttributeValue().withS(avatar));
+                            conversationItem.put("name", new AttributeValue().withS(name));
+                            existingConversations.add(new AttributeValue().withM(conversationItem));
+                        }
+
+                        // Cập nhật item trong bảng DynamoDB
+                        Map<String, AttributeValueUpdate> updates = new HashMap<>();
+                        updates.put("conversations", new AttributeValueUpdate()
+                                .withAction(AttributeAction.PUT)
+                                .withValue(new AttributeValue().withL(existingConversations)));
+
+                        UpdateItemRequest updateItemRequest = new UpdateItemRequest()
+                                .withTableName("Conversation")
+                                .withKey(Collections.singletonMap("_id", new AttributeValue().withS(userUID)))
+                                .withAttributeUpdates(updates);
+
+                        ddbClient.updateItem(updateItemRequest);
+                    }
+                }
+            }).start(); // Khởi chạy thread
+        } catch (Exception e) {
+            // Gọi callback nếu có lỗi xảy ra
         }
     }
 
@@ -737,5 +825,113 @@ public class DynamoDBManager {
 
         return messages;
     }
+    public interface ConversationLoadListener {
+        void onConversationLoaded(Conversation conversation);
+    }
 
+    public void loadConversations(String conversationID, ConversationLoadListener listener) {
+        Log.d("CheckIdOfLoadConversation", conversationID);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    if (ddbClient == null) {
+                        initializeDynamoDB();
+                    }
+                    GetItemRequest getItemRequest = new GetItemRequest()
+                            .withTableName("Conversation")
+                            .withKey(Collections.singletonMap("_id", new AttributeValue().withS(conversationID)));
+                    GetItemResult getItemResult = ddbClient.getItem(getItemRequest);
+                    if (getItemResult.getItem() != null) {
+                        // Nếu cuộc trò chuyện đã tồn tại, trích xuất tin nhắn và load lên giao diện
+                        Map<String, AttributeValue> item = getItemResult.getItem();
+                        AttributeValue conversationsAttributeValue = item.get("conversations");
+                        if (conversationsAttributeValue != null) {
+                            List<AttributeValue> conversationsAttributeList = conversationsAttributeValue.getL();
+                            if (conversationsAttributeList != null) {
+                                for (AttributeValue messageAttribute : conversationsAttributeList) {
+                                    Map<String, AttributeValue> messageMap = messageAttribute.getM();
+                                    String conversationID = messageMap.get("conversionID").getS();
+                                    String message = messageMap.get("message").getS();
+                                    String time = messageMap.get("time").getS();
+                                    String avatar = messageMap.get("avatar").getS();
+                                    String name = messageMap.get("name").getS();
+                                    Conversation conversation = new Conversation(conversationID, message, time, avatar, name);
+
+                                    // Thông báo về việc tìm thấy cuộc trò chuyện
+                                    listener.onConversationLoaded(conversation);
+                                }
+                            }
+
+                        }
+                    } else {
+                        // Nếu cuộc trò chuyện chưa tồn tại, tạo mới và lưu vào DynamoDB
+                    }
+                } catch (Exception e) {
+                    // Xử lý ngoại lệ nếu có
+                }
+            }
+        }).start(); // Khởi chạy thread
+    }
+    public void loadConversation1(String userUID, LoadConversationListener listener) {
+        try {
+            if (ddbClient == null) {
+                initializeDynamoDB();
+            }
+
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        // Tạo một yêu cầu truy vấn
+                        if (ddbClient == null) {
+                            initializeDynamoDB();
+                        }
+                        GetItemRequest getItemRequest = new GetItemRequest()
+                                .withTableName("Conversation")
+                                .withKey(Collections.singletonMap("_id", new AttributeValue().withS(userUID)));
+                        GetItemResult getItemResult = ddbClient.getItem(getItemRequest);
+                        if (getItemResult.getItem() != null) {
+                            // Nếu cuộc trò chuyện đã tồn tại, trích xuất tin nhắn và load lên giao diện
+                            Map<String, AttributeValue> item = getItemResult.getItem();
+                            AttributeValue conversationsAttributeValue = item.get("conversations");
+                            if (conversationsAttributeValue != null) {
+                                List<AttributeValue> conversationsAttributeList = conversationsAttributeValue.getL();
+                                if (conversationsAttributeList != null) {
+                                    for (AttributeValue messageAttribute : conversationsAttributeList) {
+                                        Map<String, AttributeValue> messageMap = messageAttribute.getM();
+                                        String conversationID = messageMap.get("conversationID").getS();
+                                        String message = messageMap.get("message").getS();
+                                        String time = messageMap.get("time").getS();
+                                        String avatar = messageMap.get("avatar").getS();
+                                        String name = messageMap.get("name").getS();
+                                        Conversation conversation = new Conversation(conversationID, message, time, avatar, name);
+
+                                        // Thông báo về việc tìm thấy cuộc trò chuyện
+                                        listener.onConversationFound(conversationID, message,time, avatar,name);
+                                    }
+                                }
+
+                            }
+                        } else {
+                            // Nếu cuộc trò chuyện chưa tồn tại, tạo mới và lưu vào DynamoDB
+                        }
+                    } catch (Exception e) {
+                        // Xử lý ngoại lệ và thông báo lỗi cho người nghe
+                        Log.e("", "Error loading conversation: " + e.getMessage());
+                        listener.onLoadConversationError(e);
+                    }
+                }
+            }).start(); // Khởi chạy thread
+        } catch (Exception e) {
+            // Xử lý ngoại lệ và thông báo lỗi cho người nghe
+            Log.e("", "Error checking DynamoDB connection: " + e.getMessage());
+            listener.onLoadConversationError(e);
+        }
+    }
+
+    public interface LoadConversationListener {
+        void onConversationFound(String conversationID, String message, String time, String avatar, String name);
+        void onLoadConversationError(Exception e);
+    }
 }

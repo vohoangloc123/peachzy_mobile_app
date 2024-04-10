@@ -101,7 +101,7 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(MainActivity.this, "Chuyển tab 1", Toast.LENGTH_SHORT).show();
                     // Gọi reloadData() khi chuyển sang tab 1
                     ChatListsFragment chatLists = (ChatListsFragment) viewPager.getAdapter().instantiateItem(viewPager, 0);
-                    chatLists.reloadData();
+//                    chatLists.reloadData();
                     viewPager.setCurrentItem(0);
                 } else if (itemId == R.id.navigation_notifications) {
 

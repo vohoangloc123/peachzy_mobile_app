@@ -1,11 +1,11 @@
 package com.example.peachzyapp.fragments.MainFragments.Chats;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -15,76 +15,93 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import com.example.peachzyapp.adapters.ChatBoxAdapter;
+import com.example.peachzyapp.adapters.ConversationAdapter;
 import com.example.peachzyapp.MainActivity;
 import com.example.peachzyapp.R;
-import com.example.peachzyapp.entities.ChatBox;
+import com.example.peachzyapp.dynamoDB.DynamoDBManager;
+import com.example.peachzyapp.entities.Conversation;
+
+import org.checkerframework.checker.units.qual.C;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class ChatListsFragment extends Fragment {
-
 
     private MainActivity mainActivity;
     private RecyclerView rcvChatList;
     private View view;
-    @Override
-    public void onAttach(@NonNull Context context) {
-        super.onAttach(context);
-        Log.e("Loc", "Fragment 1");
-    }
+    private ArrayList<Conversation> conversationsList;
+    private DynamoDBManager dynamoDBManager;
+    private String uid;
+    private ConversationAdapter conversationAdapter;
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        Log.e("Loc", "Fragment 1");
-
-    }
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        mainActivity= (MainActivity) getActivity();
+        mainActivity = (MainActivity) getActivity();
         // Inflate the layout for this fragment
-        view= inflater.inflate(R.layout.fragment_chat_lists, container, false);
+        view = inflater.inflate(R.layout.fragment_chat_lists, container, false);
+        dynamoDBManager = new DynamoDBManager(getActivity());
+        rcvChatList = view.findViewById(R.id.rcvConversation);
+        rcvChatList.setLayoutManager(new LinearLayoutManager(mainActivity));
 
-        rcvChatList = view.findViewById(R.id.rcv_user);
-        LinearLayoutManager linearLayoutManager=new LinearLayoutManager(mainActivity);
-        rcvChatList.setLayoutManager(linearLayoutManager);
+        // Initialize conversationsList before calling loadConversations()
+        conversationsList = new ArrayList<>();
+        conversationAdapter = new ConversationAdapter(conversationsList);
+        // Set adapter to RecyclerView
+        rcvChatList.setAdapter(conversationAdapter);
 
-        ChatBoxAdapter chatBoxAdapter=new ChatBoxAdapter(getListChatBox(), new ChatBoxAdapter.IClickItemListener() {
+        SharedPreferences preferences = getActivity().getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
+        uid = preferences.getString("uid", null);
+
+        if (uid != null) {
+            Log.d("FriendcheckUIDInChatListFragment", uid);
+            // Sử dụng "uid" ở đây cho các mục đích của bạn
+
+        } else {
+            Log.e("FriendcheckUID", "UID is null");
+        }
+        dynamoDBManager.loadConversation1(uid, new DynamoDBManager.LoadConversationListener() {
             @Override
-            public void onClickItemChatBox(ChatBox chatBox) {
-                    mainActivity.goToDetailFragment(chatBox);
+            public void onConversationFound(String conversationID, String message, String time, String avatar, String name) {
+                Conversation conversation = new Conversation(conversationID, message, time, avatar, name);
+                conversationsList.add(conversation);
+                Log.d("ConversationListSize", "Size: " + conversationsList.size());
+
+                Log.d("ConversationFound", "Conversation ID: " + conversationID + ", Message: " + message + ", Time: " + time + ", Avatar: " + avatar + ", Name: " + name);
+                // Notify adapter that data set has changed after all conversations are added
+                conversationAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onLoadConversationError(Exception e) {
+                e.printStackTrace();
             }
         });
-        rcvChatList.setAdapter(chatBoxAdapter);
-        //tạo đường kẻ giữa các chatbox
-        RecyclerView.ItemDecoration itemDecoration=new DividerItemDecoration(mainActivity, DividerItemDecoration.VERTICAL);
-        rcvChatList.addItemDecoration(itemDecoration);
-
-
         return view;
     }
 
-    private List<ChatBox> getListChatBox() {
-        List<ChatBox> listChatBox=new ArrayList<>();
-        for(int i=1;i<=20;i++)
-        {
-            listChatBox.add(new ChatBox("this is user "+i));
-        }
-        return listChatBox;
+
+    // Function to load conversations
+    private void loadConversations() {
+        dynamoDBManager.loadConversation1(uid, new DynamoDBManager.LoadConversationListener() {
+            @Override
+            public void onConversationFound(String conversationID, String message, String time, String avatar, String name) {
+                Conversation conversation = new Conversation(conversationID, message, time, avatar, name);
+                conversationsList.add(conversation);
+                Log.d("ConversationListSize", "Size: " + conversationsList.size());
+
+                Log.d("ConversationFound", "Conversation ID: " + conversationID + ", Message: " + message + ", Time: " + time + ", Avatar: " + avatar + ", Name: " + name);
+                // Notify adapter that data set has changed after all conversations are added
+                conversationAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onLoadConversationError(Exception e) {
+                e.printStackTrace();
+            }
+        });
     }
 
-    public void reloadData() {
-    // Làm mới dữ liệu ở đây (ví dụ: load lại danh sách chatbox)
-    ChatBoxAdapter chatBoxAdapter = new ChatBoxAdapter(getListChatBox(), new ChatBoxAdapter.IClickItemListener() {
-        @Override
-        public void onClickItemChatBox(ChatBox chatBox) {
-            mainActivity.goToDetailFragment(chatBox);
-        }
-    });
-    rcvChatList.setAdapter(chatBoxAdapter);
-    Toast.makeText(getActivity(), "Reload fragment 1", Toast.LENGTH_SHORT).show();
-    }
+
 }
