@@ -291,8 +291,6 @@ public void goToDetailFragment(ChatBox chatBox) {
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         ChatBoxFragment chatBoxFragment=new ChatBoxFragment();
         bundle.putString("uid", uid);
-//            bundle.putSerializable("object_chatbox", chatBox);
-//            chatHistoryFragment.setArguments(bundle);
 
         // Thêm ChatHistoryFragment
         fragmentTransaction.add(R.id.etFind, chatBoxFragment, chatBoxFragment.TAG);

@@ -170,8 +170,8 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
                         protected Void doInBackground(Void... voids) {
                             dynamoDBManager.saveMessage(uid + friend_id, message, currentTime, true);
                             dynamoDBManager.saveMessage(friend_id + uid, message, currentTime, false);
-                            dynamoDBManager.saveConversation(uid, uid + friend_id, message, currentTime, urlAvatar, "Loc");
-                            dynamoDBManager.saveConversation(friend_id, friend_id + uid, message, currentTime, urlAvatar, "Loc");
+                            dynamoDBManager.saveConversation(uid, uid + friend_id, friend_id, message, currentTime, urlAvatar, "Loc");
+                            dynamoDBManager.saveConversation(friend_id, friend_id + uid, uid,message, currentTime, urlAvatar, "Loc");
                             return null;
                         }
                     }.execute();
@@ -236,51 +236,6 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
             }
         }
     }
-
-//        @Override
-//        public void onActivityResult(int requestCode, int resultCode, Intent data) {
-//        super.onActivityResult(requestCode, resultCode, data);
-//
-//            if (requestCode == PICK_DOCUMENT_REQUEST && resultCode == Activity.RESULT_OK && data != null && data.getData() != null) {
-//                Uri uri = data.getData();
-//                try {
-//                    uploadFile(uri);
-//                }catch (Exception e){
-//
-//                }
-//
-//            }
-//
-//        if (requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK && data != null && data.getData() != null) {
-//            Uri uri = data.getData();
-//            try {
-//                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), uri);
-//                Log.d("CheckUri", uri.toString());
-//
-//                // Chuyển đổi bitmap thành chuỗi Base64
-//                ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-//                bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
-//                byte[] byteArray = byteArrayOutputStream.toByteArray();
-//                String encodedBitmap = Base64.encodeToString(byteArray, Base64.DEFAULT);
-//
-//                // Tạo tin nhắn mới với ảnh và thêm vào danh sách
-//                String currentTime = Utils.getCurrentTime();
-//                Item newItem = new Item(currentTime, null, urlAvatar, true); // Khởi tạo newItem với imageUrl = null
-//                newItem.setBitmapString(encodedBitmap); // Đặt chuỗi Base64 vào đối tượng Item
-//                listMessage.add(newItem);
-//                adapter.notifyItemInserted(listMessage.size() - 1);
-//                recyclerView.scrollToPosition(listMessage.size() - 1);
-//                uploadImageToS3AndSocketAndDynamoDB(uri);
-//                // Cuộn đến cuối danh sách
-//                scrollToBottom();
-//
-//                // Upload ảnh lên S3 (nếu cần)
-//
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//        }
-//    }
 
 
 
@@ -351,8 +306,8 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
                     protected Void doInBackground(Void... voids) {
                         dynamoDBManager.saveMessage(uid + friend_id, urlImage, currentTime, true);
                         dynamoDBManager.saveMessage(friend_id+uid, urlImage, currentTime, false);
-                        dynamoDBManager.saveConversation(uid, uid + friend_id, "Hình ảnh", currentTime, urlAvatar, "Loc");
-                        dynamoDBManager.saveConversation(friend_id, friend_id + uid, "Hình ảnh", currentTime, urlAvatar, "Loc");
+                        dynamoDBManager.saveConversation(uid, uid + friend_id, friend_id,"Hình ảnh", currentTime, urlAvatar, "Loc");
+                        dynamoDBManager.saveConversation(friend_id, friend_id + uid, uid,"Hình ảnh", currentTime, urlAvatar, "Loc");
                         return null;
                     }
                 }.execute();

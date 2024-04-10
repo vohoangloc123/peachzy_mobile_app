@@ -70,7 +70,7 @@ public class FriendAlreadyAdapter extends RecyclerView.Adapter<FriendAlreadyAdap
 
     public class FriendViewHolder extends RecyclerView.ViewHolder{
         public TextView tvFriend;
-        //public ImageView avatarImageView;
+
 
         public FriendViewHolder(@NonNull View itemView) {
             super(itemView);

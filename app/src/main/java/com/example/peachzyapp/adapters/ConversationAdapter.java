@@ -17,10 +17,10 @@ import java.util.List;
 
 public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapter.ConversationViewHolder>{
     private List<Conversation> listConversation;
-
+    public ImageView ivAvatar;
     private ConversationAdapter.OnItemClickListener mListener;
     public interface OnItemClickListener {
-        void onItemClick(String id);
+        void onItemClick(String id, String avatar);
     }
     public void setOnItemClickListener(ConversationAdapter.OnItemClickListener listener) {
         mListener = listener;
@@ -55,12 +55,12 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
         holder.tvMessage.setText(conversation.getMessage());
         holder.tvTime.setText(conversation.getTime());
         holder.tvName.setText(conversation.getName());
-        Picasso.get().load(conversation.getAvatar()).into(holder.ivAvatar);
+        Picasso.get().load(conversation.getAvatar()).into(ivAvatar);
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (mListener != null) {
-                    mListener.onItemClick(conversation.getConversationID());
+                    mListener.onItemClick(conversation.getFriendID(), conversation.getAvatar());
                 }
             }
         });
@@ -69,7 +69,7 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
 
 
     public class ConversationViewHolder extends RecyclerView.ViewHolder{
-        public ImageView ivAvatar;
+
         public TextView tvMessage;
         public TextView tvTime;
         public TextView tvName;
