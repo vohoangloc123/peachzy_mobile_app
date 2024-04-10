@@ -65,6 +65,7 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
     ImageButton btnSend;
     ImageButton btnImage;
     EditText etMessage;
+    TextView etName;
     private List<Item> listMessage = new ArrayList<>();
     private MyAdapter adapter;
     public static final String TAG= ChatHistoryFragment.class.getName();
@@ -83,6 +84,8 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
     private AmazonS3 s3Client;
     String urlImage;
     ImageButton btnLink;
+    String userName;
+    String friendName;
     private static final int PICK_DOCUMENT_REQUEST = 1;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -91,6 +94,8 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
         recyclerView = view.findViewById(R.id.recycleview);
         btnSend = view.findViewById(R.id.btnSend);
         btnImage=view.findViewById(R.id.btnImage);
+        etName=view.findViewById(R.id.etName);
+
         etMessage = view.findViewById(R.id.etMessage);
         // Initialize the adapter only once
         adapter = new MyAdapter(getContext(), listMessage);
@@ -120,9 +125,8 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
         Log.d("RequestUIDfriend", "onCreateView: "+friend_id);
         urlAvatar= bundleReceive.getString("urlAvatar");
         Log.d("RequesturlAvatar", "onCreateView: "+urlAvatar);
-        avatar="https://chat-app-image-cnm.s3.ap-southeast-1.amazonaws.com/avatar_20240409_151015_1719.jpg.jpg";
-
-        Log.d("CheckAvatarReceived", avatar);
+        friendName= bundleReceive.getString("friendName");
+        etName.setText(friendName);
         dynamoDBManager.getChannelID(uid, friend_id, new DynamoDBManager.ChannelIDinterface() {
             @Override
             public void GetChannelId(String channelID) {
@@ -140,7 +144,25 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
         //bản thân
         SharedPreferences preferences = getActivity().getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
         uid = preferences.getString("uid", null);
+        dynamoDBManager.getProfileByUID(uid, new DynamoDBManager.FriendFoundForGetUIDByEmailListener(){
 
+            @Override
+            public void onFriendFound(String uid, String name, String email, String avatar, Boolean sex, String dateOfBirth) {
+                    userName=name;
+
+            }
+
+            @Override
+            public void onFriendNotFound() {
+
+            }
+
+            @Override
+            public void onError(Exception e) {
+
+            }
+        });
+        //Log.d("CheckUserName", userName);
         updateRecyclerView();
         ((LinearLayoutManager)recyclerView.getLayoutManager()).setStackFromEnd(true);
         LiveData<List<Item>> messageLiveData = new MutableLiveData<>();
@@ -165,13 +187,14 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
                     adapter.notifyItemInserted(listMessage.size() - 1);
                     recyclerView.scrollToPosition(listMessage.size() - 1);
                     myWebSocket.sendMessage(message);
+                    Log.d("CheckFriendName", friendName);
                     new AsyncTask<Void, Void, Void>() {
                         @Override
                         protected Void doInBackground(Void... voids) {
                             dynamoDBManager.saveMessage(uid + friend_id, message, currentTime, true);
                             dynamoDBManager.saveMessage(friend_id + uid, message, currentTime, false);
-                            dynamoDBManager.saveConversation(uid, uid + friend_id, friend_id, message, currentTime, urlAvatar, "Loc");
-                            dynamoDBManager.saveConversation(friend_id, friend_id + uid, uid,message, currentTime, urlAvatar, "Loc");
+                            dynamoDBManager.saveConversation(uid, uid + friend_id, friend_id, message, currentTime, urlAvatar, friendName);
+                            dynamoDBManager.saveConversation(friend_id, friend_id + uid, uid,message, currentTime, urlAvatar, userName);
                             return null;
                         }
                     }.execute();
@@ -301,13 +324,14 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
                 // Lưu URL của ảnh vào biến để sử dụng sau này
                 urlImage = "https://chat-app-image-cnm.s3.ap-southeast-1.amazonaws.com/" + fileName + ".jpg";
                 myWebSocket.sendMessage(urlImage);
+                Log.d("CheckFriendName", friendName);
                 new AsyncTask<Void, Void, Void>() {
                     @Override
                     protected Void doInBackground(Void... voids) {
                         dynamoDBManager.saveMessage(uid + friend_id, urlImage, currentTime, true);
                         dynamoDBManager.saveMessage(friend_id+uid, urlImage, currentTime, false);
-                        dynamoDBManager.saveConversation(uid, uid + friend_id, friend_id,"Hình ảnh", currentTime, urlAvatar, "Loc");
-                        dynamoDBManager.saveConversation(friend_id, friend_id + uid, uid,"Hình ảnh", currentTime, urlAvatar, "Loc");
+                        dynamoDBManager.saveConversation(uid, uid + friend_id, friend_id,"Hình ảnh", currentTime, urlAvatar,  friendName);
+                        dynamoDBManager.saveConversation(friend_id, friend_id + uid, uid,"Hình ảnh", currentTime, urlAvatar, userName);
                         return null;
                     }
                 }.execute();

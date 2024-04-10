@@ -20,7 +20,7 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
     public ImageView ivAvatar;
     private ConversationAdapter.OnItemClickListener mListener;
     public interface OnItemClickListener {
-        void onItemClick(String id, String avatar);
+        void onItemClick(String id, String avatar, String friendName);
     }
     public void setOnItemClickListener(ConversationAdapter.OnItemClickListener listener) {
         mListener = listener;
@@ -60,7 +60,7 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
             @Override
             public void onClick(View v) {
                 if (mListener != null) {
-                    mListener.onItemClick(conversation.getFriendID(), conversation.getAvatar());
+                    mListener.onItemClick(conversation.getFriendID(), conversation.getAvatar(), conversation.getName());
                 }
             }
         });
