@@ -18,6 +18,7 @@ import android.widget.Toast;
 import com.example.peachzyapp.adapters.ConversationAdapter;
 import com.example.peachzyapp.MainActivity;
 import com.example.peachzyapp.R;
+import com.example.peachzyapp.adapters.FriendAlreadyAdapter;
 import com.example.peachzyapp.dynamoDB.DynamoDBManager;
 import com.example.peachzyapp.entities.Conversation;
 
@@ -63,12 +64,12 @@ public class ChatListsFragment extends Fragment {
         }
         dynamoDBManager.loadConversation1(uid, new DynamoDBManager.LoadConversationListener() {
             @Override
-            public void onConversationFound(String conversationID, String message, String time, String avatar, String name) {
-                Conversation conversation = new Conversation(conversationID, message, time, avatar, name);
+            public void onConversationFound(String conversationID, String friendID ,String message, String time, String avatar, String name) {
+                Conversation conversation = new Conversation(conversationID, friendID, message, time, avatar, name);
                 conversationsList.add(conversation);
                 Log.d("ConversationListSize", "Size: " + conversationsList.size());
 
-                Log.d("ConversationFound", "Conversation ID: " + conversationID + ", Message: " + message + ", Time: " + time + ", Avatar: " + avatar + ", Name: " + name);
+                Log.d("ConversationFound", "Conversation ID: " + conversationID + ", Message: " + message + ", Time: " + time + ", Avatar: " + avatar + ", Name: " + name+", FriendI: "+friendID);
                 // Notify adapter that data set has changed after all conversations are added
                 conversationAdapter.notifyDataSetChanged();
             }
@@ -76,6 +77,17 @@ public class ChatListsFragment extends Fragment {
             @Override
             public void onLoadConversationError(Exception e) {
                 e.printStackTrace();
+            }
+        });
+        conversationAdapter.setOnItemClickListener(new ConversationAdapter.OnItemClickListener(){
+
+            @Override
+            public void onItemClick(String id, String urlAvatar) {
+                Bundle bundle = new Bundle();
+                bundle.putString("friend_id", id);
+                bundle.putString("urlAvatar",urlAvatar);
+                Log.d("urlAvatarhere", urlAvatar);
+                mainActivity.goToChatBoxFragment(bundle);
             }
         });
         return view;
@@ -83,25 +95,25 @@ public class ChatListsFragment extends Fragment {
 
 
     // Function to load conversations
-    private void loadConversations() {
-        dynamoDBManager.loadConversation1(uid, new DynamoDBManager.LoadConversationListener() {
-            @Override
-            public void onConversationFound(String conversationID, String message, String time, String avatar, String name) {
-                Conversation conversation = new Conversation(conversationID, message, time, avatar, name);
-                conversationsList.add(conversation);
-                Log.d("ConversationListSize", "Size: " + conversationsList.size());
-
-                Log.d("ConversationFound", "Conversation ID: " + conversationID + ", Message: " + message + ", Time: " + time + ", Avatar: " + avatar + ", Name: " + name);
-                // Notify adapter that data set has changed after all conversations are added
-                conversationAdapter.notifyDataSetChanged();
-            }
-
-            @Override
-            public void onLoadConversationError(Exception e) {
-                e.printStackTrace();
-            }
-        });
-    }
+//    private void loadConversations() {
+//        dynamoDBManager.loadConversation1(uid, new DynamoDBManager.LoadConversationListener() {
+//            @Override
+//            public void onConversationFound(String conversationID, String message, String time, String avatar, String name) {
+//                Conversation conversation = new Conversation(conversationID, message, time, avatar, name);
+//                conversationsList.add(conversation);
+//                Log.d("ConversationListSize", "Size: " + conversationsList.size());
+//
+//                Log.d("ConversationFound", "Conversation ID: " + conversationID + ", Message: " + message + ", Time: " + time + ", Avatar: " + avatar + ", Name: " + name);
+//                // Notify adapter that data set has changed after all conversations are added
+//                conversationAdapter.notifyDataSetChanged();
+//            }
+//
+//            @Override
+//            public void onLoadConversationError(Exception e) {
+//                e.printStackTrace();
+//            }
+//        });
+//    }
 
 
 }

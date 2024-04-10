@@ -2,17 +2,27 @@ package com.example.peachzyapp.entities;
 
 public class Conversation {
     private String conversationID;
+    private String friendID;
     private String message;
     private String time;
     private String avatar;
     private String name;
 
-    public Conversation(String conversationID, String message, String time, String avatar, String name) {
+    public Conversation(String conversationID, String friendID, String message, String time, String avatar, String name) {
         this.conversationID = conversationID;
+        this.friendID = friendID;
         this.message = message;
         this.time = time;
         this.avatar = avatar;
         this.name = name;
+    }
+
+    public String getFriendID() {
+        return friendID;
+    }
+
+    public void setFriendID(String friendID) {
+        this.friendID = friendID;
     }
 
     public Conversation() {

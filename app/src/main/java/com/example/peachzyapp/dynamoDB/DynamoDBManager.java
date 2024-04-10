@@ -642,7 +642,7 @@ public class DynamoDBManager {
 
         }
     }
-    public void saveConversation(String userUID, String conversationID, String message, String time, String avatar, String name) {
+    public void saveConversation(String userUID, String conversationID, String friendID,String message, String time, String avatar, String name) {
         try {
             if (ddbClient == null) {
                 initializeDynamoDB();
@@ -664,6 +664,7 @@ public class DynamoDBManager {
                         List<Map<String, AttributeValue>> conversations = new ArrayList<>();
                         Map<String, AttributeValue> conversationItem = new HashMap<>();
                         conversationItem.put("conversationID", new AttributeValue().withS(conversationID));
+                        conversationItem.put("friendID", new AttributeValue().withS(friendID));
                         conversationItem.put("time", new AttributeValue().withS(time));
                         conversationItem.put("message", new AttributeValue().withS(message));
                         conversationItem.put("avatar", new AttributeValue().withS(avatar));
@@ -688,6 +689,7 @@ public class DynamoDBManager {
                             String existingConversationID = conversation.getM().get("conversationID").getS();
                             if (existingConversationID.equals(conversationID)) {
                                 // Nếu cuộc trò chuyện đã tồn tại, cập nhật nội dung
+                                conversation.getM().put("friendID", new AttributeValue().withS(friendID));
                                 conversation.getM().put("time", new AttributeValue().withS(time));
                                 conversation.getM().put("message", new AttributeValue().withS(message));
                                 conversation.getM().put("avatar", new AttributeValue().withS(avatar));
@@ -852,11 +854,12 @@ public class DynamoDBManager {
                                 for (AttributeValue messageAttribute : conversationsAttributeList) {
                                     Map<String, AttributeValue> messageMap = messageAttribute.getM();
                                     String conversationID = messageMap.get("conversionID").getS();
+                                    String friendID=messageMap.get("friendID").getS();
                                     String message = messageMap.get("message").getS();
                                     String time = messageMap.get("time").getS();
                                     String avatar = messageMap.get("avatar").getS();
                                     String name = messageMap.get("name").getS();
-                                    Conversation conversation = new Conversation(conversationID, message, time, avatar, name);
+                                    Conversation conversation = new Conversation(conversationID,friendID, message, time, avatar, name);
 
                                     // Thông báo về việc tìm thấy cuộc trò chuyện
                                     listener.onConversationLoaded(conversation);
@@ -901,14 +904,15 @@ public class DynamoDBManager {
                                     for (AttributeValue messageAttribute : conversationsAttributeList) {
                                         Map<String, AttributeValue> messageMap = messageAttribute.getM();
                                         String conversationID = messageMap.get("conversationID").getS();
+                                        String friendID= messageMap.get("friendID").getS();
                                         String message = messageMap.get("message").getS();
                                         String time = messageMap.get("time").getS();
                                         String avatar = messageMap.get("avatar").getS();
                                         String name = messageMap.get("name").getS();
-                                        Conversation conversation = new Conversation(conversationID, message, time, avatar, name);
+                                        Conversation conversation = new Conversation(conversationID, friendID,message, time, avatar, name);
 
                                         // Thông báo về việc tìm thấy cuộc trò chuyện
-                                        listener.onConversationFound(conversationID, message,time, avatar,name);
+                                        listener.onConversationFound(conversationID, friendID,message,time, avatar,name);
                                     }
                                 }
 
@@ -931,7 +935,7 @@ public class DynamoDBManager {
     }
 
     public interface LoadConversationListener {
-        void onConversationFound(String conversationID, String message, String time, String avatar, String name);
+        void onConversationFound(String conversationID, String friendID ,String message, String time, String avatar, String name);
         void onLoadConversationError(Exception e);
     }
 }
