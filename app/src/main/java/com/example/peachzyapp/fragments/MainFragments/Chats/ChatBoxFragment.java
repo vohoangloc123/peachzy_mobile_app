@@ -1,6 +1,7 @@
 package com.example.peachzyapp.fragments.MainFragments.Chats;
 
 import android.app.Activity;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -49,6 +50,7 @@ import com.example.peachzyapp.dynamoDB.DynamoDBManager;
 import com.example.peachzyapp.entities.Item;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
@@ -80,6 +82,8 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
     PutObjectRequest request;
     private AmazonS3 s3Client;
     String urlImage;
+    ImageButton btnLink;
+    private static final int PICK_DOCUMENT_REQUEST = 1;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -114,7 +118,7 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
         Log.d("RequestUIDChat", "onCreateView: "+uid);
         friend_id= bundleReceive.getString("friend_id");
         Log.d("RequestUIDfriend", "onCreateView: "+friend_id);
-        urlAvatar= bundleReceive.getString("avatarUrl");
+        urlAvatar= bundleReceive.getString("urlAvatar");
         Log.d("RequesturlAvatar", "onCreateView: "+urlAvatar);
         avatar="https://chat-app-image-cnm.s3.ap-southeast-1.amazonaws.com/avatar_20240409_151015_1719.jpg.jpg";
 
@@ -185,6 +189,15 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
             intent.setAction(Intent.ACTION_GET_CONTENT);
             startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
         });
+        //File
+        btnLink=view.findViewById(R.id.btnLink);
+        btnLink.setOnClickListener(v->{
+                    Intent intent = new Intent();
+                    intent.setType("*/*");
+                    intent.setAction(Intent.ACTION_GET_CONTENT);
+                    startActivityForResult(Intent.createChooser(intent, "Select Document"), PICK_DOCUMENT_REQUEST);
+                }
+        );
 
 
         return view;
@@ -223,6 +236,95 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
             }
         }
     }
+
+//        @Override
+//        public void onActivityResult(int requestCode, int resultCode, Intent data) {
+//        super.onActivityResult(requestCode, resultCode, data);
+//
+//            if (requestCode == PICK_DOCUMENT_REQUEST && resultCode == Activity.RESULT_OK && data != null && data.getData() != null) {
+//                Uri uri = data.getData();
+//                try {
+//                    uploadFile(uri);
+//                }catch (Exception e){
+//
+//                }
+//
+//            }
+//
+//        if (requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK && data != null && data.getData() != null) {
+//            Uri uri = data.getData();
+//            try {
+//                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), uri);
+//                Log.d("CheckUri", uri.toString());
+//
+//                // Chuyển đổi bitmap thành chuỗi Base64
+//                ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+//                bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
+//                byte[] byteArray = byteArrayOutputStream.toByteArray();
+//                String encodedBitmap = Base64.encodeToString(byteArray, Base64.DEFAULT);
+//
+//                // Tạo tin nhắn mới với ảnh và thêm vào danh sách
+//                String currentTime = Utils.getCurrentTime();
+//                Item newItem = new Item(currentTime, null, urlAvatar, true); // Khởi tạo newItem với imageUrl = null
+//                newItem.setBitmapString(encodedBitmap); // Đặt chuỗi Base64 vào đối tượng Item
+//                listMessage.add(newItem);
+//                adapter.notifyItemInserted(listMessage.size() - 1);
+//                recyclerView.scrollToPosition(listMessage.size() - 1);
+//                uploadImageToS3AndSocketAndDynamoDB(uri);
+//                // Cuộn đến cuối danh sách
+//                scrollToBottom();
+//
+//                // Upload ảnh lên S3 (nếu cần)
+//
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//    }
+
+
+
+    private String getFileExtension(String mimetype){
+
+        if(mimetype.equals("text/plain"))
+            return ".txt";
+        if(mimetype.equals("application/vnd.openxmlformats-officedocument.wordprocessingml.document"))
+            return ".docx";
+        if(mimetype.equals("application/pdf"))
+            return ".pdf";
+        if(mimetype.equals("image/png"))
+            return ".png";
+        else
+            return null;
+    }
+    private void uploadFile (Uri uri){
+        new Thread(()->{
+            try {
+                InputStream inputStream = getActivity().getContentResolver().openInputStream(uri);
+                Log.d("checkURI", uri.toString());
+                File file = new File(uri.getPath());
+                String fileName = file.getName();
+                Log.d("checkFile", file.toString());
+                Log.d("checkFileName", fileName);
+
+                ContentResolver contentResolver = getActivity().getContentResolver();
+                String mimeType = contentResolver.getType(uri);
+                Log.d("mimeType", mimeType);
+                String fileExtension =getFileExtension(mimeType);
+                Log.d("fileExtension", fileExtension);
+
+//
+                request = new PutObjectRequest("chat-app-image-cnm", fileName+fileExtension, inputStream, new ObjectMetadata());
+                s3Client.putObject(request);
+
+                // Đóng InputStream sau khi tải lên thành công
+                inputStream.close();
+            }catch (Exception e){
+
+            }
+        }).start();
+    }
+
     private void uploadImageToS3AndSocketAndDynamoDB(Uri uri) {
         new Thread(() -> {
             try {

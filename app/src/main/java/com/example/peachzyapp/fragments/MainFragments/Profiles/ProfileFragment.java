@@ -33,6 +33,9 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.MultiTransformation;
+import com.bumptech.glide.load.resource.bitmap.CircleCrop;
 import com.example.peachzyapp.MainActivity;
 import com.example.peachzyapp.R;
 import com.example.peachzyapp.Regexp.Regexp;
@@ -69,6 +72,23 @@ public class ProfileFragment extends Fragment {
     PutObjectRequest request;
     String urlAvatar;
     Regexp regexp;
+
+    public static void loadCircularImage(Context context, Bitmap bitmap, ImageView imageView) {
+        Glide.with(context)
+                .load(bitmap)
+                .encodeFormat(Bitmap.CompressFormat.JPEG)
+                .encodeQuality(10)
+                .transform(new MultiTransformation<Bitmap>(new CircleCrop()))
+                .into(imageView);
+    }
+
+    public static void loadCircularImageUrl(Context context, String url, ImageView imageView) {
+
+        Glide.with(context)
+                .load(url)
+                .transform(new MultiTransformation<Bitmap>(new CircleCrop()))
+                .into(imageView);
+    }
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -220,7 +240,8 @@ public class ProfileFragment extends Fragment {
                         Profile profile=new Profile(id, name, email, avatar, sex, dateOfBirth);
                         etName.setText(profile.getName());
                         tvEmail.setText(profile.getEmail());
-                        Picasso.get().load(avatar).placeholder(R.drawable.logo).into(ivAvatar);
+ //                       Picasso.get().load(avatar).placeholder(R.drawable.logo).into(ivAvatar);
+                        loadCircularImageUrl(getActivity(),avatar,ivAvatar);
                         if (sex != null) {
                             RadioButton maleRadioButton = getActivity().findViewById(R.id.rMale);
                             RadioButton femaleRadioButton = getActivity().findViewById(R.id.rFemale);
@@ -266,6 +287,9 @@ public class ProfileFragment extends Fragment {
             try {
                 Bitmap bitmap = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), uri);
                 ivAvatar.setImageBitmap(bitmap);
+
+                //crop image circle
+                loadCircularImage(getActivity(),bitmap,ivAvatar);
 
                 // Upload ảnh lên S3
 

@@ -47,6 +47,7 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
         viewPager=findViewById(R.id.view_pager);
+        // tạm khoá
         viewPager.setAdapter(new ViewPagerAdapter(getSupportFragmentManager(), FragmentStatePagerAdapter.BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT));
         //số lượng fragment được load
         viewPager.setOffscreenPageLimit(3);
