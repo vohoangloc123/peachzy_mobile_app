@@ -51,22 +51,21 @@ public class MyAdapter extends RecyclerView.Adapter<MyViewHolder> {
 
         // Kiểm tra xem tin nhắn có phải của người gửi hay không
         boolean isSentByMe = currentItem.isSentByMe();
-        RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) holder.tvMessage.getLayoutParams();
-        RelativeLayout.LayoutParams paramsOfImage = (RelativeLayout.LayoutParams) holder.ivMessage.getLayoutParams();
 
         // Hiển thị avatar
         Picasso.get().load(currentItem.getAvatar()).into(holder.ivAvatar);
 
         // Hiển thị thời gian
         holder.tvTime.setText(currentItem.getTime());
-
+        RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) holder.tvMessage.getLayoutParams();
+        RelativeLayout.LayoutParams paramsOfImage = (RelativeLayout.LayoutParams) holder.ivMessage.getLayoutParams();
         // Nếu tin nhắn là của người gửi
         if (isSentByMe) {
+            params.addRule(RelativeLayout.ALIGN_PARENT_END);
+            paramsOfImage.addRule(RelativeLayout.ALIGN_PARENT_END);
             holder.tvMessage.setTextColor(context.getColor(R.color.white));
             holder.tvMessage.setBackgroundColor(ContextCompat.getColor(context, R.color.sentColor));
             holder.ivAvatar.setVisibility(View.GONE);
-            params.addRule(RelativeLayout.ALIGN_PARENT_END);
-            paramsOfImage.addRule(RelativeLayout.ALIGN_PARENT_END);
             // Nếu tin nhắn chứa đường dẫn của hình ảnh từ S3
             if (isS3ImageUrl(currentItem.getMessage())) {
                 Picasso.get().load(currentItem.getMessage()).into(holder.ivMessage);
@@ -80,12 +79,11 @@ public class MyAdapter extends RecyclerView.Adapter<MyViewHolder> {
             }
         } else { // Nếu tin nhắn là của người nhận
             holder.tvMessage.setTextColor(context.getColor(R.color.black));
-            holder.ivMessage.setVisibility(View.GONE);
-            holder.tvMessage.setVisibility(View.VISIBLE);
             // Nếu tin nhắn chứa đường dẫn của hình ảnh từ S3
             if (isS3ImageUrl(currentItem.getMessage())) {
                 Picasso.get().load(currentItem.getMessage()).into(holder.ivMessage);
                 holder.ivMessage.setVisibility(View.VISIBLE); // Hiển thị ivMessage
+                holder.tvMessage.setVisibility(View.GONE);
             } else {
                 // Hiển thị văn bản tin nhắn
                 holder.ivMessage.setVisibility(View.GONE);
