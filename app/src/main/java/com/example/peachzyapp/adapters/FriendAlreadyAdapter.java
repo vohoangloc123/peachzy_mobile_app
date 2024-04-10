@@ -21,7 +21,7 @@ public class FriendAlreadyAdapter extends RecyclerView.Adapter<FriendAlreadyAdap
     public ImageView avatarImageView;
     private OnItemClickListener mListener;
     public interface OnItemClickListener {
-        void onItemClick(String id);
+        void onItemClick(String id , String urlAvatar);
     }
     public void setOnItemClickListener(OnItemClickListener listener) {
         mListener = listener;
@@ -60,7 +60,7 @@ public class FriendAlreadyAdapter extends RecyclerView.Adapter<FriendAlreadyAdap
             @Override
             public void onClick(View v) {
                 if (mListener != null) {
-                    mListener.onItemClick(friends.getId());
+                    mListener.onItemClick(friends.getId(),friends.getAvatar());
                 }
             }
         });

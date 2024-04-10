@@ -122,31 +122,18 @@ public class FriendsFragment extends Fragment {
         });
         friendAdapter= new FriendAlreadyAdapter(friendList);
         rcvFriendList.setAdapter(friendAdapter);
+
         friendAdapter.setOnItemClickListener(new FriendAlreadyAdapter.OnItemClickListener() {
             @Override
-            public void onItemClick(String id) {
-                // Xử lý khi một mục được nhấn, ví dụ: chuyển id qua fragment khác
+            public void onItemClick(String id, String urlAvatar) {
                 Bundle bundle = new Bundle();
                 bundle.putString("friend_id", id);
-                Log.d("FriendsFragmentCheckFriendAdapter","YES");
-
-                dynamoDBManager.findAvatarByUID(id, new DynamoDBManager.AvatarCallback() {
-                    @Override
-                    public void onSuccess(String avatarUrl) {
-                        // Xử lý đường dẫn avatar ở đây
-                        Log.d("CheckAvatarUrl", avatarUrl);
-                        //Bundle bundle = new Bundle();
-                        bundle.putString("avatarUrl", avatarUrl);
-                        mainActivity.goToChatBoxFragment(bundle);
-                    }
-                    @Override
-                    public void onError(Exception e) {
-                    }
-                });
-
-
+                bundle.putString("urlAvatar",urlAvatar);
+                Log.d("urlAvatarhere", urlAvatar);
+                mainActivity.goToChatBoxFragment(bundle);
             }
         });
+
         RecyclerView.ItemDecoration itemDecoration=new DividerItemDecoration(mainActivity, DividerItemDecoration.VERTICAL);
         rcvFriendList.addItemDecoration(itemDecoration);
         return view;
