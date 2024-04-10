@@ -82,10 +82,12 @@ public class ChatListsFragment extends Fragment {
         conversationAdapter.setOnItemClickListener(new ConversationAdapter.OnItemClickListener(){
 
             @Override
-            public void onItemClick(String id, String urlAvatar) {
+            public void onItemClick(String id, String urlAvatar, String friendName) {
                 Bundle bundle = new Bundle();
                 bundle.putString("friend_id", id);
                 bundle.putString("urlAvatar",urlAvatar);
+                bundle.putString("friendName", friendName);
+//                bundle.putString("friendName");
                 Log.d("urlAvatarhere", urlAvatar);
                 mainActivity.goToChatBoxFragment(bundle);
             }
