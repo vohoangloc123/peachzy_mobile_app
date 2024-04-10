@@ -49,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
         viewPager=findViewById(R.id.view_pager);
         viewPager.setAdapter(new ViewPagerAdapter(getSupportFragmentManager(), FragmentStatePagerAdapter.BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT));
         //số lượng fragment được load
-        viewPager.setOffscreenPageLimit(2);
+        viewPager.setOffscreenPageLimit(3);
         bottomNavigationView=findViewById(R.id.bottom_navigation);
         uid = getIntent().getStringExtra("uid");
         if (uid != null) {

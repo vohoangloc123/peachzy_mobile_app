@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.media.Image;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -155,14 +156,21 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
                 String message = etMessage.getText().toString().trim();
                 if (!message.isEmpty()) {
                     // Add the new message to the list and notify adapter
-                    scrollToBottom();
                     String currentTime = Utils.getCurrentTime();
                     listMessage.add(new Item(currentTime, message,urlAvatar ,true));
                     adapter.notifyItemInserted(listMessage.size() - 1);
                     recyclerView.scrollToPosition(listMessage.size() - 1);
                     myWebSocket.sendMessage(message);
-                    dynamoDBManager.saveMessage(uid+friend_id, message,currentTime, true);
-                    dynamoDBManager.saveConversation(uid,uid+friend_id, message, currentTime,urlAvatar,"Loc");
+                    new AsyncTask<Void, Void, Void>() {
+                        @Override
+                        protected Void doInBackground(Void... voids) {
+                            dynamoDBManager.saveMessage(uid + friend_id, message, currentTime, true);
+                            dynamoDBManager.saveMessage(friend_id + uid, message, currentTime, false);
+                            dynamoDBManager.saveConversation(uid, uid + friend_id, message, currentTime, urlAvatar, "Loc");
+                            dynamoDBManager.saveConversation(friend_id, friend_id + uid, message, currentTime, urlAvatar, "Loc");
+                            return null;
+                        }
+                    }.execute();
                     scrollToBottom();
                 } else {
                     Toast.makeText(getContext(), "Please enter a message", Toast.LENGTH_SHORT).show();
@@ -205,10 +213,6 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
                 adapter.notifyItemInserted(listMessage.size() - 1);
                 recyclerView.scrollToPosition(listMessage.size() - 1);
                 uploadImageToS3AndSocketAndDynamoDB(uri);
-//
-//                // Lưu tin nhắn vào DynamoDB (nếu cần)
-//                 dynamoDBManager.saveMessage(uid + friend_id, urlImage, currentTime, true);
-
                 // Cuộn đến cuối danh sách
                 scrollToBottom();
 
@@ -240,7 +244,17 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
                 // Lưu URL của ảnh vào biến để sử dụng sau này
                 urlImage = "https://chat-app-image-cnm.s3.ap-southeast-1.amazonaws.com/" + fileName + ".jpg";
                 myWebSocket.sendMessage(urlImage);
-                dynamoDBManager.saveMessage(uid + friend_id, urlImage, currentTime, true);
+                new AsyncTask<Void, Void, Void>() {
+                    @Override
+                    protected Void doInBackground(Void... voids) {
+                        dynamoDBManager.saveMessage(uid + friend_id, urlImage, currentTime, true);
+                        dynamoDBManager.saveMessage(friend_id+uid, urlImage, currentTime, false);
+                        dynamoDBManager.saveConversation(uid, uid + friend_id, "Hình ảnh", currentTime, urlAvatar, "Loc");
+                        dynamoDBManager.saveConversation(friend_id, friend_id + uid, "Hình ảnh", currentTime, urlAvatar, "Loc");
+                        return null;
+                    }
+                }.execute();
+
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -270,13 +284,13 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
     }
 
 @Override
-public void onMessageReceived(String message) {
-    Log.d("MessageReceived", message);
+public void onMessageReceived(String receivedMessage) {
+    Log.d("MessageReceived", receivedMessage);
 
     // Kiểm tra xem tin nhắn nhận được có trùng với tin nhắn đã gửi không
     boolean isDuplicate = false;
     for (Item item : listMessage) {
-        if (item.getMessage().equals(message)) {
+        if (item.getMessage().equals(receivedMessage)) {
             isDuplicate = true;
             break;
         }
@@ -285,10 +299,8 @@ public void onMessageReceived(String message) {
     if (!isDuplicate) {
         // Tin nhắn không trùng, thêm nó vào danh sách và cập nhật giao diện
         String currentTime = Utils.getCurrentTime();
-        listMessage.add(new Item(currentTime, message, urlAvatar,false));
+        listMessage.add(new Item(currentTime, receivedMessage, urlAvatar,false));
         Log.d("CheckingListMessage", listMessage.toString());
-        //saveMessage(message,currentTime);
-        dynamoDBManager.saveMessage(uid+friend_id, message, currentTime, false);
         newPosition = listMessage.size() - 1; // Vị trí mới của tin nhắn
         adapter.notifyItemInserted(newPosition);
 
