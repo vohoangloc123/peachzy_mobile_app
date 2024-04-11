@@ -20,6 +20,9 @@ import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.MultiTransformation;
+import com.bumptech.glide.load.resource.bitmap.CircleCrop;
 import com.example.peachzyapp.R;
 import com.example.peachzyapp.entities.Item;
 import com.squareup.picasso.Picasso;
@@ -53,7 +56,12 @@ public class MyAdapter extends RecyclerView.Adapter<MyViewHolder> {
         boolean isSentByMe = currentItem.isSentByMe();
 
         // Hiển thị avatar
-        Picasso.get().load(currentItem.getAvatar()).into(holder.ivAvatar);
+//        Picasso.get().load(currentItem.getAvatar()).into(holder.ivAvatar);
+        Glide.with(holder.itemView.getContext())
+                .load(currentItem.getAvatar())
+                .placeholder(R.drawable.logo)
+                .transform(new MultiTransformation<Bitmap>(new CircleCrop()))
+                .into(holder.ivAvatar);
 
         // Hiển thị thời gian
         holder.tvTime.setText(currentItem.getTime());

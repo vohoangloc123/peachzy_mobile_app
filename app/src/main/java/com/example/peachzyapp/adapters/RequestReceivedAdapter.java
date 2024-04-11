@@ -3,6 +3,7 @@ package com.example.peachzyapp.adapters;
 import static com.sun.mail.imap.protocol.FetchResponse.getItem;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,6 +18,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.MultiTransformation;
+import com.bumptech.glide.load.resource.bitmap.CircleCrop;
 import com.example.peachzyapp.R;
 import com.example.peachzyapp.dynamoDB.DynamoDBManager;
 import com.example.peachzyapp.entities.FriendItem;
@@ -77,8 +81,12 @@ public class RequestReceivedAdapter extends RecyclerView.Adapter<RequestReceived
             name = friendItem.getName();
             Log.d("TestFriendItem", friendId+ uid);
             // Load hình ảnh từ URL bằng thư viện Picasso
-            Picasso.get().load(avatarUrl).placeholder(R.drawable.logo).into(ivAvatar);
-
+//            Picasso.get().load(avatarUrl).placeholder(R.drawable.logo).into(ivAvatar);
+            Glide.with(holder.itemView.getContext())
+                    .load(friendItem.getAvatar())
+                    .placeholder(R.drawable.logo)
+                    .transform(new MultiTransformation<Bitmap>(new CircleCrop()))
+                    .into(ivAvatar);
             btnAccept.setOnClickListener(v -> {
                 Button btnAccept = (Button) holder.itemView.findViewById(R.id.btnAccept);
                 btnAccept.setEnabled(false);

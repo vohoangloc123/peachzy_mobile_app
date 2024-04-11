@@ -23,10 +23,11 @@
 
             <ImageView
                 android:id="@+id/avatarImageView"
-                android:layout_width="13dp"
-                android:layout_height="match_parent"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
                 android:layout_weight="1"
-                android:src="@drawable/user_off" />
+                android:src="@drawable/user_off"
+                android:layout_marginTop="5dp"/>
 
             <TextView
                 android:id="@+id/nameTextView"
@@ -43,7 +44,7 @@
             <Button
                 android:id="@+id/addFriendButton"
                 android:layout_width="wrap_content"
-                android:layout_height="58dp"
+                android:layout_height="50dp"
                 android:layout_weight="1"
                 android:backgroundTint="@color/btnColor"
                 android:padding="5dp"
