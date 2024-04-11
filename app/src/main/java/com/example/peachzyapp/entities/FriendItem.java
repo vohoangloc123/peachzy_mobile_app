@@ -35,4 +35,13 @@ public class FriendItem {
     public String getName() {
         return name;
     }
+
+    @Override
+    public String toString() {
+        return "FriendItem{" +
+                "id='" + id + '\'' +
+                ", avatar='" + avatar + '\'' +
+                ", name='" + name + '\'' +
+                '}';
+    }
 }

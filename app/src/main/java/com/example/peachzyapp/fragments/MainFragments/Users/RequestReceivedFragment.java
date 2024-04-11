@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class RequestReceivedFragment extends Fragment {
-    public static final String TAG= ChatHistoryFragment.class.getName();
+    public static final String TAG = ChatHistoryFragment.class.getName();
     ImageButton btnBack;
     String uid;
     private DynamoDBManager dynamoDBManager;
@@ -38,6 +38,7 @@ public class RequestReceivedFragment extends Fragment {
     private ArrayList<FriendItem> friendList;
 
     private MyViewModel viewModel;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -50,16 +51,16 @@ public class RequestReceivedFragment extends Fragment {
         friendList = new ArrayList<>();
         dynamoDBManager = new DynamoDBManager(getActivity());
         view = inflater.inflate(R.layout.activity_request_received_fragments, container, false);
-        btnBack=view.findViewById(R.id.btnBack);
+        btnBack = view.findViewById(R.id.btnBack);
         Bundle bundleReceive = getArguments();
         uid = bundleReceive.getString("uid");
-        requestReceivedAdapter = new RequestReceivedAdapter(friendList);
-        requestReceivedAdapter.setUid(uid);
+
         mainActivity = (MainActivity) getActivity();
-        btnBack.setOnClickListener(v->{
+        btnBack.setOnClickListener(v -> {
             getParentFragmentManager().popBackStack();
             mainActivity.showBottomNavigation(true);
         });
+
         rcvRequestReceived = view.findViewById(R.id.rcvRequestReceived);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(mainActivity);
         rcvRequestReceived.setLayoutManager(linearLayoutManager);
@@ -67,10 +68,14 @@ public class RequestReceivedFragment extends Fragment {
         RecyclerView.ItemDecoration itemDecoration = new DividerItemDecoration(mainActivity, DividerItemDecoration.VERTICAL);
         rcvRequestReceived.addItemDecoration(itemDecoration);
 
+        requestReceivedAdapter = new RequestReceivedAdapter(friendList);
+        requestReceivedAdapter.setUid(uid);
+        rcvRequestReceived.setAdapter(requestReceivedAdapter);
+
         dynamoDBManager.getIDFriend(uid, "3", new DynamoDBManager.AlreadyFriendListener() {
             @Override
             public void onFriendAlreadyFound(FriendItem data) {
-
+                // Handle case when friend is already found
             }
 
             @Override
@@ -79,7 +84,6 @@ public class RequestReceivedFragment extends Fragment {
                     @Override
                     public void run() {
                         friendItem = new FriendItem(id, avatar, name);
-                        friendList.clear();
                         friendList.add(friendItem);
                         requestReceivedAdapter.notifyDataSetChanged();
                     }
@@ -87,20 +91,12 @@ public class RequestReceivedFragment extends Fragment {
             }
         });
 
-        rcvRequestReceived.setAdapter(requestReceivedAdapter);
         viewModel = new ViewModelProvider(requireActivity()).get(MyViewModel.class);
         changeData();
 
         return view;
     }
 
-    private List<FriendItem> getListFriends() {
-        List<FriendItem> list= new ArrayList<>();
-        for(int i=1; i<20;i++){
-            list.add(new FriendItem("name"+i));
-        }
-        return list;
-    }
     private void changeData() {
         viewModel.setData("New data");
     }

@@ -31,7 +31,6 @@ import com.example.peachzyapp.fragments.MainFragments.Chats.ChatHistoryFragment;
 import java.util.ArrayList;
 
 public class FriendsFragment extends Fragment {
-    private String test;
     ImageButton btnAddfriend;
 
     ImageButton btnRequestReceived;
@@ -82,7 +81,6 @@ public class FriendsFragment extends Fragment {
                     @Override
                     public void run() {
                         friendItem = new FriendItem(id, avatar, name);
-
                         friendList.add(friendItem);
                         friendAdapter.notifyDataSetChanged();
                     }
