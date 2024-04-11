@@ -42,6 +42,7 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.example.peachzyapp.MainActivity;
 import com.example.peachzyapp.Other.Utils;
 import com.example.peachzyapp.R;
 import com.example.peachzyapp.SocketIO.MyWebSocket;
@@ -64,6 +65,7 @@ import java.util.Random;
 public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketListener {
     ImageButton btnSend;
     ImageButton btnImage;
+    ImageButton btnBack;
     EditText etMessage;
     TextView etName;
     private List<Item> listMessage = new ArrayList<>();
@@ -72,17 +74,16 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
     MyWebSocket myWebSocket;
     RecyclerView recyclerView;
     int newPosition;
-    String avatar;
     String uid;
     String friend_id;
     private String channel_id = null;
     DynamoDBManager dynamoDBManager;
+    MainActivity mainActivity;
     private String urlAvatar;
     private static final int PICK_IMAGE_REQUEST = 1;
     private static final String BUCKET_NAME = "chat-app-image-cnm";
     PutObjectRequest request;
     private AmazonS3 s3Client;
-    String urlImage;
     ImageButton btnLink;
     String userName;
     String friendName;
@@ -94,13 +95,14 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
         recyclerView = view.findViewById(R.id.recycleview);
         btnSend = view.findViewById(R.id.btnSend);
         btnImage=view.findViewById(R.id.btnImage);
+        btnBack=view.findViewById(R.id.btnBack);
         etName=view.findViewById(R.id.etName);
-
         etMessage = view.findViewById(R.id.etMessage);
+        //main activity
+        mainActivity = (MainActivity) getActivity();
         // Initialize the adapter only once
         adapter = new MyAdapter(getContext(), listMessage);
         recyclerView.setAdapter(adapter);
-        // Initialize and connect Socket.IO manager
         // initialize dynamoDB
         dynamoDBManager=new DynamoDBManager(getContext());
         BasicAWSCredentials credentials = new BasicAWSCredentials("AKIAZI2LEH5QNBAXEUHP", "krI7P46llTA2kLj+AZQGSr9lEviTlS4bwQzBXSSi");
@@ -211,6 +213,12 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
             intent.setType("image/*");
             intent.setAction(Intent.ACTION_GET_CONTENT);
             startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
+        });
+        btnBack.setOnClickListener(v -> {
+            // Sử dụng FragmentManager để quản lý back stack và pop back khi cần thiết
+            getParentFragmentManager().popBackStack();
+            mainActivity.showBottomNavigation(true);
+
         });
         //File
         btnLink=view.findViewById(R.id.btnLink);
