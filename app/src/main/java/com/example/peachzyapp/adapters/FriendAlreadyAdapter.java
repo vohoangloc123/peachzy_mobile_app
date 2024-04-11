@@ -1,5 +1,6 @@
 package com.example.peachzyapp.adapters;
 
+import android.graphics.Bitmap;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,6 +10,9 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.MultiTransformation;
+import com.bumptech.glide.load.resource.bitmap.CircleCrop;
 import com.example.peachzyapp.R;
 import com.example.peachzyapp.entities.FriendItem;
 import com.squareup.picasso.Picasso;
@@ -55,7 +59,12 @@ public class FriendAlreadyAdapter extends RecyclerView.Adapter<FriendAlreadyAdap
         }
 
         holder.tvFriend.setText(friends.getName());
-        Picasso.get().load(friends.getAvatar()).into(avatarImageView);
+//        Picasso.get().load(friends.getAvatar()).into(avatarImageView);
+        Glide.with(holder.itemView.getContext())
+                .load(friends.getAvatar())
+                .placeholder(R.drawable.logo)
+                .transform(new MultiTransformation<Bitmap>(new CircleCrop()))
+                .into(avatarImageView);
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

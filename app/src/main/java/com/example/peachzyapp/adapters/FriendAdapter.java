@@ -1,6 +1,7 @@
 package com.example.peachzyapp.adapters;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +14,9 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.MultiTransformation;
+import com.bumptech.glide.load.resource.bitmap.CircleCrop;
 import com.example.peachzyapp.R;
 import com.example.peachzyapp.dynamoDB.DynamoDBManager;
 import com.example.peachzyapp.entities.FriendItem;
@@ -49,13 +53,18 @@ public class FriendAdapter extends ArrayAdapter<FriendItem> {
         TextView nameTextView = convertView.findViewById(R.id.nameTextView);
         Button addFriendButton = convertView.findViewById(R.id.addFriendButton);
         FriendItem friendItem = getItem(position); // Lấy đối tượng FriendItem tương ứng với vị trí
+
         dynamoDBManager=new DynamoDBManager(getContext());
         if (friendItem != null) {
             String uid = this.uid; // Get uid from instance variable
             String avatarUrl = friendItem.getAvatar();
             String name = friendItem.getName();
             String friendId=friendItem.getId();
-            Picasso.get().load(avatarUrl).placeholder(R.drawable.logo).into(avatarImageView);
+            Glide.with(getContext())
+                    .load(avatarUrl)
+                    .transform(new MultiTransformation<Bitmap>(new CircleCrop()))
+                    .into(avatarImageView);
+//            Picasso.get().load(avatarUrl).placeholder(R.drawable.logo).into(avatarImageView);
             nameTextView.setText(name);
 
             // Xử lý sự kiện khi nút được nhấn
