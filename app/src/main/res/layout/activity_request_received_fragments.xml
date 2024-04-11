@@ -5,14 +5,42 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:id="@+id/fragment_container_received"
-    android:background="@color/btnColor"
+    android:background="@color/bgWhiteBlue"
     >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="75dp"
+        android:background="@color/btnColor"
+        android:orientation="horizontal">
+
+        <ImageButton
+            android:id="@+id/btnBack"
+            android:layout_width="84dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:backgroundTint="@color/btnColor"
+            android:src="@drawable/arrow_left" />
+
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="300dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_marginTop="5dp"
+            android:padding="15dp"
+            android:text="@string/request_received"
+            android:textColor="@color/white"
+            android:textSize="20dp" />
+    </LinearLayout>
+
 
 
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rcvRequestReceived"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:padding="20dp"/>
 
 </LinearLayout>
