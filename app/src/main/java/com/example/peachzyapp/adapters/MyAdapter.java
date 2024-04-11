@@ -68,14 +68,16 @@ public class MyAdapter extends RecyclerView.Adapter<MyViewHolder> {
             holder.ivAvatar.setVisibility(View.GONE);
             // Nếu tin nhắn chứa đường dẫn của hình ảnh từ S3
             if (isS3ImageUrl(currentItem.getMessage())) {
-                Picasso.get().load(currentItem.getMessage()).into(holder.ivMessage);
+
                 holder.tvMessage.setVisibility(View.GONE);
                 holder.ivMessage.setVisibility(View.VISIBLE); // Hiển thị ivMessage
+                Picasso.get().load(currentItem.getMessage()).into(holder.ivMessage);
             } else {
                 // Hiển thị văn bản tin nhắn
+                holder.tvMessage.setText(currentItem.getMessage());
                 holder.ivMessage.setVisibility(View.GONE);
                 holder.tvMessage.setVisibility(View.VISIBLE);
-                holder.tvMessage.setText(currentItem.getMessage());
+
             }
         } else { // Nếu tin nhắn là của người nhận
             holder.tvMessage.setTextColor(context.getColor(R.color.black));
