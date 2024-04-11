@@ -15,7 +15,6 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -43,8 +42,6 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
-import com.example.peachzyapp.LiveData.MyViewChatModel;
-import com.example.peachzyapp.LiveData.MyViewModel;
 import com.example.peachzyapp.Other.Utils;
 import com.example.peachzyapp.R;
 import com.example.peachzyapp.SocketIO.MyWebSocket;
@@ -85,20 +82,11 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
     private static final String BUCKET_NAME = "chat-app-image-cnm";
     PutObjectRequest request;
     private AmazonS3 s3Client;
-   private String urlImage;
+    String urlImage;
     ImageButton btnLink;
     String userName;
     String friendName;
-    String urlFile;
-
-    private static final int PICK_DOCUMENT_REQUEST = 2;
-
-    private MyViewChatModel viewModel;
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        viewModel = new ViewModelProvider(this).get(MyViewChatModel.class);
-    }
+    private static final int PICK_DOCUMENT_REQUEST = 1;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -160,7 +148,7 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
 
             @Override
             public void onFriendFound(String uid, String name, String email, String avatar, Boolean sex, String dateOfBirth) {
-                    userName=name;
+                userName=name;
 
             }
 
@@ -193,7 +181,6 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
             public void onClick(View v) {
                 String message = etMessage.getText().toString().trim();
                 if (!message.isEmpty()) {
-                    viewModel.setData(message);
                     // Add the new message to the list and notify adapter
                     String currentTime = Utils.getCurrentTime();
                     listMessage.add(new Item(currentTime, message,urlAvatar ,true));
@@ -217,110 +204,103 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
                 }
                 // Clear the message input field after sending
                 etMessage.getText().clear();
-                changeData();
-
             }
         });
         btnImage.setOnClickListener(v->{
-
             Intent intent = new Intent();
             intent.setType("image/*");
             intent.setAction(Intent.ACTION_GET_CONTENT);
             startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
         });
-        //Up load File
+        //File
         btnLink=view.findViewById(R.id.btnLink);
         btnLink.setOnClickListener(v->{
-
                     Intent intent = new Intent();
                     intent.setType("*/*");
                     intent.setAction(Intent.ACTION_GET_CONTENT);
                     startActivityForResult(Intent.createChooser(intent, "Select Document"), PICK_DOCUMENT_REQUEST);
                 }
         );
-        viewModel = new ViewModelProvider(requireActivity()).get(MyViewChatModel.class);
-
         return view;
     }
-
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == PICK_DOCUMENT_REQUEST && resultCode == Activity.RESULT_OK && data != null && data.getData() != null) {
-            Uri uri = data.getData();
-            Log.d("CheckUri", uri.toString());
-            uploadFile(uri);
-        }
-        else if (requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK && data != null && data.getData() != null) {
+        if (requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK && data != null && data.getData() != null) {
             Uri uri = data.getData();
             try {
                 Bitmap bitmap = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), uri);
-                Log.d("CheckUri1", uri.toString());
-
                 // Chuyển đổi bitmap thành chuỗi Base64
                 ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
                 bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
-                byte[] byteArray = byteArrayOutputStream.toByteArray();
-                String encodedBitmap = Base64.encodeToString(byteArray, Base64.DEFAULT);
-
-
-
-                // Tạo tin nhắn mới với ảnh và thêm vào danh sách
-                String currentTime = Utils.getCurrentTime();
-
-               // Log.d("checkurlImager", urlImage);
-
-                Item newItem = new Item(currentTime, null, urlAvatar, true); // Khởi tạo newItem với imageUrl = null
-                newItem.setBitmapString(encodedBitmap); // Đặt chuỗi Base64 vào đối tượng Item
-                listMessage.add(newItem);
-                adapter.notifyItemInserted(listMessage.size() - 1);
-                recyclerView.scrollToPosition(listMessage.size() - 1);
-
-                // Cuộn đến cuối danh sách
-                scrollToBottom();
-
-                // Upload ảnh lên S3 (nếu cần)
+                // Upload ảnh lên S3 và gửi tin nhắn chứa URL ảnh đến WebSocket, sau đó lưu vào DynamoDB
                 uploadImageToS3AndSocketAndDynamoDB(uri);
-            } catch (Exception e) {
+
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         }
     }
-//    @Override
-//    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-//        super.onActivityResult(requestCode, resultCode, data);
-//
-//        if (requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK && data != null && data.getData() != null) {
-//            Uri uri = data.getData();
-//            try {
-//                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), uri);
-//                Log.d("CheckUri", uri.toString());
-//
-//                // Chuyển đổi bitmap thành chuỗi Base64
-//                ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-//                bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
-//                byte[] byteArray = byteArrayOutputStream.toByteArray();
-//                String encodedBitmap = Base64.encodeToString(byteArray, Base64.DEFAULT);
-//
-//                // Tạo tin nhắn mới với ảnh và thêm vào danh sách
-//                String currentTime = Utils.getCurrentTime();
-//                Item newItem = new Item(currentTime, null, urlAvatar, true); // Khởi tạo newItem với imageUrl = null
-//                newItem.setBitmapString(encodedBitmap); // Đặt chuỗi Base64 vào đối tượng Item
-//                listMessage.add(newItem);
-//                adapter.notifyItemInserted(listMessage.size() - 1);
-//                recyclerView.scrollToPosition(listMessage.size() - 1);
-//                uploadImageToS3AndSocketAndDynamoDB(uri);
-//                // Cuộn đến cuối danh sách
-//                scrollToBottom();
-//
-//                // Upload ảnh lên S3 (nếu cần)
-//
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//        }
-//    }
+
+    private void uploadImageToS3AndSocketAndDynamoDB(Uri uri) {
+        new Thread(() -> {
+            try {
+                // Mở InputStream từ Uri
+                InputStream inputStream = getActivity().getContentResolver().openInputStream(uri);
+
+                // Tạo tên file duy nhất
+                String fileName = generateFileName();
+
+                // Tạo đối tượng PutObjectRequest và đặt tên bucket và key
+                request = new PutObjectRequest(BUCKET_NAME, fileName + ".jpg", inputStream, new ObjectMetadata());
+
+                // Upload ảnh lên S3
+                s3Client.putObject(request);
+
+                // Lưu URL của ảnh vào biến để sử dụng sau này
+                String urlImage = "https://chat-app-image-cnm.s3.ap-southeast-1.amazonaws.com/" + fileName + ".jpg";
+
+                // Đóng InputStream sau khi tải lên thành công
+                inputStream.close();
+
+                // Gửi tin nhắn chứa URL ảnh đến WebSocket
+                myWebSocket.sendMessage(urlImage);
+
+                // Lưu tin nhắn và cuộc trò chuyện vào DynamoDB
+                saveMessageAndConversationToDB(urlImage, "Hình ảnh");
+
+                // Sau khi tất cả các thao tác hoàn tất, cập nhật giao diện
+                getActivity().runOnUiThread(() -> {
+                    String currentTime = Utils.getCurrentTime();
+                    // Thêm tin nhắn mới vào danh sách
+                    listMessage.add(new Item(currentTime, urlImage, urlAvatar, true));
+                    adapter.notifyItemInserted(listMessage.size() - 1); // Thông báo cho adapter về sự thay đổi
+
+                    // Cuộn xuống cuối RecyclerView
+                    scrollToBottom();
+                });
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }).start();
+    }
+
+    private void saveMessageAndConversationToDB(String urlImage, String message) {
+        String currentTime = Utils.getCurrentTime();
+        // Lưu tin nhắn và cuộc trò chuyện vào DynamoDB
+        new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected Void doInBackground(Void... voids) {
+                dynamoDBManager.saveMessage(uid + friend_id, urlImage, currentTime, true);
+                dynamoDBManager.saveMessage(friend_id + uid, urlImage, currentTime, false);
+                dynamoDBManager.saveConversation(uid, uid + friend_id, friend_id, message, currentTime, urlAvatar, friendName);
+                dynamoDBManager.saveConversation(friend_id, friend_id + uid, uid, message, currentTime, urlAvatar, userName);
+                return null;
+            }
+        }.execute();
+    }
 
 
 
@@ -340,7 +320,6 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
     private void uploadFile (Uri uri){
         new Thread(()->{
             try {
-
                 InputStream inputStream = getActivity().getContentResolver().openInputStream(uri);
                 Log.d("checkURI", uri.toString());
                 File file = new File(uri.getPath());
@@ -356,62 +335,15 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
 
 //
                 request = new PutObjectRequest("chat-app-image-cnm", fileName+fileExtension, inputStream, new ObjectMetadata());
-
                 s3Client.putObject(request);
 
                 // Đóng InputStream sau khi tải lên thành công
                 inputStream.close();
-
             }catch (Exception e){
 
             }
         }).start();
     }
-
-    private void uploadImageToS3AndSocketAndDynamoDB(Uri uri) {
-        new Thread(() -> {
-            try {
-
-                // Mở InputStream từ Uri
-                InputStream inputStream = getActivity().getContentResolver().openInputStream(uri);
-
-                // Tạo tên file duy nhất
-                String fileName = generateFileName();
-
-                // Tạo đối tượng PutObjectRequest và đặt tên bucket và key
-                request = new PutObjectRequest(BUCKET_NAME, fileName + ".jpg", inputStream, new ObjectMetadata());
-
-                // Upload ảnh lên S3
-                s3Client.putObject(request);
-
-                // Đóng InputStream sau khi tải lên thành công
-                inputStream.close();
-                String currentTime = Utils.getCurrentTime();
-                // Lưu URL của ảnh vào biến để sử dụng sau này
-                urlImage = "https://chat-app-image-cnm.s3.ap-southeast-1.amazonaws.com/" + fileName + ".jpg";
-              //
-
-                //
-                myWebSocket.sendMessage(urlImage);
-                Log.d("CheckFriendName", friendName);
-                new AsyncTask<Void, Void, Void>() {
-                    @Override
-                    protected Void doInBackground(Void... voids) {
-                        dynamoDBManager.saveMessage(uid + friend_id, urlImage, currentTime, true);
-                        dynamoDBManager.saveMessage(friend_id+uid, urlImage, currentTime, false);
-                        dynamoDBManager.saveConversation(uid, uid + friend_id, friend_id,"Hình ảnh", currentTime, urlAvatar,  friendName);
-                        dynamoDBManager.saveConversation(friend_id, friend_id + uid, uid,"Hình ảnh", currentTime, urlAvatar, userName);
-                        return null;
-                    }
-                }.execute();
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }).start();
-    }
-
-
     private String generateFileName() {
         // Lấy ngày giờ hiện tại
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
@@ -434,44 +366,43 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
         }
     }
 
-@Override
-public void onMessageReceived(String receivedMessage) {
-    Log.d("MessageReceived", receivedMessage);
-    viewModel.setData(receivedMessage);
-    // Kiểm tra xem tin nhắn nhận được có trùng với tin nhắn đã gửi không
-    boolean isDuplicate = false;
-    for (Item item : listMessage) {
-        if (item.getMessage().equals(receivedMessage)) {
-            isDuplicate = true;
-            break;
+    @Override
+    public void onMessageReceived(String receivedMessage) {
+        Log.d("MessageReceived", receivedMessage);
+
+        // Kiểm tra xem tin nhắn nhận được có trùng với tin nhắn đã gửi không
+        boolean isDuplicate = false;
+        for (Item item : listMessage) {
+            if (item.getMessage().equals(receivedMessage)) {
+                isDuplicate = true;
+                break;
+            }
+        }
+        scrollToBottom();
+        if (!isDuplicate) {
+            // Tin nhắn không trùng, thêm nó vào danh sách và cập nhật giao diện
+            String currentTime = Utils.getCurrentTime();
+            listMessage.add(new Item(currentTime, receivedMessage, urlAvatar,false));
+            Log.d("CheckingListMessage", listMessage.toString());
+            newPosition = listMessage.size() - 1; // Vị trí mới của tin nhắn
+            adapter.notifyItemInserted(newPosition);
+
+            // Kiểm tra nếu RecyclerView đã được attach vào layout
+            if (recyclerView.getLayoutManager() != null) {
+                // Cuộn xuống vị trí mới
+                recyclerView.post(() -> recyclerView.smoothScrollToPosition(newPosition));
+            } else {
+                // Nếu RecyclerView chưa được attach, thì cuộn xuống khi RecyclerView được attach vào layout
+                recyclerView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                    @Override
+                    public void onGlobalLayout() {
+                        recyclerView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                        recyclerView.smoothScrollToPosition(newPosition);
+                    }
+                });
+            }
         }
     }
-    scrollToBottom();
-    if (!isDuplicate) {
-        // Tin nhắn không trùng, thêm nó vào danh sách và cập nhật giao diện
-        String currentTime = Utils.getCurrentTime();
-        listMessage.add(new Item(currentTime, receivedMessage, urlAvatar,false));
-        Log.d("CheckingListMessage", listMessage.toString());
-        newPosition = listMessage.size() - 1; // Vị trí mới của tin nhắn
-        adapter.notifyItemInserted(newPosition);
-
-        // Kiểm tra nếu RecyclerView đã được attach vào layout
-        if (recyclerView.getLayoutManager() != null) {
-            // Cuộn xuống vị trí mới
-            recyclerView.post(() -> recyclerView.smoothScrollToPosition(newPosition));
-        } else {
-            // Nếu RecyclerView chưa được attach, thì cuộn xuống khi RecyclerView được attach vào layout
-            recyclerView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-                @Override
-                public void onGlobalLayout() {
-                    recyclerView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                    recyclerView.smoothScrollToPosition(newPosition);
-                }
-            });
-        }
-    }
-
-}
 
     @Override
     public void onConnectionStateChanged(boolean isConnected) {
@@ -511,16 +442,6 @@ public void onMessageReceived(String receivedMessage) {
         // Cuộn đến vị trí cuối cùng
         recyclerView.scrollToPosition(listMessage.size() - 1);
     }
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        viewModel.setData("Change");
-        Log.d("Detach", "onDetach: ");
-    }
-    private void changeData() {
-        viewModel.setData("New data");
-    }
-
 
 
 }
