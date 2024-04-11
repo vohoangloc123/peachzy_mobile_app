@@ -47,12 +47,12 @@ public class DynamoDBManager {
     private static AWSCredentials getAWSCredentials() {
         // Đây có thể là nơi bạn truy xuất thông tin xác thực từ nơi nào đó, chẳng hạn như SharedPreferences hoặc cơ sở dữ liệu
         // Trong ví dụ này, tôi sẽ trả về thông tin xác thực cố định, bạn có thể điều chỉnh theo nhu cầu của mình
-        return new BasicAWSCredentials("AKIAZI2LEH5QNBAXEUHP", "krI7P46llTA2kLj+AZQGSr9lEviTlS4bwQzBXSSi");
+        return new BasicAWSCredentials("AKIAZI2LEH5QOVBLO5IY", "qjAXFoZGxhu9u7IaDV818wbZNQeao2it1Wm8yEju");
     }
 
     private void initializeDynamoDB() {
         try {
-            BasicAWSCredentials credentials = new BasicAWSCredentials("AKIAZI2LEH5QNBAXEUHP", "krI7P46llTA2kLj+AZQGSr9lEviTlS4bwQzBXSSi");
+            BasicAWSCredentials credentials = new BasicAWSCredentials("AKIAZI2LEH5QOVBLO5IY", "qjAXFoZGxhu9u7IaDV818wbZNQeao2it1Wm8yEju");
 
             ddbClient = new AmazonDynamoDBClient(credentials);
             ddbClient.setRegion(Region.getRegion(Regions.AP_SOUTHEAST_1)); // Set the region
@@ -108,10 +108,10 @@ public class DynamoDBManager {
                 @Override
                 public void run() {
                     try {
-                        BasicAWSCredentials credentials = new BasicAWSCredentials("AKIAZI2LEH5QNBAXEUHP", "krI7P46llTA2kLj+AZQGSr9lEviTlS4bwQzBXSSi");
-
-                        ddbClient = new AmazonDynamoDBClient(credentials);
-                        ddbClient.setRegion(Region.getRegion(Regions.AP_SOUTHEAST_1)); // Set the region
+//                        BasicAWSCredentials credentials = new BasicAWSCredentials("AKIAZI2LEH5QNBAXEUHP", "krI7P46llTA2kLj+AZQGSr9lEviTlS4bwQzBXSSi");
+//
+//                        ddbClient = new AmazonDynamoDBClient(credentials);
+//                        ddbClient.setRegion(Region.getRegion(Regions.AP_SOUTHEAST_1)); // Set the region
                         // Tạo một mục mới
                         Map<String, AttributeValue> item = new HashMap<>();
                         item.put("_id", new AttributeValue().withS(firebaseUID));
@@ -194,71 +194,6 @@ public class DynamoDBManager {
         void onError(Exception e);
     }
 
-    //    public void addFriend(final String userId, final String friendId, final String status) {
-//        try {
-//            if (ddbClient == null) {
-//                initializeDynamoDB();
-//            }
-//            new Thread(new Runnable() {
-//                @Override
-//                public void run() {
-//                    try {
-//                        // Lấy danh sách bạn bè hiện có từ cơ sở dữ liệu
-//                        GetItemRequest getRequest = new GetItemRequest().withTableName("Users").withKey(Collections.singletonMap("_id", new AttributeValue(userId)));
-//                        GetItemResult getResult = ddbClient.getItem(getRequest);
-//                        Map<String, AttributeValue> item = getResult.getItem();
-//
-//                        // Kiểm tra xem danh sách "friends" đã được tạo chưa
-//                        if (item.containsKey("friends")) {
-//                            List<AttributeValue> friendsList = item.get("friends").getL();
-//                            boolean found = false;
-//                            // Duyệt qua danh sách bạn bè để kiểm tra xem bạn bè đã tồn tại chưa
-//                            for (AttributeValue friend : friendsList) {
-//                                String friendIdExisting = friend.getM().get("_idFriend").getS();
-//                                if (friendIdExisting.equals(friendId)) {
-//                                    // Nếu bạn bè đã tồn tại, cập nhật trạng thái của họ
-//                                    friend.getM().put("status", new AttributeValue(status));
-//                                    found = true;
-//                                    break;
-//                                }
-//                            }
-//                            if (!found) {
-//                                // Nếu bạn bè không tồn tại, thêm mới vào danh sách
-//                                Map<String, AttributeValue> friendItem = new HashMap<>();
-//                                friendItem.put("_idFriend", new AttributeValue(friendId)); // ID của người bạn
-//                                friendItem.put("status", new AttributeValue(status)); // Trạng thái của mối quan hệ
-//                                friendsList.add(new AttributeValue().withM(friendItem));
-//                            }
-//                        } else {
-//                            // Nếu danh sách "friends" chưa tồn tại, tạo mới danh sách và thêm bạn bè vào
-//                            List<AttributeValue> friendsList = new ArrayList<>();
-//                            Map<String, AttributeValue> friendItem = new HashMap<>();
-//                            friendItem.put("_idFriend", new AttributeValue(friendId)); // ID của người bạn
-//                            friendItem.put("status", new AttributeValue(status)); // Trạng thái của mối quan hệ
-//                            friendsList.add(new AttributeValue().withM(friendItem));
-//                            item.put("friends", new AttributeValue().withL(friendsList)); // Thêm danh sách vào item
-//                        }
-//
-//                        // Tạo yêu cầu put item để cập nhật danh sách "friends" của người dùng trong cơ sở dữ liệu
-//                        PutItemRequest putItemRequest = new PutItemRequest()
-//                                .withTableName("Users")
-//                                .withItem(item);
-//
-//                        // Thực hiện cập nhật danh sách "friends" của người dùng trong cơ sở dữ liệu
-//                        ddbClient.putItem(putItemRequest);
-//
-//                        // Debug
-//                        Log.d("AddFriend", "Successfully added friend with ID: " + friendId + " to user with ID: " + userId + " with status: " + status);
-//
-//                    } catch (Exception e) {
-//                        e.printStackTrace();
-//                    }
-//                }
-//            }).start(); // Khởi chạy thread
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//    }
     public void addFriend(final String userId, final String friendId, final String status, final String channelID) {
         try {
             if (ddbClient == null) {
