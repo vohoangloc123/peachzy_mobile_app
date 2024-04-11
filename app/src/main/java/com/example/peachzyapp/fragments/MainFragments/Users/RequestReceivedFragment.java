@@ -5,6 +5,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
@@ -24,10 +25,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class RequestReceivedFragment extends Fragment {
-    private String test;
-    public static final String TAG2= ChatHistoryFragment.class.getName();
+    public static final String TAG= ChatHistoryFragment.class.getName();
+    ImageButton btnBack;
     String uid;
-
     private DynamoDBManager dynamoDBManager;
     RecyclerView rcvRequestReceived;
     private RequestReceivedAdapter requestReceivedAdapter;
@@ -47,16 +47,19 @@ public class RequestReceivedFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         friendList = new ArrayList<>();
         dynamoDBManager = new DynamoDBManager(getActivity());
         view = inflater.inflate(R.layout.activity_request_received_fragments, container, false);
+        btnBack=view.findViewById(R.id.btnBack);
         Bundle bundleReceive = getArguments();
         uid = bundleReceive.getString("uid");
-        Log.d("RequestUID", "onCreateView: " + uid);
         requestReceivedAdapter = new RequestReceivedAdapter(friendList);
         requestReceivedAdapter.setUid(uid);
         mainActivity = (MainActivity) getActivity();
+        btnBack.setOnClickListener(v->{
+            getParentFragmentManager().popBackStack();
+            mainActivity.showBottomNavigation(true);
+        });
         rcvRequestReceived = view.findViewById(R.id.rcvRequestReceived);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(mainActivity);
         rcvRequestReceived.setLayoutManager(linearLayoutManager);

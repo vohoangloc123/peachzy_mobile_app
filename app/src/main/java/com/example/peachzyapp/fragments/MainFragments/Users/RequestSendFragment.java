@@ -1,10 +1,12 @@
 package com.example.peachzyapp.fragments.MainFragments.Users;
 
+import android.media.Image;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DividerItemDecoration;
@@ -24,6 +26,7 @@ import java.util.List;
 public class RequestSendFragment extends Fragment {
     public static final String TAG= ChatHistoryFragment.class.getName();
     RecyclerView rcvRequestSent;
+    ImageButton btnBack;
     private View view;
     private MainActivity mainActivity;
     private RequestSentAdapter requestSentAdapter;
@@ -37,15 +40,19 @@ public class RequestSendFragment extends Fragment {
         friendList = new ArrayList<>();
         dynamoDBManager = new DynamoDBManager(getActivity());
         view = inflater.inflate(R.layout.activity_request_sent_fragments, container, false);
+        btnBack=view.findViewById(R.id.btnBack);
         Bundle bundleReceive=getArguments();
         uid = bundleReceive.getString("uid");
-        Log.d("RequestUID", "onCreateView: "+uid);
 
         mainActivity= (MainActivity) getActivity();
         rcvRequestSent = view.findViewById(R.id.rcvRequestSent);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(mainActivity);
         rcvRequestSent.setLayoutManager(linearLayoutManager);
 
+        btnBack.setOnClickListener(v->{
+            getParentFragmentManager().popBackStack();
+            mainActivity.showBottomNavigation(true);
+        });
         dynamoDBManager.getIDFriend(uid,"2", new DynamoDBManager.AlreadyFriendListener() {
             @Override
             public void onFriendAlreadyFound(FriendItem data) {

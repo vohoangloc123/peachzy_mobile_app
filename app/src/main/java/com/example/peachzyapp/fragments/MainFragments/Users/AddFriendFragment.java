@@ -1,5 +1,6 @@
 package com.example.peachzyapp.fragments.MainFragments.Users;
 
+import android.media.Image;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -12,6 +13,7 @@ import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
 
+import com.example.peachzyapp.MainActivity;
 import com.example.peachzyapp.adapters.FriendAdapter;
 import com.example.peachzyapp.R;
 import com.example.peachzyapp.dynamoDB.DynamoDBManager;
@@ -20,10 +22,11 @@ import com.example.peachzyapp.entities.FriendItem;
 import java.util.ArrayList;
 
 public class AddFriendFragment extends Fragment {
-    private String test;
     EditText etEmail;
     ImageButton btnFind;
+    ImageButton btnBack;
     private DynamoDBManager dynamoDBManager;
+    private MainActivity mainActivity;
     public static final String TAG1= AddFriendFragment.class.getName();
     private ListView listView; // Assume you're using ListView
     private ArrayList<FriendItem> friendItems;
@@ -37,13 +40,19 @@ public class AddFriendFragment extends Fragment {
         View view = inflater.inflate(R.layout.activity_add_friend_fragments, container, false);
         etEmail = view.findViewById(R.id.etEmail);
         btnFind = view.findViewById(R.id.btnFind);
+        btnBack = view.findViewById(R.id.btnBack);
         dynamoDBManager = new DynamoDBManager(getActivity());
+        mainActivity = (MainActivity) getActivity();
         listView = view.findViewById(R.id.list_item);
         friendItems = new ArrayList<>();
         friendAdapter = new FriendAdapter(getActivity(), R.layout.activity_friend_adapter, friendItems);
         listView.setAdapter(friendAdapter);
         uid=getArguments().getString("uid");
         friendAdapter.setUid(uid);
+        btnBack.setOnClickListener(v->{
+            getParentFragmentManager().popBackStack();
+            mainActivity.showBottomNavigation(true);
+        });
         btnFind.setOnClickListener(v -> {
             String email = etEmail.getText().toString().trim();
             dynamoDBManager.findFriend(email, new DynamoDBManager.FriendFoundListener() {

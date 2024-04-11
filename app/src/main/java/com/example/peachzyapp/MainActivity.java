@@ -192,7 +192,7 @@ public void goToDetailFragment(ChatBox chatBox) {
         Bundle bundle = new Bundle();
         bundle.putString("uid", uid);
         // Thêm ChatHistoryFragment
-        fragmentTransaction.add(R.id.etFind, requestReceivedFragment, requestReceivedFragment.TAG2);
+        fragmentTransaction.add(R.id.etFind, requestReceivedFragment, requestReceivedFragment.TAG);
 
         // Tìm và ẩn tất cả các Fragment khác
         Fragment chatListsFragment = (Fragment) viewPager.getAdapter().instantiateItem(viewPager, 0);
@@ -216,7 +216,7 @@ public void goToDetailFragment(ChatBox chatBox) {
         // Ẩn bottomNavigationView
         showBottomNavigation(false);
         requestReceivedFragment.setArguments(bundle);
-        fragmentTransaction.addToBackStack(requestReceivedFragment.TAG2);
+        fragmentTransaction.addToBackStack(requestReceivedFragment.TAG);
         fragmentTransaction.commit();
     }
 
