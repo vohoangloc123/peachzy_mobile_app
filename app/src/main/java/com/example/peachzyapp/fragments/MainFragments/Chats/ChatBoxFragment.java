@@ -212,6 +212,7 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
                         }
                     }.execute();
                     scrollToBottom();
+                    changeData();
                 } else {
                     Toast.makeText(getContext(), "Please enter a message", Toast.LENGTH_SHORT).show();
                 }
@@ -306,6 +307,7 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
 
                     // Cuộn xuống cuối RecyclerView
                     scrollToBottom();
+                    changeData();
                 });
 
             } catch (IOException e) {
@@ -360,7 +362,7 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
                 Log.d("mimeType", mimeType);
                 String fileExtension =getFileExtension(mimeType);
                 Log.d("fileExtension", fileExtension);
-
+                Log.d("check ID:", uid+"-"+friend_id);
 //
                 request = new PutObjectRequest("chat-app-document-cnm", fileName+fileExtension, inputStream, new ObjectMetadata());
                 String urlFile = "https://chat-app-document-cnm.s3.ap-southeast-1.amazonaws.com/" + fileName +fileExtension;
