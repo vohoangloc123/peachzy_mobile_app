@@ -80,12 +80,16 @@ public class MyAdapter extends RecyclerView.Adapter<MyViewHolder> {
                 holder.tvMessage.setVisibility(View.GONE);
                 holder.ivMessage.setVisibility(View.VISIBLE); // Hiển thị ivMessage
                 Picasso.get().load(currentItem.getMessage()).into(holder.ivMessage);
-            } else {
+            } else if(isS3Document(currentItem.getMessage())){
                 // Hiển thị văn bản tin nhắn
+                holder.tvMessage.setVisibility(View.GONE);
+                holder.ivMessage.setVisibility(View.VISIBLE); // Hiển thị ivMessage
+                Picasso.get().load(R.drawable.filepicture).into(holder.ivMessage);
+            }
+            else {
                 holder.tvMessage.setText(currentItem.getMessage());
                 holder.ivMessage.setVisibility(View.GONE);
                 holder.tvMessage.setVisibility(View.VISIBLE);
-
             }
         } else { // Nếu tin nhắn là của người nhận
             holder.tvMessage.setTextColor(context.getColor(R.color.black));
@@ -94,7 +98,12 @@ public class MyAdapter extends RecyclerView.Adapter<MyViewHolder> {
                 Picasso.get().load(currentItem.getMessage()).into(holder.ivMessage);
                 holder.ivMessage.setVisibility(View.VISIBLE); // Hiển thị ivMessage
                 holder.tvMessage.setVisibility(View.GONE);
-            } else {
+            }else if(isS3Document(currentItem.getMessage())){
+                // Hiển thị văn bản tin nhắn
+                holder.tvMessage.setVisibility(View.GONE);
+                holder.ivMessage.setVisibility(View.VISIBLE); // Hiển thị ivMessage
+                Picasso.get().load(R.drawable.filepicture).into(holder.ivMessage);
+            }else {
                 // Hiển thị văn bản tin nhắn
                 holder.ivMessage.setVisibility(View.GONE);
                 holder.tvMessage.setVisibility(View.VISIBLE);
@@ -105,6 +114,9 @@ public class MyAdapter extends RecyclerView.Adapter<MyViewHolder> {
 
     private boolean isS3ImageUrl(String url) {
         return url != null && url.startsWith("https://chat-app-image-cnm.s3.ap-southeast-1.amazonaws.com/");
+    }
+    private boolean isS3Document(String url) {
+        return url != null && url.startsWith("https://chat-app-document-cnm.s3.ap-southeast-1.amazonaws.com/");
     }
     @Override
     public int getItemCount() {
