@@ -15,6 +15,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -42,6 +43,7 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.example.peachzyapp.LiveData.MyViewChatModel;
 import com.example.peachzyapp.MainActivity;
 import com.example.peachzyapp.Other.Utils;
 import com.example.peachzyapp.R;
@@ -88,9 +90,17 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
     String userName;
     String friendName;
     private static final int PICK_DOCUMENT_REQUEST = 1;
+
+    private MyViewChatModel viewModel;
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        viewModel = new ViewModelProvider(this).get(MyViewChatModel.class);
+    }
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        viewModel = new ViewModelProvider(requireActivity()).get(MyViewChatModel.class);
         View view= inflater.inflate(R.layout.fragment_chat_box, container, false);
         recyclerView = view.findViewById(R.id.recycleview);
         btnSend = view.findViewById(R.id.btnSend);
@@ -171,6 +181,7 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
         getActivity().getWindow().setSoftInputMode(
                 WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
         scrollToBottom();
+
         messageLiveData.observe(getViewLifecycleOwner(), new Observer<List<Item>>() {
             @Override
             public void onChanged(List<Item> items) {
@@ -201,6 +212,7 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
                         }
                     }.execute();
                     scrollToBottom();
+                    changeData();
                 } else {
                     Toast.makeText(getContext(), "Please enter a message", Toast.LENGTH_SHORT).show();
                 }
@@ -450,6 +462,8 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
         // Cuộn đến vị trí cuối cùng
         recyclerView.scrollToPosition(listMessage.size() - 1);
     }
-
+    private void changeData() {
+        viewModel.setData("New data");
+    }
 
 }

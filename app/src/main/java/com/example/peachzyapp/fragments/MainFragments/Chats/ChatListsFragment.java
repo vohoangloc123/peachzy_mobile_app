@@ -11,6 +11,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -114,26 +115,27 @@ public class ChatListsFragment extends Fragment {
         return view;
     }
 
-    private void resetRecycleView(){
-//        conversationsList.clear();
-        dynamoDBManager.loadConversation1(uid, new DynamoDBManager.LoadConversationListener() {
+    private void resetRecycleView() {
+        conversationsList.clear();
+        Log.d("batdauchay", "yes: ");
+        new Handler().postDelayed(new Runnable() {
             @Override
-            public void onConversationFound(String conversationID, String friendID ,String message, String time, String avatar, String name) {
-                conversationsList.clear();
-                Conversation conversation = new Conversation(conversationID, friendID, message, time, avatar, name);
-                conversationsList.add(conversation);
-                Log.d("ConversationListSize", "Size: " + conversationsList.size());
+            public void run() {
+                dynamoDBManager.loadConversation1(uid, new DynamoDBManager.LoadConversationListener() {
+                    @Override
+                    public void onConversationFound(String conversationID, String friendID, String message, String time, String avatar, String name) {
+                        Conversation conversation = new Conversation(conversationID, friendID, message, time, avatar, name);
+                        conversationsList.add(conversation);
+                        conversationAdapter.notifyDataSetChanged();
+                    }
 
-                Log.d("ConversationFound", "Conversation ID: " + conversationID + ", Message: " + message + ", Time: " + time + ", Avatar: " + avatar + ", Name: " + name+", FriendI: "+friendID);
-                // Notify adapter that data set has changed after all conversations are added
-                conversationAdapter.notifyDataSetChanged();
+                    @Override
+                    public void onLoadConversationError(Exception e) {
+                        e.printStackTrace();
+                    }
+                });
             }
-
-            @Override
-            public void onLoadConversationError(Exception e) {
-                e.printStackTrace();
-            }
-        });
+        }, 1000); // 2000 milliseconds = 2 seconds
     }
 
     // Function to load conversations
