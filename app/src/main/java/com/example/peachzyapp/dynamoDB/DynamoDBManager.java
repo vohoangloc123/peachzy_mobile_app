@@ -638,6 +638,7 @@ public class DynamoDBManager {
                             // Nếu cuộc trò chuyện chưa tồn tại, thêm mới cuộc trò chuyện vào mảng
                             Map<String, AttributeValue> conversationItem = new HashMap<>();
                             conversationItem.put("conversationID", new AttributeValue().withS(conversationID));
+                            conversationItem.put("friendID", new AttributeValue().withS(friendID));
                             conversationItem.put("time", new AttributeValue().withS(time));
                             conversationItem.put("message", new AttributeValue().withS(message));
                             conversationItem.put("avatar", new AttributeValue().withS(avatar));
