@@ -180,7 +180,6 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
         LiveData<List<Item>> messageLiveData = new MutableLiveData<>();
         getActivity().getWindow().setSoftInputMode(
                 WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
-        scrollToBottom();
 
         messageLiveData.observe(getViewLifecycleOwner(), new Observer<List<Item>>() {
             @Override
@@ -189,6 +188,7 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
                 recyclerView.scrollToPosition(adapter.getItemCount() - 1);
             }
         });
+        scrollToBottom();
         btnSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -435,11 +435,12 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
             Log.d("CheckingListMessage", listMessage.toString());
             newPosition = listMessage.size() - 1; // Vị trí mới của tin nhắn
             adapter.notifyItemInserted(newPosition);
-
+            scrollToBottom();
             // Kiểm tra nếu RecyclerView đã được attach vào layout
             if (recyclerView.getLayoutManager() != null) {
                 // Cuộn xuống vị trí mới
                 recyclerView.post(() -> recyclerView.smoothScrollToPosition(newPosition));
+
             } else {
                 // Nếu RecyclerView chưa được attach, thì cuộn xuống khi RecyclerView được attach vào layout
                 recyclerView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
@@ -450,6 +451,7 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
                     }
                 });
             }
+
         }
     }
 

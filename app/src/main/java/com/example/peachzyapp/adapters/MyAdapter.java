@@ -77,7 +77,8 @@ public class MyAdapter extends RecyclerView.Adapter<MyViewHolder> {
             paramsOfImage.addRule(RelativeLayout.ALIGN_PARENT_END);
             paramsOfFile.addRule(RelativeLayout.ALIGN_PARENT_END);
             holder.tvMessage.setTextColor(context.getColor(R.color.white));
-            holder.tvMessage.setBackgroundColor(ContextCompat.getColor(context, R.color.sentColor));
+//            holder.tvMessage.setBackgroundColor(ContextCompat.getColor(context, R.color.sentColor));
+            holder.tvMessage.setBackground(ContextCompat.getDrawable(context, R.drawable.bg_message));
             holder.ivAvatar.setVisibility(View.GONE);
             holder.tvLink.setVisibility(View.GONE);
             // Nếu tin nhắn chứa đường dẫn của hình ảnh từ S3

@@ -38,7 +38,8 @@
         android:paddingBottom="6dp"
         android:textColor="@android:color/black"
         android:textSize="16sp"
-        tools:text="This is a message" />
+        tools:text="This is a message"
+        />
     <ImageView
         android:id="@+id/ivMessage"
         android:layout_width="250dp"
