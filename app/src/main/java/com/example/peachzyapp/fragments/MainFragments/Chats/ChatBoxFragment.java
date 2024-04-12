@@ -89,7 +89,7 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
     ImageButton btnLink;
     String userName;
     String friendName;
-    private static final int PICK_DOCUMENT_REQUEST = 1;
+    private static final int PICK_DOCUMENT_REQUEST = 2;
 
     private MyViewChatModel viewModel;
     @Override
@@ -230,7 +230,6 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
             // Sử dụng FragmentManager để quản lý back stack và pop back khi cần thiết
             getParentFragmentManager().popBackStack();
             mainActivity.showBottomNavigation(true);
-
         });
         //File
         btnLink=view.findViewById(R.id.btnLink);
@@ -246,7 +245,11 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
+        if (requestCode == PICK_DOCUMENT_REQUEST && resultCode == Activity.RESULT_OK && data != null && data.getData() != null) {
+            Uri uri = data.getData();
+            Log.d("CheckUri", uri.toString());
+            uploadFile(uri);
+        }
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK && data != null && data.getData() != null) {
             Uri uri = data.getData();
             try {
@@ -286,7 +289,6 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
 
                 // Gửi tin nhắn chứa URL ảnh đến WebSocket
                 myWebSocket.sendMessage(urlImage);
-
                 // Lưu tin nhắn và cuộc trò chuyện vào DynamoDB
                 saveMessageAndConversationToDB(urlImage, "Hình ảnh");
 
@@ -340,6 +342,7 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
     private void uploadFile (Uri uri){
         new Thread(()->{
             try {
+
                 InputStream inputStream = getActivity().getContentResolver().openInputStream(uri);
                 Log.d("checkURI", uri.toString());
                 File file = new File(uri.getPath());
@@ -355,10 +358,28 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
 
 //
                 request = new PutObjectRequest("chat-app-image-cnm", fileName+fileExtension, inputStream, new ObjectMetadata());
+                String urlFile = "https://chat-app-document-cnm.s3.ap-southeast-1.amazonaws.com/" + fileName +fileExtension;
+                Log.d("uploadFile: ",urlFile);
                 s3Client.putObject(request);
-
+                String currentTime = Utils.getCurrentTime();
+                listMessage.add(new Item(currentTime, urlFile,urlAvatar ,true));
+                adapter.notifyItemInserted(listMessage.size() - 1);
+                recyclerView.scrollToPosition(listMessage.size() - 1);
+                myWebSocket.sendMessage(urlFile);
+                new AsyncTask<Void, Void, Void>() {
+                    @Override
+                    protected Void doInBackground(Void... voids) {
+                        String currentTime = Utils.getCurrentTime();
+                        dynamoDBManager.saveMessage(uid + friend_id, urlFile, currentTime, true);
+                        dynamoDBManager.saveMessage(friend_id + uid, urlFile, currentTime, false);
+                        dynamoDBManager.saveConversation(uid, uid + friend_id, friend_id, "Tập tin", currentTime, urlAvatar, friendName);
+                        dynamoDBManager.saveConversation(friend_id, friend_id + uid, uid,urlFile, "Tập tin", urlAvatar, userName);
+                        return null;
+                    }
+                }.execute();
                 // Đóng InputStream sau khi tải lên thành công
                 inputStream.close();
+
             }catch (Exception e){
 
             }
@@ -421,6 +442,7 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
                     }
                 });
             }
+            changeData();
         }
     }
 
