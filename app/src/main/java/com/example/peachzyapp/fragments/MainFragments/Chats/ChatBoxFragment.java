@@ -212,7 +212,6 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
                         }
                     }.execute();
                     scrollToBottom();
-//                    changeData();
                 } else {
                     Toast.makeText(getContext(), "Please enter a message", Toast.LENGTH_SHORT).show();
                 }
@@ -380,7 +379,7 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
                         dynamoDBManager.saveMessage(uid + friend_id, urlFile, currentTime, true);
                         dynamoDBManager.saveMessage(friend_id + uid, urlFile, currentTime, false);
                         dynamoDBManager.saveConversation(uid, uid + friend_id, friend_id, "Tập tin", currentTime, urlAvatar, friendName);
-                        dynamoDBManager.saveConversation(friend_id, friend_id + uid, uid,urlFile, "Tập tin", urlAvatar, userName);
+                        dynamoDBManager.saveConversation(friend_id, friend_id + uid, uid,"Tập tin", currentTime,urlAvatar, userName);
                         return null;
                     }
                 }.execute();
