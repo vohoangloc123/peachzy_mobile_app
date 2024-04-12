@@ -3,6 +3,9 @@ package com.example.peachzyapp.adapters;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
 import android.util.Base64;
 import android.util.Log;
@@ -67,46 +70,60 @@ public class MyAdapter extends RecyclerView.Adapter<MyViewHolder> {
         holder.tvTime.setText(currentItem.getTime());
         RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) holder.tvMessage.getLayoutParams();
         RelativeLayout.LayoutParams paramsOfImage = (RelativeLayout.LayoutParams) holder.ivMessage.getLayoutParams();
+        RelativeLayout.LayoutParams paramsOfFile = (RelativeLayout.LayoutParams) holder.tvLink.getLayoutParams();
         // Nếu tin nhắn là của người gửi
         if (isSentByMe) {
             params.addRule(RelativeLayout.ALIGN_PARENT_END);
             paramsOfImage.addRule(RelativeLayout.ALIGN_PARENT_END);
+            paramsOfFile.addRule(RelativeLayout.ALIGN_PARENT_END);
             holder.tvMessage.setTextColor(context.getColor(R.color.white));
             holder.tvMessage.setBackgroundColor(ContextCompat.getColor(context, R.color.sentColor));
             holder.ivAvatar.setVisibility(View.GONE);
+            holder.tvLink.setVisibility(View.GONE);
             // Nếu tin nhắn chứa đường dẫn của hình ảnh từ S3
             if (isS3ImageUrl(currentItem.getMessage())) {
 
                 holder.tvMessage.setVisibility(View.GONE);
+                holder.tvLink.setVisibility(View.GONE);
                 holder.ivMessage.setVisibility(View.VISIBLE); // Hiển thị ivMessage
                 Picasso.get().load(currentItem.getMessage()).into(holder.ivMessage);
             } else if(isS3Document(currentItem.getMessage())){
                 // Hiển thị văn bản tin nhắn
                 holder.tvMessage.setVisibility(View.GONE);
+                holder.tvLink.setVisibility(View.VISIBLE);
                 holder.ivMessage.setVisibility(View.VISIBLE); // Hiển thị ivMessage
                 Picasso.get().load(R.drawable.filepicture).into(holder.ivMessage);
+                holder.tvLink.setText(currentItem.getMessage());
             }
             else {
                 holder.tvMessage.setText(currentItem.getMessage());
                 holder.ivMessage.setVisibility(View.GONE);
+                holder.tvLink.setVisibility(View.GONE);
                 holder.tvMessage.setVisibility(View.VISIBLE);
             }
-        } else { // Nếu tin nhắn là của người nhận
+        } else if(!isSentByMe) { // Nếu tin nhắn là của người nhận
             holder.tvMessage.setTextColor(context.getColor(R.color.black));
+            params.addRule(RelativeLayout.ALIGN_PARENT_START);
+            paramsOfImage.addRule(RelativeLayout.ALIGN_PARENT_START);
+            paramsOfFile.addRule(RelativeLayout.ALIGN_PARENT_START);
             // Nếu tin nhắn chứa đường dẫn của hình ảnh từ S3
             if (isS3ImageUrl(currentItem.getMessage())) {
                 Picasso.get().load(currentItem.getMessage()).into(holder.ivMessage);
                 holder.ivMessage.setVisibility(View.VISIBLE); // Hiển thị ivMessage
                 holder.tvMessage.setVisibility(View.GONE);
+                holder.tvLink.setVisibility(View.GONE);
             }else if(isS3Document(currentItem.getMessage())){
-                // Hiển thị văn bản tin nhắn
+
                 holder.tvMessage.setVisibility(View.GONE);
+                holder.tvLink.setVisibility(View.VISIBLE);
                 holder.ivMessage.setVisibility(View.VISIBLE); // Hiển thị ivMessage
                 Picasso.get().load(R.drawable.filepicture).into(holder.ivMessage);
+                holder.tvLink.setText(currentItem.getMessage());
             }else {
                 // Hiển thị văn bản tin nhắn
                 holder.ivMessage.setVisibility(View.GONE);
                 holder.tvMessage.setVisibility(View.VISIBLE);
+                holder.tvLink.setVisibility(View.GONE);
                 holder.tvMessage.setText(currentItem.getMessage());
             }
         }

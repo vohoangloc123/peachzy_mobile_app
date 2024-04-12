@@ -212,7 +212,7 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
                         }
                     }.execute();
                     scrollToBottom();
-                    changeData();
+//                    changeData();
                 } else {
                     Toast.makeText(getContext(), "Please enter a message", Toast.LENGTH_SHORT).show();
                 }
@@ -247,8 +247,13 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == PICK_DOCUMENT_REQUEST && resultCode == Activity.RESULT_OK && data != null && data.getData() != null) {
             Uri uri = data.getData();
-            Log.d("CheckUri", uri.toString());
-            uploadFile(uri);
+            try {
+                Log.d("CheckUri", uri.toString());
+                uploadFile(uri);
+            }catch (Exception e)
+            {
+                e.printStackTrace();
+            }
         }
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK && data != null && data.getData() != null) {
             Uri uri = data.getData();
@@ -289,6 +294,7 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
 
                 // Gửi tin nhắn chứa URL ảnh đến WebSocket
                 myWebSocket.sendMessage(urlImage);
+
                 // Lưu tin nhắn và cuộc trò chuyện vào DynamoDB
                 saveMessageAndConversationToDB(urlImage, "Hình ảnh");
 
@@ -346,10 +352,10 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
                 InputStream inputStream = getActivity().getContentResolver().openInputStream(uri);
                 Log.d("checkURI", uri.toString());
                 File file = new File(uri.getPath());
-                String fileName = file.getName();
+                String random=generateFileName();
+                String fileName = file.getName()+random;
                 Log.d("checkFile", file.toString());
                 Log.d("checkFileName", fileName);
-
                 ContentResolver contentResolver = getActivity().getContentResolver();
                 String mimeType = contentResolver.getType(uri);
                 Log.d("mimeType", mimeType);
@@ -357,15 +363,16 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
                 Log.d("fileExtension", fileExtension);
 
 //
-                request = new PutObjectRequest("chat-app-image-cnm", fileName+fileExtension, inputStream, new ObjectMetadata());
+                request = new PutObjectRequest("chat-app-document-cnm", fileName+fileExtension, inputStream, new ObjectMetadata());
                 String urlFile = "https://chat-app-document-cnm.s3.ap-southeast-1.amazonaws.com/" + fileName +fileExtension;
                 Log.d("uploadFile: ",urlFile);
                 s3Client.putObject(request);
+                myWebSocket.sendMessage(urlFile);
                 String currentTime = Utils.getCurrentTime();
                 listMessage.add(new Item(currentTime, urlFile,urlAvatar ,true));
                 adapter.notifyItemInserted(listMessage.size() - 1);
                 recyclerView.scrollToPosition(listMessage.size() - 1);
-                myWebSocket.sendMessage(urlFile);
+
                 new AsyncTask<Void, Void, Void>() {
                     @Override
                     protected Void doInBackground(Void... voids) {
@@ -442,7 +449,6 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
                     }
                 });
             }
-            changeData();
         }
     }
 
