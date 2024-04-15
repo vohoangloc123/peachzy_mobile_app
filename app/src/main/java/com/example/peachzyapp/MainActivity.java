@@ -21,6 +21,8 @@ import androidx.viewpager.widget.ViewPager;
 import com.example.peachzyapp.adapters.ViewPagerAdapter;
 import com.example.peachzyapp.entities.ChatBox;
 import com.example.peachzyapp.fragments.MainFragments.Chats.ChatBoxFragment;
+import com.example.peachzyapp.fragments.MainFragments.GroupChat.CreateGroupChatFragment;
+import com.example.peachzyapp.fragments.MainFragments.GroupChat.GroupChatFragment;
 import com.example.peachzyapp.fragments.MainFragments.Profiles.ChangePasswordFragment;
 import com.example.peachzyapp.fragments.MainFragments.Users.AddFriendFragment;
 import com.example.peachzyapp.fragments.MainFragments.Chats.ChatHistoryFragment;
@@ -321,6 +323,77 @@ public void goToDetailFragment(ChatBox chatBox) {
         fragmentTransaction.commit();
 
     }
+
+    public void goToCreateGroupChat() {
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+
+        CreateGroupChatFragment createGroupChatFragment = new CreateGroupChatFragment();
+        Bundle bundle = new Bundle();
+        bundle.putString("uid", uid);
+
+        // Thêm ChatHistoryFragment
+        fragmentTransaction.add(R.id.etFind, createGroupChatFragment, createGroupChatFragment.TAG);
+
+        // Tìm và ẩn tất cả các Fragment khác
+        Fragment chatListsFragment = (Fragment) viewPager.getAdapter().instantiateItem(viewPager, 0);
+        Fragment notificationFragment = (Fragment) viewPager.getAdapter().instantiateItem(viewPager, 1);
+        Fragment usersFragment = (Fragment) viewPager.getAdapter().instantiateItem(viewPager, 2);
+        Fragment profileFragment = (Fragment) viewPager.getAdapter().instantiateItem(viewPager, 3);
+
+        if (chatListsFragment != null) {
+            fragmentTransaction.hide(chatListsFragment);
+        }
+        if (notificationFragment != null) {
+            fragmentTransaction.hide(notificationFragment);
+        }
+        if (usersFragment != null) {
+            fragmentTransaction.hide(usersFragment);
+        }
+        if (profileFragment != null) {
+            fragmentTransaction.hide(profileFragment);
+        }
+
+        // Ẩn bottomNavigationView
+        showBottomNavigation(false);
+        createGroupChatFragment.setArguments(bundle);
+        fragmentTransaction.addToBackStack(createGroupChatFragment.TAG);
+        fragmentTransaction.commit();
+
+    }
+    public void goToGroupChat() {
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+
+        GroupChatFragment groupChatFragment = new GroupChatFragment();
+
+        // Thêm ChatHistoryFragment
+        fragmentTransaction.add(R.id.etFind, groupChatFragment, groupChatFragment.TAG);
+
+        // Tìm và ẩn tất cả các Fragment khác
+        Fragment chatListsFragment = (Fragment) viewPager.getAdapter().instantiateItem(viewPager, 0);
+        Fragment notificationFragment = (Fragment) viewPager.getAdapter().instantiateItem(viewPager, 1);
+        Fragment usersFragment = (Fragment) viewPager.getAdapter().instantiateItem(viewPager, 2);
+        Fragment profileFragment = (Fragment) viewPager.getAdapter().instantiateItem(viewPager, 3);
+
+        if (chatListsFragment != null) {
+            fragmentTransaction.hide(chatListsFragment);
+        }
+        if (notificationFragment != null) {
+            fragmentTransaction.hide(notificationFragment);
+        }
+        if (usersFragment != null) {
+            fragmentTransaction.hide(usersFragment);
+        }
+        if (profileFragment != null) {
+            fragmentTransaction.hide(profileFragment);
+        }
+
+        // Ẩn bottomNavigationView
+        showBottomNavigation(false);
+        fragmentTransaction.addToBackStack(groupChatFragment.TAG);
+        fragmentTransaction.commit();
+
+    }
+
     public void showBottomNavigation(boolean show) {
         if (show) {
             bottomNavigationView.setVisibility(View.VISIBLE);

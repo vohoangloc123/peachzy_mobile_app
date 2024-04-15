@@ -15,7 +15,6 @@ import com.bumptech.glide.load.MultiTransformation;
 import com.bumptech.glide.load.resource.bitmap.CircleCrop;
 import com.example.peachzyapp.R;
 import com.example.peachzyapp.entities.FriendItem;
-import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
@@ -84,7 +83,7 @@ public class FriendAlreadyAdapter extends RecyclerView.Adapter<FriendAlreadyAdap
         public FriendViewHolder(@NonNull View itemView) {
             super(itemView);
             tvFriend= itemView.findViewById(R.id.tv_friend);
-            avatarImageView = itemView.findViewById(R.id.avatarImageView);
+            avatarImageView = itemView.findViewById(R.id.ivFriendAvatar);
         }
     }
 }

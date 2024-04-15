@@ -12,7 +12,7 @@
         android:padding="5dp">
 
         <ImageView
-            android:id="@+id/avatarImageView"
+            android:id="@+id/ivFriendAvatar"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_weight="1"

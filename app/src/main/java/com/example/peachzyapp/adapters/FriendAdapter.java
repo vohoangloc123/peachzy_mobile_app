@@ -20,8 +20,6 @@ import com.bumptech.glide.load.resource.bitmap.CircleCrop;
 import com.example.peachzyapp.R;
 import com.example.peachzyapp.dynamoDB.DynamoDBManager;
 import com.example.peachzyapp.entities.FriendItem;
-import com.example.peachzyapp.fragments.MainFragments.Users.FriendsFragment;
-import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
@@ -49,8 +47,8 @@ public class FriendAdapter extends ArrayAdapter<FriendItem> {
             convertView = LayoutInflater.from(mContext).inflate(mResource, parent, false);
         }
 
-        ImageView avatarImageView = convertView.findViewById(R.id.avatarImageView);
-        TextView nameTextView = convertView.findViewById(R.id.nameTextView);
+        ImageView avatarImageView = convertView.findViewById(R.id.ivFriendAvatar);
+        TextView nameTextView = convertView.findViewById(R.id.tvFriendName);
         Button addFriendButton = convertView.findViewById(R.id.addFriendButton);
         FriendItem friendItem = getItem(position); // Lấy đối tượng FriendItem tương ứng với vị trí
 

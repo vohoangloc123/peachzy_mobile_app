@@ -18,11 +18,11 @@ import com.example.peachzyapp.entities.FriendItem;
 
 import java.util.List;
 
-public class RequestSentAdapter extends RecyclerView.Adapter<RequestSentAdapter.FriendViewHolder>{
+public class CreateGroupChatAdapter extends RecyclerView.Adapter<CreateGroupChatAdapter.CreateGroupChatViewHolder>{
+    public ImageView ivFriendAvatar;
     private List<FriendItem> listFriend;
-    public ImageView avatarImageView;
 
-    public RequestSentAdapter(List<FriendItem> mListFriend) {
+    public CreateGroupChatAdapter(List<FriendItem> mListFriend) {
         this.listFriend = mListFriend;
     }
 
@@ -34,40 +34,37 @@ public class RequestSentAdapter extends RecyclerView.Adapter<RequestSentAdapter.
         }
         return 0;
     }
-
     @NonNull
     @Override
-    public RequestSentAdapter.FriendViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.activity_request_sent_adapter, parent, false);
-        return new RequestSentAdapter.FriendViewHolder(view);
+    public CreateGroupChatAdapter.CreateGroupChatViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.activity_add_friend_to_group_fragments, parent, false);
+        return new CreateGroupChatAdapter.CreateGroupChatViewHolder(view);
     }
 
-
-
     @Override
-    public void onBindViewHolder(@NonNull RequestSentAdapter.FriendViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull CreateGroupChatAdapter.CreateGroupChatViewHolder holder, int position) {
         FriendItem friends= listFriend.get(position);
         if(friends==null){
             return;
         }
-        holder.tvFriend.setText(friends.getName());
-//        Picasso.get().load(friends.getAvatar()).into(avatarImageView);
+        holder.tvFriendName.setText(friends.getName());
         Glide.with(holder.itemView.getContext())
                 .load(friends.getAvatar())
+                .placeholder(R.drawable.logo)
                 .transform(new MultiTransformation<Bitmap>(new CircleCrop()))
-                .into(avatarImageView);
-
+                .into(ivFriendAvatar);
     }
 
 
-    public class FriendViewHolder extends RecyclerView.ViewHolder{
-        public TextView tvFriend;
 
+    public class CreateGroupChatViewHolder extends RecyclerView.ViewHolder {
+        public TextView tvFriendName;
 
-        public FriendViewHolder(@NonNull View itemView) {
+        public CreateGroupChatViewHolder(@NonNull View itemView) {
             super(itemView);
-            tvFriend= itemView.findViewById(R.id.tv_friend);
-            avatarImageView = itemView.findViewById(R.id.ivFriendAvatar);
+            tvFriendName= itemView.findViewById(R.id.tvFriendName);
+            ivFriendAvatar = itemView.findViewById(R.id.ivFriendAvatar);
+
         }
     }
 }

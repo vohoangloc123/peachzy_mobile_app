@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     tools:context=".adapters.FriendAdapter">
     <!-- adapter_item_friend.xml -->
     <LinearLayout
@@ -20,6 +20,8 @@
             android:background="@color/white"
             android:orientation="horizontal"
             android:padding="5dp">
+
+
 
             <ImageView
                 android:id="@+id/ivFriendAvatar"
@@ -41,17 +43,14 @@
                 android:textStyle="bold"
                 android:textColor="@color/black"/>
 
-            <Button
-                android:id="@+id/addFriendButton"
+            <CheckBox
+                android:id="@+id/cbAddToGroup"
                 android:layout_width="wrap_content"
-                android:layout_height="50dp"
+                android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:backgroundTint="@color/btnColor"
-                android:padding="5dp"
-                android:text="@string/add_friend"
-                android:textColor="@color/textColorBtn"
-                android:textStyle="bold"
-                app:cornerRadius="15dp" />
+                android:text="Add to Group" />
+
+
         </LinearLayout>
     </LinearLayout>
 

@@ -115,7 +115,7 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
         recyclerView.setAdapter(adapter);
         // initialize dynamoDB
         dynamoDBManager=new DynamoDBManager(getContext());
-        BasicAWSCredentials credentials = new BasicAWSCredentials("AKIAZI2LEH5QOVBLO5IY", "qjAXFoZGxhu9u7IaDV818wbZNQeao2it1Wm8yEju");
+        BasicAWSCredentials credentials = new BasicAWSCredentials("AKIAZI2LEH5QHYJMDGHD", "57MJpyB+ZOaL1XHIgjb1fdBsXc4HnH/S2lkEYDQ/");
         // Tạo Amazon S3 client
         s3Client = new AmazonS3Client(credentials);
         s3Client.setRegion(Region.getRegion(Regions.AP_SOUTHEAST_1));

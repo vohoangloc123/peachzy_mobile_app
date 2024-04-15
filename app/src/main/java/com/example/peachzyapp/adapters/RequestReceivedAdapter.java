@@ -1,21 +1,17 @@
 package com.example.peachzyapp.adapters;
 
-import static com.sun.mail.imap.protocol.FetchResponse.getItem;
-
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -25,10 +21,8 @@ import com.example.peachzyapp.R;
 import com.example.peachzyapp.dynamoDB.DynamoDBManager;
 import com.example.peachzyapp.entities.FriendItem;
 import com.example.peachzyapp.fragments.MainFragments.Users.RequestReceivedFragment;
-import com.squareup.picasso.Picasso;
 
 
-import java.util.ArrayList;
 import java.util.List;
 public class RequestReceivedAdapter extends RecyclerView.Adapter<RequestReceivedAdapter.FriendViewHolder>{
     private String test;
@@ -62,7 +56,7 @@ public class RequestReceivedAdapter extends RecyclerView.Adapter<RequestReceived
     @Override
     public FriendViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.activity_request_received_adapter, parent, false);
-        ivAvatar = view.findViewById(R.id.avatarImageView); // Khởi tạo avatarImageView ở đây
+        ivAvatar = view.findViewById(R.id.ivFriendAvatar); // Khởi tạo avatarImageView ở đây
         btnAccept = view.findViewById(R.id.btnAccept);
         dynamoDBManager = new DynamoDBManager(view.getContext());
         requestReceivedFragment=new RequestReceivedFragment();
@@ -110,7 +104,7 @@ public class RequestReceivedAdapter extends RecyclerView.Adapter<RequestReceived
         public FriendViewHolder(@NonNull View itemView) {
             super(itemView);
             tvFriend= itemView.findViewById(R.id.tvFriend);
-            ivAvatar = itemView.findViewById(R.id.avatarImageView);
+            ivAvatar = itemView.findViewById(R.id.ivFriendAvatar);
         }
     }
 

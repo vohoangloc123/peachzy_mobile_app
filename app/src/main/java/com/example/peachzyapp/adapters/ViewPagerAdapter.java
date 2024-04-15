@@ -5,7 +5,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 
-import com.example.peachzyapp.fragments.MainFragments.BlankFragmentTab1;
+import com.example.peachzyapp.fragments.MainFragments.GroupChat.GroupChatListFragment;
 import com.example.peachzyapp.fragments.MainFragments.Chats.ChatListsFragment;
 import com.example.peachzyapp.fragments.MainFragments.Profiles.ProfileFragment;
 import com.example.peachzyapp.fragments.MainFragments.Users.FriendsFragment;
@@ -22,7 +22,7 @@ public class ViewPagerAdapter extends FragmentPagerAdapter {
             case 0:
                 return new ChatListsFragment();
             case 1:
-                return new BlankFragmentTab1();
+                return new GroupChatListFragment();
             case 2:
                 return new FriendsFragment();
             case 3:
