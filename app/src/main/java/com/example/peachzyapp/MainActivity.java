@@ -101,7 +101,7 @@ public class MainActivity extends AppCompatActivity {
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
                 int itemId = menuItem.getItemId();
                 if (itemId == R.id.navigation_chats) {
-                    Toast.makeText(MainActivity.this, "Chuyển tab 1", Toast.LENGTH_SHORT).show();
+                  //  Toast.makeText(MainActivity.this, "Chuyển tab 1", Toast.LENGTH_SHORT).show();
                     // Gọi reloadData() khi chuyển sang tab 1
                     ChatListsFragment chatLists = (ChatListsFragment) viewPager.getAdapter().instantiateItem(viewPager, 0);
 //                    chatLists.reloadData();
@@ -110,10 +110,10 @@ public class MainActivity extends AppCompatActivity {
 
                     viewPager.setCurrentItem(1);
                 } else if (itemId == R.id.navigation_users) {
-                    Toast.makeText(MainActivity.this, "Chuyển tab 3", Toast.LENGTH_SHORT).show();
+                   // Toast.makeText(MainActivity.this, "Chuyển tab 3", Toast.LENGTH_SHORT).show();
                     viewPager.setCurrentItem(2);
                 } else if (itemId == R.id.navigation_profile) {
-                    Toast.makeText(MainActivity.this, "Chuyển tab 4", Toast.LENGTH_SHORT).show();
+                   // Toast.makeText(MainActivity.this, "Chuyển tab 4", Toast.LENGTH_SHORT).show();
                     viewPager.setCurrentItem(3);
                 }
                 return true;
