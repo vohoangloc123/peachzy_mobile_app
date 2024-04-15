@@ -89,6 +89,13 @@ public class RequestReceivedFragment extends Fragment {
                     }
                 });
             }
+
+            @Override
+            public void onFriendCreateGroupFound(FriendItem friendItem) {
+
+            }
+
+
         });
 
         viewModel = new ViewModelProvider(requireActivity()).get(MyViewModel.class);

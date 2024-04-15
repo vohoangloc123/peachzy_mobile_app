@@ -70,6 +70,11 @@ public class RequestSendFragment extends Fragment {
             public void onFriendAcceptRequestFound(String id, String name, String avatar) {
 
             }
+
+            @Override
+            public void onFriendCreateGroupFound(FriendItem friendItem) {
+
+            }
         });
 
 

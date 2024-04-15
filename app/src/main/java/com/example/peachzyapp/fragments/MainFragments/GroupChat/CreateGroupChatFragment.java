@@ -5,6 +5,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
@@ -17,6 +19,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.peachzyapp.MainActivity;
+import com.example.peachzyapp.Other.Utils;
 import com.example.peachzyapp.R;
 import com.example.peachzyapp.adapters.CreateGroupChatAdapter;
 import com.example.peachzyapp.adapters.RequestSentAdapter;
@@ -26,61 +29,50 @@ import com.example.peachzyapp.fragments.MainFragments.Chats.ChatHistoryFragment;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class CreateGroupChatFragment extends Fragment {
     public static final String TAG= ChatHistoryFragment.class.getName();
     private View view;
+    private ImageButton btnFindFriend;
+    private Button btnCreateGroup;
+    private EditText etFindByNameOrEmail;
+    private EditText etGroupName;
+    private CheckBox cbAddToGroup;
     private MainActivity mainActivity;
     private ArrayList<FriendItem> friendList;
     RecyclerView rcvFriendListForGroup;
     CreateGroupChatAdapter createGroupChatAdapter;
     private DynamoDBManager dynamoDBManager;
     String uid;
-    ImageButton btnFindFriend;
-    EditText etInforFriend;
+    FriendItem friendItem;
+
+
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         friendList = new ArrayList<>();
         view = inflater.inflate(R.layout.activity_create_group_fragments, container, false);
+        etFindByNameOrEmail= view.findViewById(R.id.etNameOrEmail);
+        etGroupName= view.findViewById(R.id.etGroupName);
+        btnFindFriend = view.findViewById(R.id.btnFindFriend);
+        cbAddToGroup = view.findViewById(R.id.cbAddToGroup);
+        btnCreateGroup = view.findViewById(R.id.btnCreateGroup);
         dynamoDBManager = new DynamoDBManager(getActivity());
         mainActivity= (MainActivity) getActivity();
-
+        //truyen id
         Bundle bundleReceive=getArguments();
         uid = bundleReceive.getString("uid");
         Log.d("CheckUIDhere", uid);
 
-
-
-
         rcvFriendListForGroup = view.findViewById(R.id.rcvFriendListForGroup);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(mainActivity);
         rcvFriendListForGroup.setLayoutManager(linearLayoutManager);
+        loadFriends();
 
-        dynamoDBManager.getIDFriend(uid,"1", new DynamoDBManager.AlreadyFriendListener() {
-            @Override
-            public void onFriendAlreadyFound(FriendItem data) {
-                getActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        //Log.d("onDATAREquest", "run: "+data.getName());
-                        friendList.add(data);
-                        createGroupChatAdapter.notifyDataSetChanged();
-                    }
-                });
-            }
-
-            @Override
-            public void onFriendAcceptRequestFound(String id, String name, String avatar) {
-
-            }
-        });
-
-        etInforFriend= view.findViewById(R.id.etInforFriend);
-        btnFindFriend = view.findViewById(R.id.btnFindFriend);
         btnFindFriend.setOnClickListener(v->{
-            String infor = etInforFriend.getText().toString().trim();
+            String infor = etFindByNameOrEmail.getText().toString().trim();
            // Log.d("Information", infor);
             dynamoDBManager.findFriendByInfor(infor, uid,new DynamoDBManager.FriendFoundListener() {
                 @Override
@@ -88,7 +80,7 @@ public class CreateGroupChatFragment extends Fragment {
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            FriendItem friendItem = new FriendItem(id, avatar, name);
+                            friendItem = new FriendItem(id, avatar, name);
                             friendList.clear();
                             friendList.add(friendItem);
 
@@ -129,14 +121,46 @@ public class CreateGroupChatFragment extends Fragment {
         RecyclerView.ItemDecoration itemDecoration=new DividerItemDecoration(mainActivity, DividerItemDecoration.VERTICAL);
         rcvFriendListForGroup.addItemDecoration(itemDecoration);
 
+        btnCreateGroup.setOnClickListener(v->{
+            String groupName=etGroupName.getText().toString().trim();
+            String groupID=randomNumber()+"-"+uid;
+            String currentTime = Utils.getCurrentTime();
+            dynamoDBManager.updateGroupForAccount(uid, groupID);
+            dynamoDBManager.saveGroupConversation(groupID, "Vừa tạo group", groupName,currentTime, "https://chat-app-image-cnm.s3.ap-southeast-1.amazonaws.com/avatar.jpg", "");
+        });
         return view;
     }
-
-    private List<FriendItem> getListFriends() {
-        List<FriendItem> list= new ArrayList<>();
-        for(int i=1; i<20;i++){
-            list.add(new FriendItem("name"+i));
-        }
-        return list;
+    private String randomNumber()
+    {
+        int randomNumber = new Random().nextInt(10000);
+        return String.valueOf(randomNumber);
     }
+    private void loadFriends()
+    {
+        dynamoDBManager.getIDFriend(uid,"1", new DynamoDBManager.AlreadyFriendListener() {
+            @Override
+            public void onFriendAlreadyFound(FriendItem data) {
+
+            }
+
+            @Override
+            public void onFriendAcceptRequestFound(String id, String name, String avatar) {
+
+            }
+
+            @Override
+            public void onFriendCreateGroupFound(FriendItem friendItem) {
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        //Log.d("onDATAREquest", "run: "+data.getName());
+                        friendList.add(friendItem);
+                        createGroupChatAdapter.notifyDataSetChanged();
+                    }
+                });
+            }
+
+        });
+    }
+
 }

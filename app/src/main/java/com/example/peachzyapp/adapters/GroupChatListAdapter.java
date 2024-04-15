@@ -52,6 +52,7 @@ public class GroupChatListAdapter extends RecyclerView.Adapter<GroupChatListAdap
         if(groupChat==null){
             return;
         }
+//        holder.tvLastChatGroup.setText(get);
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override

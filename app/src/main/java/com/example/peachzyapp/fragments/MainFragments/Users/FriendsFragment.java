@@ -86,6 +86,11 @@ public class FriendsFragment extends Fragment {
                     }
                 });
             }
+
+            @Override
+            public void onFriendCreateGroupFound(FriendItem friendItem) {
+
+            }
         });
 
         //Live data
@@ -157,6 +162,11 @@ public class FriendsFragment extends Fragment {
                         friendAdapter.notifyDataSetChanged();
                     }
                 });
+            }
+
+            @Override
+            public void onFriendCreateGroupFound(FriendItem friendItem) {
+
             }
         });
     }
