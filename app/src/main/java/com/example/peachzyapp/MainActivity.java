@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
@@ -22,7 +21,7 @@ import com.example.peachzyapp.adapters.ViewPagerAdapter;
 import com.example.peachzyapp.entities.ChatBox;
 import com.example.peachzyapp.fragments.MainFragments.Chats.ChatBoxFragment;
 import com.example.peachzyapp.fragments.MainFragments.GroupChat.CreateGroupChatFragment;
-import com.example.peachzyapp.fragments.MainFragments.GroupChat.GroupChatFragment;
+import com.example.peachzyapp.fragments.MainFragments.GroupChat.GroupChatBoxFragment;
 import com.example.peachzyapp.fragments.MainFragments.Profiles.ChangePasswordFragment;
 import com.example.peachzyapp.fragments.MainFragments.Users.AddFriendFragment;
 import com.example.peachzyapp.fragments.MainFragments.Chats.ChatHistoryFragment;
@@ -289,41 +288,6 @@ public void goToDetailFragment(ChatBox chatBox) {
         fragmentTransaction.addToBackStack(changePasswordFragment.TAG);
         fragmentTransaction.commit();
     }
-    public void goToChatBoxFragment(Bundle bundle) {
-        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-        ChatBoxFragment chatBoxFragment=new ChatBoxFragment();
-        bundle.putString("uid", uid);
-
-        // Thêm ChatHistoryFragment
-        fragmentTransaction.add(R.id.etFind, chatBoxFragment, chatBoxFragment.TAG);
-
-        // Tìm và ẩn tất cả các Fragment khác
-        Fragment chatListsFragment = (Fragment) viewPager.getAdapter().instantiateItem(viewPager, 0);
-        Fragment notificationFragment = (Fragment) viewPager.getAdapter().instantiateItem(viewPager, 1);
-        Fragment usersFragment = (Fragment) viewPager.getAdapter().instantiateItem(viewPager, 2);
-        Fragment profileFragment = (Fragment) viewPager.getAdapter().instantiateItem(viewPager, 3);
-
-        if (chatListsFragment != null) {
-            fragmentTransaction.hide(chatListsFragment);
-        }
-        if (notificationFragment != null) {
-            fragmentTransaction.hide(notificationFragment);
-        }
-        if (usersFragment != null) {
-            fragmentTransaction.hide(usersFragment);
-        }
-        if (profileFragment != null) {
-            fragmentTransaction.hide(profileFragment);
-        }
-
-        // Ẩn bottomNavigationView
-        showBottomNavigation(false);
-        chatBoxFragment.setArguments(bundle);
-        fragmentTransaction.addToBackStack(chatBoxFragment.TAG);
-        fragmentTransaction.commit();
-
-    }
-
     public void goToCreateGroupChat() {
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
 
@@ -360,10 +324,44 @@ public void goToDetailFragment(ChatBox chatBox) {
         fragmentTransaction.commit();
 
     }
-    public void goToGroupChat() {
+    public void goToChatBoxFragment(Bundle bundle) {
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+        ChatBoxFragment chatBoxFragment=new ChatBoxFragment();
+        bundle.putString("uid", uid);
+
+        // Thêm ChatHistoryFragment
+        fragmentTransaction.add(R.id.etFind, chatBoxFragment, chatBoxFragment.TAG);
+
+        // Tìm và ẩn tất cả các Fragment khác
+        Fragment chatListsFragment = (Fragment) viewPager.getAdapter().instantiateItem(viewPager, 0);
+        Fragment notificationFragment = (Fragment) viewPager.getAdapter().instantiateItem(viewPager, 1);
+        Fragment usersFragment = (Fragment) viewPager.getAdapter().instantiateItem(viewPager, 2);
+        Fragment profileFragment = (Fragment) viewPager.getAdapter().instantiateItem(viewPager, 3);
+
+        if (chatListsFragment != null) {
+            fragmentTransaction.hide(chatListsFragment);
+        }
+        if (notificationFragment != null) {
+            fragmentTransaction.hide(notificationFragment);
+        }
+        if (usersFragment != null) {
+            fragmentTransaction.hide(usersFragment);
+        }
+        if (profileFragment != null) {
+            fragmentTransaction.hide(profileFragment);
+        }
+
+        // Ẩn bottomNavigationView
+        showBottomNavigation(false);
+        chatBoxFragment.setArguments(bundle);
+        fragmentTransaction.addToBackStack(chatBoxFragment.TAG);
+        fragmentTransaction.commit();
+
+    }
+    public void goToGroupChat(Bundle bundle) {
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
 
-        GroupChatFragment groupChatFragment = new GroupChatFragment();
+        GroupChatBoxFragment groupChatFragment = new GroupChatBoxFragment();
 
         // Thêm ChatHistoryFragment
         fragmentTransaction.add(R.id.etFind, groupChatFragment, groupChatFragment.TAG);
@@ -389,6 +387,7 @@ public void goToDetailFragment(ChatBox chatBox) {
 
         // Ẩn bottomNavigationView
         showBottomNavigation(false);
+        groupChatFragment.setArguments(bundle);
         fragmentTransaction.addToBackStack(groupChatFragment.TAG);
         fragmentTransaction.commit();
 

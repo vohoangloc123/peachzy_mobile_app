@@ -25,7 +25,7 @@ public class GroupChatListAdapter extends RecyclerView.Adapter<GroupChatListAdap
 
 
     public interface OnItemClickListener {
-        void onItemClick();
+        void onItemClick(String id, String groupName, String avatar);
     }
     public void setOnItemClickListener(GroupChatListAdapter.OnItemClickListener listener) {
         mListener = listener;
@@ -58,7 +58,7 @@ public class GroupChatListAdapter extends RecyclerView.Adapter<GroupChatListAdap
         }
 
         holder.tvNameGroup.setText(groupChat.getGroupName());
-        holder.tvLastChatGroup.setText(groupChat.getMessage());
+        holder.tvLastChatGroup.setText(groupChat.getName()+": "+groupChat.getMessage());
         holder.tvTimeGroup.setText(groupChat.getTime());
 
         Glide.with(holder.itemView.getContext())
@@ -70,7 +70,7 @@ public class GroupChatListAdapter extends RecyclerView.Adapter<GroupChatListAdap
             @Override
             public void onClick(View v) {
                 if (mListener != null) {
-                    mListener.onItemClick();
+                    mListener.onItemClick(groupChat.getId(), groupChat.getGroupName(), groupChat.getAvatar());
                 }
             }
         });

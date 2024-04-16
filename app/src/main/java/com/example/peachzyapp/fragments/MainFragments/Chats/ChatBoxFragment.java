@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
-import android.media.Image;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -21,7 +20,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.provider.MediaStore;
-import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,10 +27,8 @@ import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -48,7 +44,7 @@ import com.example.peachzyapp.MainActivity;
 import com.example.peachzyapp.Other.Utils;
 import com.example.peachzyapp.R;
 import com.example.peachzyapp.SocketIO.MyWebSocket;
-import com.example.peachzyapp.adapters.MyAdapter;
+import com.example.peachzyapp.adapters.ChatBoxAdapter;
 import com.example.peachzyapp.dynamoDB.DynamoDBManager;
 import com.example.peachzyapp.entities.Item;
 
@@ -71,7 +67,7 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
     EditText etMessage;
     TextView etName;
     private List<Item> listMessage = new ArrayList<>();
-    private MyAdapter adapter;
+    private ChatBoxAdapter adapter;
     public static final String TAG= ChatHistoryFragment.class.getName();
     MyWebSocket myWebSocket;
     RecyclerView recyclerView;
@@ -111,7 +107,7 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
         //main activity
         mainActivity = (MainActivity) getActivity();
         // Initialize the adapter only once
-        adapter = new MyAdapter(getContext(), listMessage);
+        adapter = new ChatBoxAdapter(getContext(), listMessage);
         recyclerView.setAdapter(adapter);
         // initialize dynamoDB
         dynamoDBManager=new DynamoDBManager(getContext());
@@ -145,7 +141,6 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
                 channel_id= channelID;
                 Log.d("RequestUIDchannel1", "onCreateView: "+channel_id);
                 initWebSocket();
-
             }
         });
         Log.d("RequestUIDchannel2", "onCreateView: "+channel_id);

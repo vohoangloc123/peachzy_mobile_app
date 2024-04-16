@@ -20,12 +20,19 @@ import com.bumptech.glide.load.resource.bitmap.CircleCrop;
 import com.example.peachzyapp.R;
 import com.example.peachzyapp.entities.FriendItem;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class CreateGroupChatAdapter extends RecyclerView.Adapter<CreateGroupChatAdapter.CreateGroupChatViewHolder>{
     public ImageView ivFriendAvatar;
     private List<FriendItem> listFriend;
+    private List<String> selectedFriendIds = new ArrayList<>();
+    // Các phương thức và thuộc tính khác
 
+    // Phương thức để trả về danh sách ID đã chọn
+    public List<String> getSelectedFriendIds() {
+        return selectedFriendIds;
+    }
     public CreateGroupChatAdapter(List<FriendItem> mListFriend) {
         this.listFriend = mListFriend;
     }
@@ -68,13 +75,23 @@ public class CreateGroupChatAdapter extends RecyclerView.Adapter<CreateGroupChat
                     String friendId = (String) buttonView.getTag();
                     if (friendId != null) {
                         Log.d("CheckFriendID", friendId);
-                        // Hoặc thực hiện các hành động khác liên quan đến friendId
+                        // Thêm ID vào danh sách nếu chưa tồn tại
+                        if (!selectedFriendIds.contains(friendId)) {
+                            selectedFriendIds.add(friendId);
+                        }
                     } else {
                         Log.d("CheckFriendID", "FriendId is null");
+                    }
+                } else {
+                    // Nếu checkbox không được chọn, loại bỏ ID khỏi danh sách
+                    String friendId = (String) buttonView.getTag();
+                    if (friendId != null) {
+                        selectedFriendIds.remove(friendId);
                     }
                 }
             }
         });
+
     }
 
     public class CreateGroupChatViewHolder extends RecyclerView.ViewHolder {

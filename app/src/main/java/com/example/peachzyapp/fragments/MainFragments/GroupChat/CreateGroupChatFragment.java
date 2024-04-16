@@ -125,9 +125,18 @@ public class CreateGroupChatFragment extends Fragment {
             String groupName=etGroupName.getText().toString().trim();
             String groupID=randomNumber()+"-"+uid;
             String currentTime = Utils.getCurrentTime();
+
+            // Lấy danh sách ID đã chọn từ adapter
+            List<String> selectedFriendIds = createGroupChatAdapter.getSelectedFriendIds();
+            // Thực hiện các thao tác với danh sách ID đã chọn
             dynamoDBManager.updateGroupForAccount(uid, groupID);
+            for (String friendId : selectedFriendIds) {
+                dynamoDBManager.updateGroupForAccount(friendId, groupID);
+            }
+
             dynamoDBManager.saveGroupConversation(groupID, "Vừa tạo group", groupName,currentTime, "https://chat-app-image-cnm.s3.ap-southeast-1.amazonaws.com/avatar.jpg", "");
         });
+
         return view;
     }
     private String randomNumber()

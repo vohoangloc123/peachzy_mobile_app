@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="10dp"
+    xmlns:tools="http://schemas.android.com/tools">
+
+
+    <TextView
+        android:id="@+id/tvGroupTime"
+        android:layout_width="match_parent"
+        android:layout_height="36dp"
+        android:gravity="center"
+        android:textSize="12sp"
+        tools:text="11:40"/>
+
+    <ImageView
+        android:id="@+id/ivGroupAvatar"
+        android:layout_width="38dp"
+        android:layout_height="39dp"
+        android:layout_below="@id/tvGroupTime"
+        android:padding="8dp"
+        android:src="@drawable/logo" />
+    <TextView
+        android:id="@+id/tvUserName"
+        android:layout_width="match_parent"
+        android:layout_height="39dp"
+        android:layout_toRightOf="@+id/ivGroupAvatar"
+        android:layout_below="@id/tvGroupTime"
+        android:layout_marginTop="2dp"
+        android:padding="8dp"
+        android:src="@drawable/logo" />
+
+    <TextView
+        android:id="@+id/tvGroupMessage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/tvUserName"
+        android:layout_gravity="end"
+        android:layout_marginStart="30dp"
+        android:layout_marginTop="2dp"
+        android:background="@drawable/rounded_rectangle_secondary"
+        android:maxWidth="240dp"
+        android:paddingLeft="12dp"
+        android:paddingTop="6dp"
+        android:paddingRight="12dp"
+        android:paddingBottom="6dp"
+        android:textColor="@android:color/black"
+        android:textSize="16sp"
+        tools:text="This is a message"
+        />
+    <ImageView
+        android:id="@+id/ivGroupMessage"
+        android:layout_width="250dp"
+        android:layout_height="150dp"
+        android:layout_below="@id/tvUserName"
+        android:layout_gravity="end"
+        android:layout_marginStart="30dp"
+        android:layout_marginTop="2dp"
+        android:maxWidth="240dp"
+        android:paddingLeft="12dp"
+        android:paddingTop="6dp"
+        android:paddingRight="12dp"
+        android:paddingBottom="6dp"
+        android:textColor="@android:color/black"
+        android:textSize="16sp"
+        tools:text="This is a message" />
+    <TextView
+        android:id="@+id/tvGroupLink"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/ivGroupMessage"
+        android:layout_gravity="end"
+        android:layout_marginStart="30dp"
+        android:layout_marginTop="2dp"
+        android:background="@drawable/rounded_rectangle_secondary"
+        android:maxWidth="240dp"
+        android:paddingLeft="12dp"
+        android:paddingTop="6dp"
+        android:paddingRight="12dp"
+        android:paddingBottom="6dp"
+        android:textColor="@android:color/black"
+        android:textSize="16sp"
+        tools:text="This is a message" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:layout_marginTop="10dp"
+        android:background="#DAD8D8"/>
+
+
+</RelativeLayout>

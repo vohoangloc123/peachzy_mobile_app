@@ -85,47 +85,24 @@ public class GroupChatListFragment extends Fragment {
             }
         });
         groupChatListAdapter= new GroupChatListAdapter(listGroupChats);
-//        groupChatListAdapter= new GroupChatListAdapter(getList());
-//        dynamoDBManager.loadGroupConversation("Tjye9dPTx4c8sERXBcbiBXDs1Cm16745", new DynamoDBManager.LoadGroupConversationListener(){
-//
-//            @Override
-//            public void onGroupConversationFound(String conversationID, String groupName, String message, String time, String avatar, String name) {
-//                GroupConversation groupConversation=new GroupConversation(conversationID, groupName, message, time, avatar, name);
-//                groupConversationList.add(groupConversation);
-//                Log.d("ConversationListSize", "Size: " +groupConversationList.size());
-//
-//                Log.d("ConversationFound", "Conversation ID: " + conversationID + ", Message: " + message + ", Time: " + time + ", Avatar: " + avatar + ", Name: " + name);
-//                // Notify adapter that data set has changed after all conversations are added
-//                groupChatListAdapter.notifyDataSetChanged();
-//            }
-//
-//            @Override
-//            public void onLoadGroupConversationError(Exception e) {
-//
-//            }
-//        });
 
         rcvGroupChatList.setAdapter(groupChatListAdapter);
-//
-//        groupChatListAdapter.setOnItemClickListener(new GroupChatListAdapter.OnItemClickListener() {
-//            @Override
-//            public void onItemClick() {
-//                mainActivity.goToGroupChat();
-//            }
-//        });
-//
+
+        groupChatListAdapter.setOnItemClickListener(new GroupChatListAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(String id, String groupName, String avatar) {
+                Bundle bundle = new Bundle();
+                bundle.putString("groupID", id);
+                bundle.putString("groupName",groupName);
+                bundle.putString("groupAvatar", avatar);
+                mainActivity.goToGroupChat(bundle);
+            }
+        });
+
         RecyclerView.ItemDecoration itemDecoration=new DividerItemDecoration(mainActivity, DividerItemDecoration.VERTICAL);
         rcvGroupChatList.addItemDecoration(itemDecoration);
 
         // Inflate the layout for this fragment
         return view;
-    }
-
-    private List<GroupChat> getList() {
-        List<GroupChat> list= new ArrayList<>();
-        for(int i=1; i<20;i++){
-            list.add(new GroupChat("GroupChat "+i));
-        }
-        return list;
     }
 }

@@ -8,19 +8,41 @@ public class GroupChat {
 
     private String name;
     private String time;
+    private String userID;
 
-
-    public GroupChat(String groupName) {
-        this.groupName = groupName;
-    }
-
-    public GroupChat(String id, String groupName, String avatar, String message, String name, String time) {
-        this.id = id;
-        this.groupName = groupName;
+    public GroupChat(String avatar, String message, String name, String time, String userID) {
         this.avatar = avatar;
         this.message = message;
         this.name = name;
         this.time = time;
+        this.userID = userID;
+    }
+
+    public GroupChat(String id, String groupName, String avatar, String message, String name, String time) {
+        this.id = id;
+        this.groupName=groupName;
+        this.avatar = avatar;
+        this.message = message;
+        this.name = name;
+        this.time = time;
+
+    }
+    public GroupChat(String id, String groupName, String avatar, String message, String name, String time, String userID) {
+        this.id = id;
+        this.groupName=groupName;
+        this.avatar = avatar;
+        this.message = message;
+        this.name = name;
+        this.time = time;
+        this.userID=userID;
+
+    }
+    public String getUserID() {
+        return userID;
+    }
+
+    public void setUserID(String userID) {
+        this.userID = userID;
     }
 
     public String getId() {
@@ -69,5 +91,18 @@ public class GroupChat {
 
     public void setTime(String time) {
         this.time = time;
+    }
+
+    @Override
+    public String toString() {
+        return "GroupChat{" +
+                "id='" + id + '\'' +
+                ", groupName='" + groupName + '\'' +
+                ", avatar='" + avatar + '\'' +
+                ", message='" + message + '\'' +
+                ", name='" + name + '\'' +
+                ", time='" + time + '\'' +
+                ", userID='" + userID + '\'' +
+                '}';
     }
 }
