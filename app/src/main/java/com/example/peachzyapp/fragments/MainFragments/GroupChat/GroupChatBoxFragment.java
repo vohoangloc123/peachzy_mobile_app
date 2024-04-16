@@ -1,9 +1,16 @@
 package com.example.peachzyapp.fragments.MainFragments.GroupChat;
 
+import android.app.Activity;
+import android.content.ContentResolver;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Debug;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,6 +29,13 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.regions.Region;
+import com.amazonaws.regions.Regions;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.example.peachzyapp.MainActivity;
 import com.example.peachzyapp.Other.Utils;
 import com.example.peachzyapp.R;
@@ -32,8 +46,16 @@ import com.example.peachzyapp.entities.GroupChat;
 import com.example.peachzyapp.entities.Item;
 import com.example.peachzyapp.fragments.MainFragments.Chats.ChatHistoryFragment;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
+import java.util.Random;
 
 public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSocketListener {
     public static final String TAG= ChatHistoryFragment.class.getName();
@@ -53,6 +75,13 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
     int newPosition;
     private String userName;
     private String userAvatar;
+    ImageButton btnImage;
+    private static final int PICK_IMAGE_REQUEST = 1;
+    private static final int PICK_DOCUMENT_REQUEST = 2;
+    PutObjectRequest request;
+    private static final String BUCKET_NAME = "chat-app-image-cnm";
+    private AmazonS3 s3Client;
+    private ImageButton btnLink;
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -62,6 +91,7 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
         tvGroupName=view.findViewById(R.id.tvGroupName);
         recyclerView=view.findViewById(R.id.rcvGroupChat);
         btnSend = view.findViewById(R.id.btnGroupSend);
+        btnImage=view.findViewById(R.id.btnGroupImage);
         etGroupMessage=view.findViewById(R.id.etGroupMessage);
         // Set up RecyclerView layout manager
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -89,6 +119,10 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
         //initial
         mainActivity = (MainActivity) getActivity();
         dynamoDBManager = new DynamoDBManager(getContext());
+        // Tạo Amazon S3 client
+        BasicAWSCredentials credentials = new BasicAWSCredentials("AKIAZI2LEH5QHYJMDGHD", "57MJpyB+ZOaL1XHIgjb1fdBsXc4HnH/S2lkEYDQ/");
+        s3Client = new AmazonS3Client(credentials);
+        s3Client.setRegion(Region.getRegion(Regions.AP_SOUTHEAST_1));
         //adapter
         adapter = new GroupChatBoxAdapter(getContext(), listGroupMessage, userID);
         recyclerView.setAdapter(adapter);
@@ -135,8 +169,171 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
                 etGroupMessage.getText().clear();
             }
         });
+        btnImage.setOnClickListener(v->{
+            Intent intent = new Intent();
+            intent.setType("image/*");
+            intent.setAction(Intent.ACTION_GET_CONTENT);
+            startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
+        });
+        btnLink=view.findViewById(R.id.btnGroupLink);
+        btnLink.setOnClickListener(v->{
+                    Intent intent = new Intent();
+                    intent.setType("*/*");
+                    intent.setAction(Intent.ACTION_GET_CONTENT);
+                    startActivityForResult(Intent.createChooser(intent, "Select Document"), PICK_DOCUMENT_REQUEST);
+                }
+        );
        return view;
     }
+
+    private void uploadFile (Uri uri){
+        new Thread(()->{
+            try {
+
+                InputStream inputStream = getActivity().getContentResolver().openInputStream(uri);
+                File file = new File(uri.getPath());
+                String random=generateFileName();
+                String fileName = file.getName()+random;
+                ContentResolver contentResolver = getActivity().getContentResolver();
+                String mimeType = contentResolver.getType(uri);
+                String fileExtension =getFileExtension(mimeType);
+
+
+                request = new PutObjectRequest("chat-app-document-cnm", fileName+fileExtension, inputStream, new ObjectMetadata());
+                String urlFile = "https://chat-app-document-cnm.s3.ap-southeast-1.amazonaws.com/" + fileName +fileExtension;
+                Log.d("uploadFile: ",urlFile);
+                s3Client.putObject(request);
+                myWebSocket.sendMessage(urlFile);
+                String currentTime = Utils.getCurrentTime();
+                listGroupMessage.add(new GroupChat(groupID, groupName, userAvatar, urlFile, userName, currentTime, userID));
+                adapter.notifyItemInserted(listGroupMessage.size() - 1);
+                recyclerView.scrollToPosition(listGroupMessage.size() - 1);
+
+                new AsyncTask<Void, Void, Void>() {
+                    @Override
+                    protected Void doInBackground(Void... voids) {
+                        String currentTime = Utils.getCurrentTime();
+                        dynamoDBManager.saveGroupMessage(groupID, urlFile, currentTime, userID, userAvatar, userName);
+                        dynamoDBManager.saveGroupConversation(groupID, urlFile, groupName, currentTime,userAvatar, userName);
+                        return null;
+                    }
+                }.execute();
+                // Đóng InputStream sau khi tải lên thành công
+                inputStream.close();
+
+            }catch (Exception e){
+
+            }
+        }).start();
+    }
+    private String getFileExtension(String mimetype){
+
+        if(mimetype.equals("text/plain"))
+            return ".txt";
+        if(mimetype.equals("application/vnd.openxmlformats-officedocument.wordprocessingml.document"))
+            return ".docx";
+        if(mimetype.equals("application/pdf"))
+            return ".pdf";
+        if(mimetype.equals("image/png"))
+            return ".png";
+        else
+            return null;
+    }
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == PICK_DOCUMENT_REQUEST && resultCode == Activity.RESULT_OK && data != null && data.getData() != null) {
+            Uri uri = data.getData();
+            try {
+                Log.d("CheckUri", uri.toString());
+                uploadFile(uri);
+            }catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+        }
+        if (requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK && data != null && data.getData() != null) {
+            Uri uri = data.getData();
+            try {
+                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), uri);
+                // Chuyển đổi bitmap thành chuỗi Base64
+                ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
+                // Upload ảnh lên S3 và gửi tin nhắn chứa URL ảnh đến WebSocket, sau đó lưu vào DynamoDB
+                uploadImageToS3AndSocketAndDynamoDB(uri);
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    private void uploadImageToS3AndSocketAndDynamoDB(Uri uri) {
+        new Thread(() -> {
+            try {
+                // Mở InputStream từ Uri
+                InputStream inputStream = getActivity().getContentResolver().openInputStream(uri);
+
+                // Tạo tên file duy nhất
+                String fileName = generateFileName();
+
+                // Tạo đối tượng PutObjectRequest và đặt tên bucket và key
+                request = new PutObjectRequest(BUCKET_NAME, fileName + ".jpg", inputStream, new ObjectMetadata());
+
+                // Upload ảnh lên S3
+                s3Client.putObject(request);
+
+                // Lưu URL của ảnh vào biến để sử dụng sau này
+                String urlImage = "https://chat-app-image-cnm.s3.ap-southeast-1.amazonaws.com/" + fileName + ".jpg";
+
+                // Đóng InputStream sau khi tải lên thành công
+                inputStream.close();
+
+                // Gửi tin nhắn chứa URL ảnh đến WebSocket
+                myWebSocket.sendMessage(urlImage);
+
+                // Lưu tin nhắn và cuộc trò chuyện vào DynamoDB
+                saveMessageAndConversationToDB(urlImage, "Hình ảnh");
+
+                // Sau khi tất cả các thao tác hoàn tất, cập nhật giao diện
+                getActivity().runOnUiThread(() -> {
+                    String currentTime = Utils.getCurrentTime();
+                    // Thêm tin nhắn mới vào danh sách
+                    listGroupMessage.add(new GroupChat(groupID, groupName, userAvatar,urlImage, userName, currentTime, userID));
+                    adapter.notifyItemInserted(listGroupMessage.size() - 1); // Thông báo cho adapter về sự thay đổi
+
+                    // Cuộn xuống cuối RecyclerView
+                    scrollToBottom();
+                });
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }).start();
+    }
+    private void saveMessageAndConversationToDB(String urlImage, String message) {
+        String currentTime = Utils.getCurrentTime();
+        // Lưu tin nhắn và cuộc trò chuyện vào DynamoDB
+        new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected Void doInBackground(Void... voids) {
+                dynamoDBManager.saveGroupMessage(groupID, urlImage, currentTime, userID, userAvatar, userName);
+                dynamoDBManager.saveGroupConversation(groupID, message, groupName, currentTime,userAvatar, userName);
+                return null;
+            }
+        }.execute();
+    }
+
+    private String generateFileName() {
+        // Lấy ngày giờ hiện tại
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
+
+        // Tạo dãy số random
+        int randomNumber = new Random().nextInt(10000);
+
+        // Kết hợp ngày giờ và dãy số random để tạo tên file
+        return "image_" + timeStamp + "_" + randomNumber;
+    }
+
     public void updateRecyclerView() {
         // Xóa bỏ các tin nhắn cũ từ listMessage
         listGroupMessage.clear();
@@ -226,4 +423,5 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
             }
         }
     }
+
 }
