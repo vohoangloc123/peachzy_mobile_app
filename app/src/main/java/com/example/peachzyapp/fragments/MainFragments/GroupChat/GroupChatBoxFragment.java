@@ -152,8 +152,8 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
         updateRecyclerView();
         //web socket
         initWebSocket();
-        int countMembers=dynamoDBManager.countMembersInGroup(groupID);
-        Log.d("CheckMemberCount", groupID+": "+String.valueOf(countMembers));
+//        int countMembers=dynamoDBManager.countMembersInGroup(groupID);
+//        Log.d("CheckMemberCount", groupID+": "+String.valueOf(countMembers));
 //        if(countMembers<10)
 //        {
 //            dynamoDBManager.deleteGroupConversation(groupID);

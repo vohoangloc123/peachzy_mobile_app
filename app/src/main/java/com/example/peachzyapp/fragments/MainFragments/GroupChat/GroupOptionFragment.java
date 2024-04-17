@@ -1,5 +1,7 @@
 package com.example.peachzyapp.fragments.MainFragments.GroupChat;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.media.Image;
 import android.os.Bundle;
@@ -13,12 +15,14 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.MultiTransformation;
 import com.bumptech.glide.load.resource.bitmap.CircleCrop;
 import com.example.peachzyapp.MainActivity;
 import com.example.peachzyapp.R;
+import com.example.peachzyapp.dynamoDB.DynamoDBManager;
 import com.example.peachzyapp.fragments.MainFragments.Chats.ChatHistoryFragment;
 
 public class GroupOptionFragment extends Fragment {
@@ -29,9 +33,12 @@ public class GroupOptionFragment extends Fragment {
     ImageButton btnBack;
     ImageButton btnDeleteMember;
     ImageButton btnAddMember;
+    ImageButton btnOutGroup;
     ImageView ivGroupAvatar;
     TextView tvGroupName;
     MainActivity mainActivity;
+    String userID;
+    DynamoDBManager dynamoDBManager;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -40,10 +47,12 @@ public class GroupOptionFragment extends Fragment {
         btnBack=view.findViewById(R.id.btnBack);
         btnDeleteMember=view.findViewById(R.id.btnDeleteMember);
         btnAddMember=view.findViewById(R.id.btnAddMember);
+        btnOutGroup=view.findViewById(R.id.btnOutGroup);
         ivGroupAvatar=view.findViewById(R.id.ivGroupAvatar);
         tvGroupName=view.findViewById(R.id.tvGroupName);
         //initial
         mainActivity = (MainActivity) getActivity();
+        dynamoDBManager=new DynamoDBManager(getContext());
         //bundle
         Bundle bundleReceive=getArguments();
         groupID = bundleReceive.getString("groupID");
@@ -58,6 +67,14 @@ public class GroupOptionFragment extends Fragment {
                 .transform(new MultiTransformation<Bitmap>(new CircleCrop()))
                 .into(ivGroupAvatar);
         tvGroupName.setText(groupName);
+        SharedPreferences preferences = getActivity().getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
+        userID = preferences.getString("uid", null);
+        if (userID != null) {
+            Log.d("FriendcheckUID", userID);
+            // Sử dụng "uid" ở đây cho các mục đích của bạn
+        } else {
+            Log.e("FriendcheckUID", "UID is null");
+        }
         //button
         btnBack.setOnClickListener(v->{
             getActivity().getSupportFragmentManager().popBackStack();
@@ -73,6 +90,23 @@ public class GroupOptionFragment extends Fragment {
             bundle.putString("groupID", groupID);
 
             mainActivity.goToAddMembersToGroup(bundle);
+        });
+        btnOutGroup.setOnClickListener(v->{
+            dynamoDBManager.deleteUserFromGroup(groupID, userID);
+            dynamoDBManager.deleteGroupFromUser(userID, groupID);
+            dynamoDBManager.countMembersInGroup(groupID, new DynamoDBManager.CountMembersCallback() {
+                @Override
+                public void onCountComplete(int countMember) {
+                    if (countMember <= 1) {
+                        dynamoDBManager.deleteGroup(groupID);
+                        dynamoDBManager.deleteGroupConversation(groupID);
+                        getActivity().getSupportFragmentManager().popBackStack();
+                    }else
+                    {
+                        getActivity().getSupportFragmentManager().popBackStack();
+                    }
+                }
+            });
         });
 
        return view;

@@ -35,6 +35,7 @@ public class DeleteMemberFragment extends Fragment {
     private DeleteMemberAdapter deleteMemberAdapter;
     public Button btnDeleteMember;
 
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -79,12 +80,19 @@ public class DeleteMemberFragment extends Fragment {
                 dynamoDBManager.deleteGroupFromUser(memberId, groupID);
                 dynamoDBManager.deleteUserFromGroup(groupID, memberId);
             }
-            int countMember=dynamoDBManager.countMembersInGroup(groupID);
+            int countMember=dynamoDBManager.countMembersInGroup(groupID, new DynamoDBManager.CountMembersCallback() {
+                @Override
+                public void onCountComplete(int countMember) {
+
+                }
+            });
             Toast.makeText(getActivity(), "Nhóm bạn còn: "+countMember+" thành viên", Toast.LENGTH_SHORT).show();
             if(countMember<=1)
             {
                 dynamoDBManager.deleteGroupConversation(groupID);
+                dynamoDBManager.deleteGroup(groupID);
             }
+            getActivity().getSupportFragmentManager().popBackStack();
 
         });
         return view;
