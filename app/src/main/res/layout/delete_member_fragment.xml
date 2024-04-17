@@ -14,7 +14,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Delete members of group" />
-
+        <Button
+            android:id="@+id/btnCancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Cancel" />
         <Button
             android:id="@+id/btnDeleteMember"
             android:layout_width="wrap_content"
