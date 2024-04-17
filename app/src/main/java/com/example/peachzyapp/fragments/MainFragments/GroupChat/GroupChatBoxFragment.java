@@ -25,6 +25,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -36,6 +37,7 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.example.peachzyapp.LiveData.MyGroupViewModel;
 import com.example.peachzyapp.MainActivity;
 import com.example.peachzyapp.Other.Utils;
 import com.example.peachzyapp.R;
@@ -82,11 +84,20 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
     private static final String BUCKET_NAME = "chat-app-image-cnm";
     private AmazonS3 s3Client;
     private ImageButton btnLink;
+    private MyGroupViewModel viewModel;
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        viewModel = new ViewModelProvider(this).get(MyGroupViewModel.class);
+    }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
         View view=inflater.inflate(R.layout.fragment_group_chat_box, container, false);
+        viewModel = new ViewModelProvider(requireActivity()).get(MyGroupViewModel.class);
         Bundle bundleReceive=getArguments();
         tvGroupName=view.findViewById(R.id.tvGroupName);
         recyclerView=view.findViewById(R.id.rcvGroupChat);
@@ -162,6 +173,7 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
                     dynamoDBManager.saveGroupMessage(groupID, message, currentTime, userID, userAvatar, userName);
                     dynamoDBManager.saveGroupConversation(groupID, message, groupName, currentTime,userAvatar, userName);
                     scrollToBottom();
+                    changeData();
                 } else {
                     Toast.makeText(getContext(), "Please enter a message", Toast.LENGTH_SHORT).show();
                 }
@@ -303,6 +315,7 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
 
                     // Cuộn xuống cuối RecyclerView
                     scrollToBottom();
+                    changeData();
                 });
 
             } catch (IOException e) {
@@ -423,5 +436,14 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
             }
         }
     }
+    private void changeData() {
+        viewModel.setData("New data");
+    }
 
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        viewModel.setData("Change");
+        Log.d("Detach", "onDetach: ");
+    }
 }

@@ -14,10 +14,13 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.peachzyapp.LiveData.MyGroupViewModel;
+import com.example.peachzyapp.LiveData.MyViewModel;
 import com.example.peachzyapp.MainActivity;
 import com.example.peachzyapp.Other.Utils;
 import com.example.peachzyapp.R;
@@ -46,7 +49,13 @@ public class CreateGroupChatFragment extends Fragment {
     private DynamoDBManager dynamoDBManager;
     String uid;
     FriendItem friendItem;
+    private MyGroupViewModel viewModel;
 
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        viewModel = new ViewModelProvider(this).get(MyGroupViewModel.class);
+    }
 
 
     @Nullable
@@ -54,6 +63,7 @@ public class CreateGroupChatFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         friendList = new ArrayList<>();
         view = inflater.inflate(R.layout.activity_create_group_fragments, container, false);
+        viewModel = new ViewModelProvider(requireActivity()).get(MyGroupViewModel.class);
         etFindByNameOrEmail= view.findViewById(R.id.etNameOrEmail);
         etGroupName= view.findViewById(R.id.etGroupName);
         btnFindFriend = view.findViewById(R.id.btnFindFriend);
@@ -135,6 +145,7 @@ public class CreateGroupChatFragment extends Fragment {
             }
 
             dynamoDBManager.saveGroupConversation(groupID, "Vừa tạo group", groupName,currentTime, "https://chat-app-image-cnm.s3.ap-southeast-1.amazonaws.com/avatar.jpg", "");
+            changeData();
         });
 
         return view;
@@ -170,6 +181,16 @@ public class CreateGroupChatFragment extends Fragment {
             }
 
         });
+    }
+    private void changeData() {
+        viewModel.setData("New data");
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        viewModel.setData("Change");
+        Log.d("Detach", "onDetach: ");
     }
 
 }
