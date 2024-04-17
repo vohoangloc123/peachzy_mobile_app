@@ -115,8 +115,8 @@ public class GroupChatListFragment extends Fragment {
             }
         });
 
-        RecyclerView.ItemDecoration itemDecoration=new DividerItemDecoration(mainActivity, DividerItemDecoration.VERTICAL);
-        rcvGroupChatList.addItemDecoration(itemDecoration);
+        //RecyclerView.ItemDecoration itemDecoration=new DividerItemDecoration(mainActivity, DividerItemDecoration.VERTICAL);
+        //rcvGroupChatList.addItemDecoration(itemDecoration);
 
         // Inflate the layout for this fragment
         return view;

@@ -60,11 +60,13 @@ public class AddMemberFragment extends Fragment {
 
 
         //dynamoDBManager.findMemberOfGroup(groupID);
-        dynamoDBManager.findMemberToAddOfGroup(uid,groupID);
+
 
         rcvAddMember.setAdapter(addMemeberAdapter);
         RecyclerView.ItemDecoration itemDecoration=new DividerItemDecoration(mainActivity, DividerItemDecoration.VERTICAL);
         rcvAddMember.addItemDecoration(itemDecoration);
+
+
 
         return view;
     }
@@ -79,6 +81,16 @@ public class AddMemberFragment extends Fragment {
     private void loadFriends()
     {
         friendList.clear();
+
+        List<String> memberList = new ArrayList<>();
+        dynamoDBManager.findMemberOfGroup(groupID, new DynamoDBManager.ListMemberListener() {
+            @Override
+            public void ListMemberID(String id) {
+                memberList.add(id);
+
+            }
+        });
+
         dynamoDBManager.getIDFriend(uid,"1", new DynamoDBManager.AlreadyFriendListener() {
             @Override
             public void onFriendAlreadyFound(FriendItem data) {
@@ -95,13 +107,21 @@ public class AddMemberFragment extends Fragment {
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        //Log.d("onDATAREquest", "run: "+data.getName());
-                        friendList.add(friendItem);
-                        addMemeberAdapter.notifyDataSetChanged();
+//                        //Log.d("onDATAREquest", "run: "+data.getName());
+//                        friendList.add(friendItem);
+//                        addMemeberAdapter.notifyDataSetChanged();
+
+                        if (!memberList.contains(friendItem.getId())) {
+                            friendList.add(friendItem);
+                            addMemeberAdapter.notifyDataSetChanged();
+                        }
                     }
                 });
             }
 
         });
+
+
     }
+
 }

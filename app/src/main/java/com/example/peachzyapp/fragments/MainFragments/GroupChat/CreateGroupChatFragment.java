@@ -128,8 +128,8 @@ public class CreateGroupChatFragment extends Fragment {
         //createGroupChatAdapter= new CreateGroupChatAdapter(getListFriends());
 
         rcvFriendListForGroup.setAdapter(createGroupChatAdapter);
-        RecyclerView.ItemDecoration itemDecoration=new DividerItemDecoration(mainActivity, DividerItemDecoration.VERTICAL);
-        rcvFriendListForGroup.addItemDecoration(itemDecoration);
+//        RecyclerView.ItemDecoration itemDecoration=new DividerItemDecoration(mainActivity, DividerItemDecoration.VERTICAL);
+//        rcvFriendListForGroup.addItemDecoration(itemDecoration);
 
         btnCreateGroup.setOnClickListener(v->{
             String groupName=etGroupName.getText().toString().trim();

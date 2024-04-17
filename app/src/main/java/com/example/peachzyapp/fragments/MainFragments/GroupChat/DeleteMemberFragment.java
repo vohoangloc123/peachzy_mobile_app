@@ -53,8 +53,7 @@ public class DeleteMemberFragment extends Fragment {
         groupID = bundleReceive.getString("groupID");
         Log.d("CheckGroupIdHere", groupID);
         memberList = new ArrayList<>();
-        deleteMemberAdapter = new DeleteMemberAdapter(memberList);
-        rcvDeleteMember.setAdapter(deleteMemberAdapter);
+
 
         dynamoDBManager.findMemberOfGroup(groupID, id -> dynamoDBManager.getProfileByUID(id, new DynamoDBManager.FriendFoundForGetUIDByEmailListener() {
             @Override
@@ -62,7 +61,13 @@ public class DeleteMemberFragment extends Fragment {
                 FriendItem friend = new FriendItem(uid, avatar, name);
                 Log.d("CheckMembers", String.valueOf(friend));
                 memberList.add(friend);
-                deleteMemberAdapter.notifyDataSetChanged();
+
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        deleteMemberAdapter.notifyDataSetChanged();
+                    }
+                });
             }
 
             @Override
@@ -73,6 +78,11 @@ public class DeleteMemberFragment extends Fragment {
             public void onError(Exception e) {
             }
         }));
+
+        deleteMemberAdapter = new DeleteMemberAdapter(memberList);
+        rcvDeleteMember.setAdapter(deleteMemberAdapter);
+
+
         btnDeleteMember.setOnClickListener(v->{
             List<String> selectedMemberIds = deleteMemberAdapter.getSelectedMemberIds();
             for (String memberId : selectedMemberIds) {
