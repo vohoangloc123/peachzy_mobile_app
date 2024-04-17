@@ -133,6 +133,9 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
         } else {
             Log.e("FriendcheckUID", "UID is null");
         }
+        //
+
+
         //set to UI from bundle
         tvGroupName.setText(groupName);
         //initial
@@ -149,6 +152,12 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
         updateRecyclerView();
         //web socket
         initWebSocket();
+        int countMembers=dynamoDBManager.countMembersInGroup(groupID);
+        Log.d("CheckMemberCount", groupID+": "+String.valueOf(countMembers));
+//        if(countMembers<10)
+//        {
+//            dynamoDBManager.deleteGroupConversation(groupID);
+//        }
         dynamoDBManager.getProfileByUID(userID, new DynamoDBManager.FriendFoundForGetUIDByEmailListener() {
             @Override
             public void onFriendFound(String uid, String name, String email, String avatar, Boolean sex, String dateOfBirth) {

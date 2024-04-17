@@ -143,7 +143,11 @@ public class CreateGroupChatFragment extends Fragment {
             for (String friendId : selectedFriendIds) {
                 dynamoDBManager.updateGroupForAccount(friendId, groupID);
             }
-
+            List<String> memberIDs = new ArrayList<>();
+            for (String memberID : selectedFriendIds) {
+                memberIDs.add(memberID);
+            }
+            dynamoDBManager.createGroup(groupID, memberIDs);
             dynamoDBManager.saveGroupConversation(groupID, "Vừa tạo group", groupName,currentTime, "https://chat-app-image-cnm.s3.ap-southeast-1.amazonaws.com/avatar.jpg", "");
             changeData();
         });

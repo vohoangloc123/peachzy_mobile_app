@@ -21,6 +21,7 @@ import com.example.peachzyapp.adapters.ViewPagerAdapter;
 import com.example.peachzyapp.entities.ChatBox;
 import com.example.peachzyapp.fragments.MainFragments.Chats.ChatBoxFragment;
 import com.example.peachzyapp.fragments.MainFragments.GroupChat.CreateGroupChatFragment;
+import com.example.peachzyapp.fragments.MainFragments.GroupChat.DeleteMemberFragment;
 import com.example.peachzyapp.fragments.MainFragments.GroupChat.GroupChatBoxFragment;
 import com.example.peachzyapp.fragments.MainFragments.GroupChat.GroupOptionFragment;
 import com.example.peachzyapp.fragments.MainFragments.Profiles.ChangePasswordFragment;
@@ -424,6 +425,40 @@ public void goToDetailFragment(ChatBox chatBox) {
         showBottomNavigation(false);
         groupOptionFragment.setArguments(bundle);
         fragmentTransaction.addToBackStack(groupOptionFragment.TAG);
+        fragmentTransaction.commit();
+
+    }
+    public void goToDeleteMember(Bundle bundle) {
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+
+        DeleteMemberFragment deleteMemberFragment=new DeleteMemberFragment();
+
+        // Thêm ChatHistoryFragment
+        fragmentTransaction.add(R.id.etFind, deleteMemberFragment, deleteMemberFragment.TAG);
+
+        // Tìm và ẩn tất cả các Fragment khác
+        Fragment chatListsFragment = (Fragment) viewPager.getAdapter().instantiateItem(viewPager, 0);
+        Fragment notificationFragment = (Fragment) viewPager.getAdapter().instantiateItem(viewPager, 1);
+        Fragment usersFragment = (Fragment) viewPager.getAdapter().instantiateItem(viewPager, 2);
+        Fragment profileFragment = (Fragment) viewPager.getAdapter().instantiateItem(viewPager, 3);
+
+        if (chatListsFragment != null) {
+            fragmentTransaction.hide(chatListsFragment);
+        }
+        if (notificationFragment != null) {
+            fragmentTransaction.hide(notificationFragment);
+        }
+        if (usersFragment != null) {
+            fragmentTransaction.hide(usersFragment);
+        }
+        if (profileFragment != null) {
+            fragmentTransaction.hide(profileFragment);
+        }
+
+        // Ẩn bottomNavigationView
+        showBottomNavigation(false);
+        deleteMemberFragment.setArguments(bundle);
+        fragmentTransaction.addToBackStack(deleteMemberFragment.TAG);
         fragmentTransaction.commit();
 
     }

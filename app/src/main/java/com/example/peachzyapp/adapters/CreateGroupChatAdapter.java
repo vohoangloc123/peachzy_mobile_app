@@ -54,19 +54,19 @@ public class CreateGroupChatAdapter extends RecyclerView.Adapter<CreateGroupChat
 
     @Override
     public void onBindViewHolder(@NonNull CreateGroupChatViewHolder holder, int position) {
-        FriendItem friends = listFriend.get(position);
-        if (friends == null) {
+        FriendItem friend = listFriend.get(position);
+        if (friend == null) {
             return;
         }
-        holder.tvFriendName.setText(friends.getName());
+        holder.tvFriendName.setText(friend.getName());
         Glide.with(holder.itemView.getContext())
-                .load(friends.getAvatar())
+                .load(friend.getAvatar())
                 .placeholder(R.drawable.logo)
                 .transform(new MultiTransformation<Bitmap>(new CircleCrop()))
                 .into(ivFriendAvatar);
 
         // Gán ID vào tag của checkbox
-        holder.cbAddToGroup.setTag(friends.getId());
+        holder.cbAddToGroup.setTag(friend.getId());
         holder.cbAddToGroup.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
