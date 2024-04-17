@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".fragments.MainFragments.GroupChat.GroupOptionFragment">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:orientation="vertical"
+        android:background="@color/btnEdit">
+        <ImageButton
+            android:id="@+id/btnBack"
+            android:layout_width="100dp"
+            android:layout_height="40dp"
+            />
+        <ImageView
+            android:id="@+id/ivGroupAvatar"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:src="@drawable/logo"
+            android:layout_marginTop="10dp"/>
+        <TextView
+            android:id="@+id/tvGroupName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/logo"
+            android:text="Name Group"
+            android:layout_marginTop="10dp"
+            android:layout_below="@+id/ivAvatar"/>
+
+
+    </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:background="@color/white">
+            <ImageButton
+                android:id="@+id/btnAddMember"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:text="Delete member"/>
+            <ImageButton
+                android:id="@+id/btnDeleteMember"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:text="Delete member"/>
+            <ImageButton
+                android:id="@+id/btnDeleteGroup"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:text="Delete group"/>
+            <ImageButton
+                android:id="@+id/btnOutGroup"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:text="Out group"/>
+        </LinearLayout>
+    </LinearLayout>
+</FrameLayout>

@@ -79,13 +79,16 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
     private String userName;
     private String userAvatar;
     ImageButton btnImage;
+    ImageButton btnOption;
     private static final int PICK_IMAGE_REQUEST = 1;
     private static final int PICK_DOCUMENT_REQUEST = 2;
     PutObjectRequest request;
     private static final String BUCKET_NAME = "chat-app-image-cnm";
     private AmazonS3 s3Client;
     private ImageButton btnLink;
+    private ImageButton btnBack;
     private MyGroupViewModel viewModel;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -104,6 +107,8 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
         recyclerView=view.findViewById(R.id.rcvGroupChat);
         btnSend = view.findViewById(R.id.btnGroupSend);
         btnImage=view.findViewById(R.id.btnGroupImage);
+        btnBack=view.findViewById(R.id.btnBack);
+        btnOption=view.findViewById(R.id.btnOption);
         etGroupMessage=view.findViewById(R.id.etGroupMessage);
         // Set up RecyclerView layout manager
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -198,6 +203,16 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
                     startActivityForResult(Intent.createChooser(intent, "Select Document"), PICK_DOCUMENT_REQUEST);
                 }
         );
+        btnOption.setOnClickListener(v->{
+            Bundle bundle = new Bundle();
+            bundle.putString("groupID", groupID);
+            bundle.putString("groupName",groupName);
+            bundle.putString("groupAvatar", groupAvatar);
+            mainActivity.goToGroupOption(bundle);
+        });
+        btnBack.setOnClickListener(v->{
+                getActivity().getSupportFragmentManager().popBackStack();
+        });
        return view;
     }
 

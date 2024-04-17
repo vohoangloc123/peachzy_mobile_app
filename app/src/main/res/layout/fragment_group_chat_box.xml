@@ -15,7 +15,7 @@
         android:background="@color/btnColor">
 
         <ImageButton
-            android:id="@+id/btnBackToGroup"
+            android:id="@+id/btnBack"
             android:layout_width="61dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
