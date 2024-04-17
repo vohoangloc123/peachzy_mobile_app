@@ -24,7 +24,7 @@
 
 
             <ImageView
-                android:id="@+id/ivFriendAvatarAddMember"
+                android:id="@+id/ivMemberAvatar"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
                 android:layout_weight="1"
@@ -32,7 +32,7 @@
                 android:layout_marginTop="5dp"/>
 
             <TextView
-                android:id="@+id/tvFriendNameAddMember"
+                android:id="@+id/tvMemberName"
                 android:layout_width="127dp"
                 android:layout_height="61dp"
                 android:layout_weight="1"
@@ -44,7 +44,7 @@
                 android:textColor="@color/black"/>
 
             <CheckBox
-                android:id="@+id/cbAddMemberToGroup"
+                android:id="@+id/cbAddMember"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"

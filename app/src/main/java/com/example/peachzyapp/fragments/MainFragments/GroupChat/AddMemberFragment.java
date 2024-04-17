@@ -5,6 +5,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -25,14 +26,15 @@ import java.util.List;
 
 public class AddMemberFragment extends Fragment {
     public static final String TAG= ChatHistoryFragment.class.getName();
+    private Button btnAddMember;
     private View view;
     private MainActivity mainActivity;
     private ArrayList<FriendItem> friendList;
     private DynamoDBManager dynamoDBManager;
-    AddMemeberAdapter addMemeberAdapter;
-    RecyclerView rcvAddMember;
-    String uid;
-    String groupID;
+    private AddMemeberAdapter addMemeberAdapter;
+    private RecyclerView rcvAddMember;
+    private String uid;
+    private String groupID;
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -40,7 +42,7 @@ public class AddMemberFragment extends Fragment {
         friendList = new ArrayList<>();
         mainActivity= (MainActivity) getActivity();
         dynamoDBManager = new DynamoDBManager(getActivity());
-
+        btnAddMember=view.findViewById(R.id.btnAddMember);
 
         //truyen id
         Bundle bundleReceive=getArguments();
@@ -65,7 +67,15 @@ public class AddMemberFragment extends Fragment {
         rcvAddMember.setAdapter(addMemeberAdapter);
         RecyclerView.ItemDecoration itemDecoration=new DividerItemDecoration(mainActivity, DividerItemDecoration.VERTICAL);
         rcvAddMember.addItemDecoration(itemDecoration);
-
+        btnAddMember.setOnClickListener(v->{
+            Log.d("CheckAddMember", "userID "+uid+" groupID: "+groupID);
+            List<String> selectedMemberIds = addMemeberAdapter.getSelectedMemberIds();
+            Log.d("CheckFriendIDFor",selectedMemberIds.toString());
+            for (String memberId : selectedMemberIds) {
+                dynamoDBManager.updateGroupForAccount(memberId, groupID);
+                dynamoDBManager.updateGroup(groupID, memberId);
+            }
+        });
 
 
         return view;
