@@ -5,6 +5,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ImageButton;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -19,6 +21,7 @@ import com.example.peachzyapp.adapters.DeleteMemberAdapter;
 import com.example.peachzyapp.dynamoDB.DynamoDBManager;
 import com.example.peachzyapp.entities.FriendItem;
 import java.util.ArrayList;
+import java.util.List;
 
 public class DeleteMemberFragment extends Fragment {
     public static final String TAG= DeleteMemberFragment.class.getName();
@@ -29,14 +32,17 @@ public class DeleteMemberFragment extends Fragment {
     private DynamoDBManager dynamoDBManager;
     private String groupID;
     private DeleteMemberAdapter deleteMemberAdapter;
+    public Button btnDeleteMember;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.delete_member_fragment, container, false);
+
         dynamoDBManager = new DynamoDBManager(getActivity());
         mainActivity = (MainActivity) getActivity();
         rcvDeleteMember = view.findViewById(R.id.rcvDeleteMember);
+        btnDeleteMember=view.findViewById(R.id.btnDeleteMember);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(mainActivity);
         rcvDeleteMember.setLayoutManager(linearLayoutManager);
         RecyclerView.ItemDecoration itemDecoration = new DividerItemDecoration(mainActivity, DividerItemDecoration.VERTICAL);
@@ -65,7 +71,13 @@ public class DeleteMemberFragment extends Fragment {
             public void onError(Exception e) {
             }
         }));
-
+        btnDeleteMember.setOnClickListener(v->{
+            List<String> selectedMemberIds = deleteMemberAdapter.getSelectedMemberIds();
+            for (String memberId : selectedMemberIds) {
+                Log.d("CheckMemberInDelete", memberId);
+                dynamoDBManager.deleteUserFromGroup(memberId, groupID);
+            }
+        });
         return view;
     }
 }
