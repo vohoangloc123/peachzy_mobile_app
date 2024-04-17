@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -75,8 +76,16 @@ public class DeleteMemberFragment extends Fragment {
             List<String> selectedMemberIds = deleteMemberAdapter.getSelectedMemberIds();
             for (String memberId : selectedMemberIds) {
                 Log.d("CheckMemberInDelete", memberId);
-                dynamoDBManager.deleteUserFromGroup(memberId, groupID);
+                dynamoDBManager.deleteGroupFromUser(memberId, groupID);
+                dynamoDBManager.deleteUserFromGroup(groupID, memberId);
             }
+            int countMember=dynamoDBManager.countMembersInGroup(groupID);
+            Toast.makeText(getActivity(), "Nhóm bạn còn: "+countMember+" thành viên", Toast.LENGTH_SHORT).show();
+            if(countMember<=1)
+            {
+                dynamoDBManager.deleteGroupConversation(groupID);
+            }
+
         });
         return view;
     }
