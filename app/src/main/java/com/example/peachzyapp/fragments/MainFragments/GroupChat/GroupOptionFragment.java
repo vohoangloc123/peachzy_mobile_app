@@ -28,6 +28,7 @@ public class GroupOptionFragment extends Fragment {
     String groupAvatar;
     ImageButton btnBack;
     ImageButton btnDeleteMember;
+    ImageButton btnAddMember;
     ImageView ivGroupAvatar;
     TextView tvGroupName;
     MainActivity mainActivity;
@@ -38,6 +39,7 @@ public class GroupOptionFragment extends Fragment {
         View view= inflater.inflate(R.layout.fragment_group_option, container, false);
         btnBack=view.findViewById(R.id.btnBack);
         btnDeleteMember=view.findViewById(R.id.btnDeleteMember);
+        btnAddMember=view.findViewById(R.id.btnAddMember);
         ivGroupAvatar=view.findViewById(R.id.ivGroupAvatar);
         tvGroupName=view.findViewById(R.id.tvGroupName);
         //initial
@@ -65,6 +67,12 @@ public class GroupOptionFragment extends Fragment {
             bundle.putString("groupID", groupID);
             mainActivity.goToDeleteMember(bundle);
             Log.d("CheckButton", "WORK");
+        });
+        btnAddMember.setOnClickListener(v->{
+            Bundle bundle = new Bundle();
+            bundle.putString("groupID", groupID);
+
+            mainActivity.goToAddMembersToGroup(bundle);
         });
 
        return view;
