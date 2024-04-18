@@ -1,5 +1,7 @@
 package com.example.peachzyapp.fragments.MainFragments.GroupChat;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -28,6 +30,7 @@ import com.example.peachzyapp.adapters.DeleteMemberAdapter;
 import com.example.peachzyapp.dynamoDB.DynamoDBManager;
 import com.example.peachzyapp.entities.FriendItem;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 public class DeleteMemberFragment extends Fragment {
@@ -73,7 +76,8 @@ public class DeleteMemberFragment extends Fragment {
 //        RecyclerView.ItemDecoration itemDecoration = new DividerItemDecoration(mainActivity, DividerItemDecoration.VERTICAL);
 //        rcvDeleteMember.addItemDecoration(itemDecoration);
         Bundle bundleReceive = getArguments();
-        uid = bundleReceive.getString("uid");
+        SharedPreferences preferences = getActivity().getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
+        uid = preferences.getString("uid", null);
         groupID = bundleReceive.getString("groupID");
         Log.d("CheckGroupIdHere", groupID+" "+uid);
         memberList = new ArrayList<>();
@@ -81,11 +85,24 @@ public class DeleteMemberFragment extends Fragment {
 
         dynamoDBManager.findMemberOfGroup(groupID, id -> dynamoDBManager.getProfileByUID(id, new DynamoDBManager.FriendFoundForGetUIDByEmailListener() {
             @Override
-            public void onFriendFound(String uid, String name, String email, String avatar, Boolean sex, String dateOfBirth) {
-                FriendItem friend = new FriendItem(uid, avatar, name);
-                Log.d("CheckMembers", String.valueOf(friend));
+            public void onFriendFound(String id, String name, String email, String avatar, Boolean sex, String dateOfBirth) {
+                // Tạo FriendItem từ thông tin đã nhận được
+                FriendItem friend = new FriendItem(id, avatar, name);
+                Log.d("FoundSSSS", "UID nhận: "+friend.getId()+" và "+"UID truyền"+uid);
                 memberList.add(friend);
-
+                Iterator<FriendItem> iterator = memberList.iterator();
+                while (iterator.hasNext()) {
+                    FriendItem currentFriend = iterator.next();
+                    // Kiểm tra nếu ID của bạn hiện tại là một chuỗi và nếu nó bằng với uid
+                    if (currentFriend.getId().equals(String.valueOf(uid))) {
+                        iterator.remove(); // Xóa đối tượng khỏi danh sách
+                        break; // Đã xóa, không cần lặp tiếp
+//                        Log.d("FoundSSSS", "YES");
+                    }else
+                    {
+                        Log.d("FoundSSSS", "NO");
+                    }
+                }
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -96,10 +113,12 @@ public class DeleteMemberFragment extends Fragment {
 
             @Override
             public void onFriendNotFound() {
+                // Xử lý trường hợp không tìm thấy bạn bè
             }
 
             @Override
             public void onError(Exception e) {
+                // Xử lý trường hợp lỗi
             }
         }));
 
@@ -110,21 +129,8 @@ public class DeleteMemberFragment extends Fragment {
         btnDeleteMember.setOnClickListener(v -> {
             List<String> selectedMemberIds = deleteMemberAdapter.getSelectedMemberIds();
             String lastMemberId = null; // Biến để lưu trữ người cuối cùng còn sót lại
-            dynamoDBManager.deleteGroupFromUsers(selectedMemberIds,groupID);
+            dynamoDBManager.deleteGroupFromUsers(selectedMemberIds, groupID);
             dynamoDBManager.deleteUserFromGroups(groupID, selectedMemberIds);
-//            for (String memberId : selectedMemberIds) {
-//                Log.d("CheckMemberInDelete", memberId);
-//                dynamoDBManager.deleteGroupFromUser(memberId, groupID);
-//                dynamoDBManager.deleteUserFromGroup(groupID, memberId);
-//                lastMemberId = memberId; // Cập nhật biến lastMemberId với thành viên hiện tại trong vòng lặp
-//            }
-//
-//            // Kiểm tra xem lastMemberId có khác null hay không trước khi thực hiện cập nhật
-//            if (lastMemberId != null) {
-//                // Thực hiện cập nhật trên người cuối cùng còn sót lại
-//                dynamoDBManager.updateGroupForAccount(lastMemberId, groupID, "member");
-//                dynamoDBManager.updateGroup(groupID, lastMemberId);
-//            }
 
             Log.d("RemainingMembers", selectedMemberIds.toString());
             countMembersInGroupWithDelay();

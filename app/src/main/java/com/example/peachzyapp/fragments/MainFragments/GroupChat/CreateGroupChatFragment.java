@@ -166,6 +166,8 @@ public class CreateGroupChatFragment extends Fragment {
             String groupName = etGroupName.getText().toString().trim();
             String groupID = randomNumber() + "-" + uid;
             String currentTime = Utils.getCurrentTime();
+            List<String> arrayToAddLeaderToGroup = createGroupChatAdapter.getSelectedFriendIds();
+            arrayToAddLeaderToGroup.add(uid);
             if (groupName.equals("")) {
                 Toast.makeText(getActivity(), "Tên group không được để trống", Toast.LENGTH_SHORT).show();
                 return;
@@ -181,11 +183,7 @@ public class CreateGroupChatFragment extends Fragment {
                     for (String friendId : selectedFriendIds) {
                         dynamoDBManager.updateGroupForAccount(friendId, groupID, "member");
                     }
-                    List<String> memberIDs = new ArrayList<>();
-                    for (String memberID : selectedFriendIds) {
-                        memberIDs.add(memberID);
-                    }
-                    dynamoDBManager.createGroup(groupID, memberIDs);
+                    dynamoDBManager.createGroup(groupID,  arrayToAddLeaderToGroup);
                     dynamoDBManager.saveGroupConversation(groupID, "Vừa tạo group", groupName, currentTime, urlAvatar, "");
                     getActivity().getSupportFragmentManager().popBackStack();
                 } else {
@@ -202,11 +200,7 @@ public class CreateGroupChatFragment extends Fragment {
                     for (String friendId : selectedFriendIds) {
                         dynamoDBManager.updateGroupForAccount(friendId, groupID, "member");
                     }
-                    List<String> memberIDs = new ArrayList<>();
-                    for (String memberID : selectedFriendIds) {
-                        memberIDs.add(memberID);
-                    }
-                    dynamoDBManager.createGroup(groupID, memberIDs);
+                    dynamoDBManager.createGroup(groupID,  arrayToAddLeaderToGroup);
                     dynamoDBManager.saveGroupConversation(groupID, "Vừa tạo group", groupName, currentTime, "https://chat-app-image-cnm.s3.ap-southeast-1.amazonaws.com/avatar.jpg", "");
                     getActivity().getSupportFragmentManager().popBackStack();
                 }else {
