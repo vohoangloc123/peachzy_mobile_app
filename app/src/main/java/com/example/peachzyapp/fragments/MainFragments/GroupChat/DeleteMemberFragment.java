@@ -60,8 +60,8 @@ public class DeleteMemberFragment extends Fragment {
         btnDeleteMember=view.findViewById(R.id.btnDeleteMember);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(mainActivity);
         rcvDeleteMember.setLayoutManager(linearLayoutManager);
-        RecyclerView.ItemDecoration itemDecoration = new DividerItemDecoration(mainActivity, DividerItemDecoration.VERTICAL);
-        rcvDeleteMember.addItemDecoration(itemDecoration);
+//        RecyclerView.ItemDecoration itemDecoration = new DividerItemDecoration(mainActivity, DividerItemDecoration.VERTICAL);
+//        rcvDeleteMember.addItemDecoration(itemDecoration);
         Bundle bundleReceive = getArguments();
         groupID = bundleReceive.getString("groupID");
         Log.d("CheckGroupIdHere", groupID);

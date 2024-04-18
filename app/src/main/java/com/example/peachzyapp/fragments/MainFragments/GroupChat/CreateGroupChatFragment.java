@@ -135,7 +135,10 @@ public class CreateGroupChatFragment extends Fragment {
             String groupName = etGroupName.getText().toString().trim();
             String groupID = randomNumber() + "-" + uid;
             String currentTime = Utils.getCurrentTime();
-
+            if(groupName.equals("")){
+                Toast.makeText( getActivity(), "Tên group không được để trống", Toast.LENGTH_SHORT).show();
+                return;
+            }
             // Lấy danh sách ID đã chọn từ adapter
             List<String> selectedFriendIds = createGroupChatAdapter.getSelectedFriendIds();
 
@@ -152,7 +155,7 @@ public class CreateGroupChatFragment extends Fragment {
                 }
                 dynamoDBManager.createGroup(groupID, memberIDs);
                 dynamoDBManager.saveGroupConversation(groupID, "Vừa tạo group", groupName, currentTime, "https://chat-app-image-cnm.s3.ap-southeast-1.amazonaws.com/avatar.jpg", "");
-                changeData();
+                //changeData();
                 getActivity().getSupportFragmentManager().popBackStack();
             } else {
                 // Hiển thị Toast thông báo khi số lượng thành viên không đủ
@@ -196,5 +199,12 @@ public class CreateGroupChatFragment extends Fragment {
     }
     private void changeData() {
         viewModel.setData("New data");
+    }
+
+        @Override
+    public void onDetach() {
+        super.onDetach();
+        viewModel.setData("Change");
+        Log.d("Detach", "onDetach: ");
     }
 }

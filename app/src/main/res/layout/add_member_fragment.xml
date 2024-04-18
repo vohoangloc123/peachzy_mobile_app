@@ -1,38 +1,64 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
+    android:background="@color/bgWhiteBlue"
     >
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        >
 
-        <TextView
-            android:id="@+id/textView5"
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="75dp"
+            android:background="@color/btnColor"
+            android:orientation="horizontal"
+            >
+
+            <ImageView
+                android:layout_marginTop="19dp"
+                android:id="@+id/imageView"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_alignParentEnd="true"
+                android:layout_marginEnd="321dp"
+                android:layout_marginRight="50dp"
+                android:layout_weight="1"
+                android:backgroundTint="@color/btnColor"
+                android:src="@drawable/create_group" />
+            <TextView
+                android:id="@+id/textView"
+                android:layout_width="match_parent"
+                android:layout_height="70dp"
+                android:layout_marginLeft="80dp"
+                android:layout_marginTop="5dp"
+                android:layout_weight="1"
+                android:padding="15dp"
+                android:text="@string/them_thanh_vien"
+                android:textColor="@color/white"
+                android:textSize="20dp" />
+
+
+
+
+
+        </RelativeLayout>
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Add members to group" />
-        <Button
-            android:id="@+id/btnCancel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Cancel" />
-        <Button
-            android:id="@+id/btnAddMember"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Add Members" />
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:layout_marginTop="30dp"
+            android:background="@drawable/edittext_search"
             android:orientation="horizontal">
 
             <ImageButton
                 android:id="@+id/btnFindFriendAddMember"
-                android:layout_width="50dp"
+                android:layout_width="72dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:background="@drawable/edittext_search"
@@ -40,20 +66,57 @@
 
             <EditText
                 android:id="@+id/etNameOrEmailAddMember"
-                android:layout_width="280dp"
-                android:layout_height="match_parent"
+                android:layout_width="320dp"
+                android:layout_height="50dp"
                 android:background="@drawable/edittext_search"
                 android:ems="10"
                 android:hint="@string/email"
                 android:inputType="text"
                 android:paddingBottom="5dp"
                 android:textColor="@color/black"
+                android:textColorHint="@color/textHintChat"
                 android:textSize="18dp"
-                 />
+                />
         </LinearLayout>
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rcvAddMember"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="513dp"
+            android:padding="15dp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:paddingLeft="60dp"
+            android:layout_marginTop="25dp"
+            android:background="@drawable/edittext_profile_inf">
+
+            <Button
+                android:layout_marginTop="20dp"
+                android:id="@+id/btnCancel"
+                android:layout_width="wrap_content"
+                android:layout_height="59dp"
+                android:layout_marginRight="10dp"
+                android:backgroundTint="@color/white"
+                android:text="@string/huy"
+                android:textColor="@color/black"
+                android:textSize="20dp"
+                app:cornerRadius="5dp" />
+
+            <Button
+                android:id="@+id/btnAddMember"
+                android:layout_width="178dp"
+                android:layout_height="59dp"
+                android:layout_marginTop="20dp"
+                android:backgroundTint="@color/btnColor"
+                android:text="@string/them_thanh_vien"
+                android:textColor="@color/white"
+                android:textSize="20dp"
+                app:cornerRadius="5dp" />
+
+        </LinearLayout>
+
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

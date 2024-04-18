@@ -65,8 +65,8 @@ public class AddMemberFragment extends Fragment {
 
 
         rcvAddMember.setAdapter(addMemeberAdapter);
-        RecyclerView.ItemDecoration itemDecoration=new DividerItemDecoration(mainActivity, DividerItemDecoration.VERTICAL);
-        rcvAddMember.addItemDecoration(itemDecoration);
+//        RecyclerView.ItemDecoration itemDecoration=new DividerItemDecoration(mainActivity, DividerItemDecoration.VERTICAL);
+//        rcvAddMember.addItemDecoration(itemDecoration);
         btnAddMember.setOnClickListener(v->{
             Log.d("CheckAddMember", "userID "+uid+" groupID: "+groupID);
             List<String> selectedMemberIds = addMemeberAdapter.getSelectedMemberIds();
