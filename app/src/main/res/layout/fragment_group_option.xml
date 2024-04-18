@@ -168,10 +168,10 @@
                     android:layout_weight="1"
                     android:background="@color/bgWhiteBlue"
                     android:paddingRight="300dp"
-                    android:src="@drawable/delete_group" />
+                    android:src="@drawable/delete_group"/>
 
                 <TextView
-                    android:id="@+id/textView3"
+                    android:id="@+id/tvDeleteGroup"
                     android:layout_width="322dp"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="80dp"

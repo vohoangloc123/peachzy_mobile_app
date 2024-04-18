@@ -72,7 +72,7 @@ public class AddMemberFragment extends Fragment {
             List<String> selectedMemberIds = addMemeberAdapter.getSelectedMemberIds();
             Log.d("CheckFriendIDFor",selectedMemberIds.toString());
             for (String memberId : selectedMemberIds) {
-                dynamoDBManager.updateGroupForAccount(memberId, groupID);
+                dynamoDBManager.updateGroupForAccount(memberId, groupID, "member");
                 dynamoDBManager.updateGroup(groupID, memberId);
             }
             getActivity().getSupportFragmentManager().popBackStack();

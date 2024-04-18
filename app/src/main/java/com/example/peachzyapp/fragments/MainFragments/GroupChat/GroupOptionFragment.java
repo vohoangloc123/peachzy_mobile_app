@@ -3,6 +3,9 @@ package com.example.peachzyapp.fragments.MainFragments.GroupChat;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.graphics.ColorMatrix;
+import android.graphics.ColorMatrixColorFilter;
 import android.media.Image;
 import android.os.Bundle;
 
@@ -34,6 +37,8 @@ public class GroupOptionFragment extends Fragment {
     ImageButton btnDeleteMember;
     ImageButton btnAddMember;
     ImageButton btnOutGroup;
+    ImageButton btnDeleteGroup;
+    TextView tvDeleteGroup;
     ImageView ivGroupAvatar;
     TextView tvGroupName;
     MainActivity mainActivity;
@@ -48,8 +53,10 @@ public class GroupOptionFragment extends Fragment {
         btnDeleteMember=view.findViewById(R.id.btnDeleteMember);
         btnAddMember=view.findViewById(R.id.btnAddMember);
         btnOutGroup=view.findViewById(R.id.btnOutGroup);
+        btnDeleteGroup=view.findViewById(R.id.btnDeleteGroup);
         ivGroupAvatar=view.findViewById(R.id.ivGroupAvatar);
         tvGroupName=view.findViewById(R.id.tvGroupName);
+        tvDeleteGroup=view.findViewById(R.id.tvDeleteGroup);
         //initial
         mainActivity = (MainActivity) getActivity();
         dynamoDBManager=new DynamoDBManager(getContext());
@@ -107,6 +114,33 @@ public class GroupOptionFragment extends Fragment {
                     }
                 }
             });
+        });
+        dynamoDBManager.getGroupInfoByUser(userID, new DynamoDBManager.LoadGroupInfoListener() {
+            @Override
+            public void onGroupInfoFound(String groupID, String role) {
+                Log.d("CheckRole", String.valueOf(groupID)+String.valueOf(role));
+                if(groupID.equals(groupID)&&role.equals("leader"))
+                {
+                    btnDeleteGroup.setEnabled(true);
+                }
+                else
+                {
+                    btnDeleteGroup.setAlpha(0.5f);
+                    int grayColor = Color.argb(255, 128, 128, 128); // Màu xám (RGB: 128, 128, 128)
+                    tvDeleteGroup.setTextColor(grayColor);
+                    btnDeleteGroup.setEnabled(false);
+                }
+            }
+        });
+        btnDeleteGroup.setOnClickListener(v->{
+            dynamoDBManager.deleteGroupConversation(groupID);
+            dynamoDBManager.deleteGroup(groupID);
+            //xóa groupID trong group của bảng Users của mình
+            dynamoDBManager.deleteUserFromGroup(groupID, userID);
+            dynamoDBManager.deleteGroupFromUser(userID, groupID);
+            //xóa groupID trong group của bảng Users của những member khác
+            dynamoDBManager.deleteUserFromGroup(groupID, userID);
+            dynamoDBManager.deleteGroupFromUser(userID, groupID);
         });
 
        return view;

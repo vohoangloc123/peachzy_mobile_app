@@ -131,26 +131,33 @@ public class CreateGroupChatFragment extends Fragment {
 //        RecyclerView.ItemDecoration itemDecoration=new DividerItemDecoration(mainActivity, DividerItemDecoration.VERTICAL);
 //        rcvFriendListForGroup.addItemDecoration(itemDecoration);
 
-        btnCreateGroup.setOnClickListener(v->{
-            String groupName=etGroupName.getText().toString().trim();
-            String groupID=randomNumber()+"-"+uid;
+        btnCreateGroup.setOnClickListener(v -> {
+            String groupName = etGroupName.getText().toString().trim();
+            String groupID = randomNumber() + "-" + uid;
             String currentTime = Utils.getCurrentTime();
 
             // Lấy danh sách ID đã chọn từ adapter
             List<String> selectedFriendIds = createGroupChatAdapter.getSelectedFriendIds();
-            // Thực hiện các thao tác với danh sách ID đã chọn
-            dynamoDBManager.updateGroupForAccount(uid, groupID);
-            for (String friendId : selectedFriendIds) {
-                dynamoDBManager.updateGroupForAccount(friendId, groupID);
+
+            // Kiểm tra số lượng thành viên đã chọn
+            if (selectedFriendIds.size() > 2) {
+                // Thực hiện các thao tác khi số lượng thành viên đủ
+                dynamoDBManager.updateGroupForAccount(uid, groupID, "leader");
+                for (String friendId : selectedFriendIds) {
+                    dynamoDBManager.updateGroupForAccount(friendId, groupID, "member");
+                }
+                List<String> memberIDs = new ArrayList<>();
+                for (String memberID : selectedFriendIds) {
+                    memberIDs.add(memberID);
+                }
+                dynamoDBManager.createGroup(groupID, memberIDs);
+                dynamoDBManager.saveGroupConversation(groupID, "Vừa tạo group", groupName, currentTime, "https://chat-app-image-cnm.s3.ap-southeast-1.amazonaws.com/avatar.jpg", "");
+                changeData();
+                getActivity().getSupportFragmentManager().popBackStack();
+            } else {
+                // Hiển thị Toast thông báo khi số lượng thành viên không đủ
+                Toast.makeText(getContext(), "Chưa đủ số lượng thành viên để tạo group", Toast.LENGTH_SHORT).show();
             }
-            List<String> memberIDs = new ArrayList<>();
-            for (String memberID : selectedFriendIds) {
-                memberIDs.add(memberID);
-            }
-            dynamoDBManager.createGroup(groupID, memberIDs);
-            dynamoDBManager.saveGroupConversation(groupID, "Vừa tạo group", groupName,currentTime, "https://chat-app-image-cnm.s3.ap-southeast-1.amazonaws.com/avatar.jpg", "");
-            changeData();
-            getActivity().getSupportFragmentManager().popBackStack();
         });
 
         return view;
@@ -190,12 +197,4 @@ public class CreateGroupChatFragment extends Fragment {
     private void changeData() {
         viewModel.setData("New data");
     }
-
-//    @Override
-//    public void onDetach() {
-//        super.onDetach();
-//        viewModel.setData("Change");
-//        Log.d("Detach", "onDetach: ");
-//    }
-
 }
