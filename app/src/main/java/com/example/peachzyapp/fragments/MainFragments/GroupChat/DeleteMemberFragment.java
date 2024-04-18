@@ -114,8 +114,9 @@ public class DeleteMemberFragment extends Fragment {
                 dynamoDBManager.deleteGroupFromUser(memberId, groupID);
                 dynamoDBManager.deleteUserFromGroup(groupID, memberId);
             }
+
+
             countMembersInGroupWithDelay();
-            changeData();
 
         });
         btnFindMember.setOnClickListener(v->{
@@ -181,14 +182,19 @@ public class DeleteMemberFragment extends Fragment {
                             Log.d("onCountComplete1", "ok");
                             dynamoDBManager.deleteGroupConversation(groupID);
                             dynamoDBManager.deleteGroup(groupID);
-                            changeData();
+
+
                             getActivity().getSupportFragmentManager().popBackStack();
                             getActivity().getSupportFragmentManager().popBackStack();
                             getActivity().getSupportFragmentManager().popBackStack();
-                        }else
-                        {
+
+
+                        }
+                        else {
+                            getActivity().getSupportFragmentManager().popBackStack();
                             getActivity().getSupportFragmentManager().popBackStack();
                         }
+                        //  changeData();
 
                     }
                 });
@@ -197,9 +203,16 @@ public class DeleteMemberFragment extends Fragment {
         }, 200); // 0.5 giây (500 mili giây)
     }
 
+
+
     private void changeData() {
         viewModel.setData("New data");
     }
-
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        viewModel.setData("Change");
+        Log.d("Detach", "onDetach: ");
+    }
 }
 

@@ -150,7 +150,7 @@ private void resetRecycleView() {
                 }
             });
         }
-    }, 300); // 0.2 giây (200 mili giây)
+    }, 400); // 0.2 giây (200 mili giây)
 }
 
 

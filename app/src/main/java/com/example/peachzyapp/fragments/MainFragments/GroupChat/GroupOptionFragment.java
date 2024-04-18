@@ -10,6 +10,7 @@ import android.media.Image;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -23,6 +24,7 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.MultiTransformation;
 import com.bumptech.glide.load.resource.bitmap.CircleCrop;
+import com.example.peachzyapp.LiveData.MyGroupViewModel;
 import com.example.peachzyapp.MainActivity;
 import com.example.peachzyapp.R;
 import com.example.peachzyapp.dynamoDB.DynamoDBManager;
@@ -47,11 +49,19 @@ public class GroupOptionFragment extends Fragment {
     MainActivity mainActivity;
     String userID;
     DynamoDBManager dynamoDBManager;
+    private MyGroupViewModel viewModel;
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        viewModel = new ViewModelProvider(this).get(MyGroupViewModel.class);
+    }
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view= inflater.inflate(R.layout.fragment_group_option, container, false);
+        viewModel = new ViewModelProvider(requireActivity()).get(MyGroupViewModel.class);
         btnBack=view.findViewById(R.id.btnBack);
         btnDeleteMember=view.findViewById(R.id.btnDeleteMember);
         btnAddMember=view.findViewById(R.id.btnAddMember);
@@ -118,6 +128,9 @@ public class GroupOptionFragment extends Fragment {
                     }
                 }
             });
+            changeData();
+            getActivity().getSupportFragmentManager().popBackStack();
+            getActivity().getSupportFragmentManager().popBackStack();
         });
         dynamoDBManager.getGroupInfoByUser(userID, new DynamoDBManager.LoadGroupInfoListener() {
             @Override
@@ -140,15 +153,28 @@ public class GroupOptionFragment extends Fragment {
         });
         btnDeleteGroup.setOnClickListener(v->{
             dynamoDBManager.deleteGroupConversation(groupID);
-            dynamoDBManager.deleteGroup(groupID);
             //xóa groupID trong group của bảng Users của mình
-            dynamoDBManager.deleteUserFromGroup(groupID, userID);
+//            dynamoDBManager.deleteUserFromGroup(groupID, userID);
             dynamoDBManager.deleteGroupFromUser(userID, groupID);
             //xóa groupID trong group của bảng Users của những member khác
-            dynamoDBManager.deleteUserFromGroup(groupID, userID);
-            dynamoDBManager.deleteGroupFromUser(userID, groupID);
+//            dynamoDBManager.deleteUserFromGroup(groupID, userID);
+            dynamoDBManager.findMemberOfGroup(groupID, new DynamoDBManager.ListMemberListener() {
+                @Override
+                public void ListMemberID(String id) {
+                    dynamoDBManager.deleteGroupFromUser(id, groupID);
+                }
+            });
+            // dynamoDBManager.deleteGroupFromUser(userID, groupID);
+            //Xóa group
+            dynamoDBManager.deleteGroup(groupID);
+            changeData();
+            getActivity().getSupportFragmentManager().popBackStack();
+            getActivity().getSupportFragmentManager().popBackStack();
         });
 
        return view;
+    }
+    private void changeData() {
+        viewModel.setData("New data");
     }
 }
