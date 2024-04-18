@@ -1,6 +1,12 @@
 package com.example.peachzyapp.fragments.MainFragments.GroupChat;
 
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,6 +15,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -19,6 +26,16 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.regions.Region;
+import com.amazonaws.regions.Regions;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.MultiTransformation;
+import com.bumptech.glide.load.resource.bitmap.CircleCrop;
 import com.example.peachzyapp.LiveData.MyGroupViewModel;
 import com.example.peachzyapp.LiveData.MyViewModel;
 import com.example.peachzyapp.MainActivity;
@@ -30,8 +47,13 @@ import com.example.peachzyapp.dynamoDB.DynamoDBManager;
 import com.example.peachzyapp.entities.FriendItem;
 import com.example.peachzyapp.fragments.MainFragments.Chats.ChatHistoryFragment;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Random;
 
 public class CreateGroupChatFragment extends Fragment {
@@ -41,7 +63,6 @@ public class CreateGroupChatFragment extends Fragment {
     private Button btnCreateGroup;
     private EditText etFindByNameOrEmail;
     private EditText etGroupName;
-    private CheckBox cbAddToGroup;
     private MainActivity mainActivity;
     private ArrayList<FriendItem> friendList;
     RecyclerView rcvFriendListForGroup;
@@ -50,7 +71,12 @@ public class CreateGroupChatFragment extends Fragment {
     String uid;
     FriendItem friendItem;
     private MyGroupViewModel viewModel;
-
+    private ImageButton btnAvatarGroup;
+    private CheckBox cbAddToGroup;
+    private static final int PICK_IMAGE_REQUEST = 1;
+    private AmazonS3 s3Client;
+    private PutObjectRequest request;
+    private String urlAvatar;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -69,6 +95,7 @@ public class CreateGroupChatFragment extends Fragment {
         btnFindFriend = view.findViewById(R.id.btnFindFriend);
         cbAddToGroup = view.findViewById(R.id.cbAddToGroup);
         btnCreateGroup = view.findViewById(R.id.btnCreateGroup);
+        btnAvatarGroup = view.findViewById(R.id.btnAvatarGroup);
         dynamoDBManager = new DynamoDBManager(getActivity());
         mainActivity= (MainActivity) getActivity();
         //truyen id
@@ -135,35 +162,128 @@ public class CreateGroupChatFragment extends Fragment {
             String groupName = etGroupName.getText().toString().trim();
             String groupID = randomNumber() + "-" + uid;
             String currentTime = Utils.getCurrentTime();
-            if(groupName.equals("")){
-                Toast.makeText( getActivity(), "Tên group không được để trống", Toast.LENGTH_SHORT).show();
+            if (groupName.equals("")) {
+                Toast.makeText(getActivity(), "Tên group không được để trống", Toast.LENGTH_SHORT).show();
                 return;
             }
-            // Lấy danh sách ID đã chọn từ adapter
-            List<String> selectedFriendIds = createGroupChatAdapter.getSelectedFriendIds();
+            if (urlAvatar != null) {
+                // Lấy danh sách ID đã chọn từ adapter
+                List<String> selectedFriendIds = createGroupChatAdapter.getSelectedFriendIds();
 
-            // Kiểm tra số lượng thành viên đã chọn
-            if (selectedFriendIds.size() > 2) {
-                // Thực hiện các thao tác khi số lượng thành viên đủ
-                dynamoDBManager.updateGroupForAccount(uid, groupID, "leader");
-                for (String friendId : selectedFriendIds) {
-                    dynamoDBManager.updateGroupForAccount(friendId, groupID, "member");
+                // Kiểm tra số lượng thành viên đã chọn
+                if (selectedFriendIds.size() >=2) {
+                    // Thực hiện các thao tác khi số lượng thành viên đủ
+                    dynamoDBManager.updateGroupForAccount(uid, groupID, "leader");
+                    for (String friendId : selectedFriendIds) {
+                        dynamoDBManager.updateGroupForAccount(friendId, groupID, "member");
+                    }
+                    List<String> memberIDs = new ArrayList<>();
+                    for (String memberID : selectedFriendIds) {
+                        memberIDs.add(memberID);
+                    }
+                    dynamoDBManager.createGroup(groupID, memberIDs);
+                    dynamoDBManager.saveGroupConversation(groupID, "Vừa tạo group", groupName, currentTime, urlAvatar, "");
+                    getActivity().getSupportFragmentManager().popBackStack();
+                } else {
+                    // Hiển thị Toast thông báo khi số lượng thành viên không đủ
+                    Toast.makeText(getContext(), "Chưa đủ số lượng thành viên để tạo group tối thiểu là 2 người", Toast.LENGTH_LONG).show();
                 }
-                List<String> memberIDs = new ArrayList<>();
-                for (String memberID : selectedFriendIds) {
-                    memberIDs.add(memberID);
+            } else if (urlAvatar == null) {
+                List<String> selectedFriendIds = createGroupChatAdapter.getSelectedFriendIds();
+
+                // Kiểm tra số lượng thành viên đã chọn
+                if (selectedFriendIds.size() >= 2) {
+                    // Thực hiện các thao tác khi số lượng thành viên đủ
+                    dynamoDBManager.updateGroupForAccount(uid, groupID, "leader");
+                    for (String friendId : selectedFriendIds) {
+                        dynamoDBManager.updateGroupForAccount(friendId, groupID, "member");
+                    }
+                    List<String> memberIDs = new ArrayList<>();
+                    for (String memberID : selectedFriendIds) {
+                        memberIDs.add(memberID);
+                    }
+                    dynamoDBManager.createGroup(groupID, memberIDs);
+                    dynamoDBManager.saveGroupConversation(groupID, "Vừa tạo group", groupName, currentTime, "https://chat-app-image-cnm.s3.ap-southeast-1.amazonaws.com/avatar.jpg", "");
+                    getActivity().getSupportFragmentManager().popBackStack();
+                }else {
+                    // Hiển thị Toast thông báo khi số lượng thành viên không đủ
+                    Toast.makeText(getContext(), "Chưa đủ số lượng thành viên để tạo group tối thiểu là 2 người", Toast.LENGTH_LONG).show();
                 }
-                dynamoDBManager.createGroup(groupID, memberIDs);
-                dynamoDBManager.saveGroupConversation(groupID, "Vừa tạo group", groupName, currentTime, "https://chat-app-image-cnm.s3.ap-southeast-1.amazonaws.com/avatar.jpg", "");
-                //changeData();
-                getActivity().getSupportFragmentManager().popBackStack();
-            } else {
-                // Hiển thị Toast thông báo khi số lượng thành viên không đủ
-                Toast.makeText(getContext(), "Chưa đủ số lượng thành viên để tạo group", Toast.LENGTH_SHORT).show();
+
             }
         });
-
+        BasicAWSCredentials credentials = new BasicAWSCredentials("AKIAZI2LEH5QHYJMDGHD", "57MJpyB+ZOaL1XHIgjb1fdBsXc4HnH/S2lkEYDQ/");
+        // Tạo Amazon S3 client
+        s3Client = new AmazonS3Client(credentials);
+        s3Client.setRegion(Region.getRegion(Regions.AP_SOUTHEAST_1));
+        btnAvatarGroup.setOnClickListener(v->{
+                    Intent intent = new Intent();
+                    intent.setType("image/*");
+                    intent.setAction(Intent.ACTION_GET_CONTENT);
+                    startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
+                }
+        );
         return view;
+    }
+    public static void loadCircularImage(Context context, Bitmap bitmap, ImageView imageView) {
+        Glide.with(context)
+                .load(bitmap)
+                .encodeFormat(Bitmap.CompressFormat.JPEG)
+                .encodeQuality(10)
+                .transform(new MultiTransformation<Bitmap>(new CircleCrop()))
+                .into(imageView);
+    }
+    private String generateFileName() {
+        // Lấy ngày giờ hiện tại
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
+
+        // Tạo dãy số random
+        int randomNumber = new Random().nextInt(10000);
+
+        // Kết hợp ngày giờ và dãy số random để tạo tên file
+        return "avatar_" + timeStamp + "_" + randomNumber + ".jpg";
+    }
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK && data != null && data.getData() != null) {
+            Uri uri = data.getData();
+            try {
+                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), uri);
+                btnAvatarGroup.setImageBitmap(bitmap);
+
+                //crop image circle
+                loadCircularImage(getActivity(),bitmap,btnAvatarGroup);
+
+                // Upload ảnh lên S3
+
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            // Mở InputStream từ Uri
+                            String fileName=generateFileName();
+                            InputStream inputStream = getActivity().getContentResolver().openInputStream(uri);
+
+                            // Tạo đối tượng PutObjectRequest và đặt tên bucket và key
+                            request = new PutObjectRequest("chat-app-image-cnm", fileName+".jpg", inputStream, new ObjectMetadata());
+                            urlAvatar="https://chat-app-image-cnm.s3.ap-southeast-1.amazonaws.com/"+fileName+".jpg";
+                            // Upload ảnh lên S3
+                            s3Client.putObject(request);
+
+                            // Đóng InputStream sau khi tải lên thành công
+                            inputStream.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }).start();
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
     private String randomNumber()
     {

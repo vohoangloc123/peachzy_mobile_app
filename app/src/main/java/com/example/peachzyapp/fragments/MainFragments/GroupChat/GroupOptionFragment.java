@@ -118,7 +118,6 @@ public class GroupOptionFragment extends Fragment {
         dynamoDBManager.getGroupInfoByUser(userID, new DynamoDBManager.LoadGroupInfoListener() {
             @Override
             public void onGroupInfoFound(String groupID, String role) {
-                Log.d("CheckRole", String.valueOf(groupID)+String.valueOf(role));
                 if(groupID.equals(groupID)&&role.equals("leader"))
                 {
                     btnDeleteGroup.setEnabled(true);
