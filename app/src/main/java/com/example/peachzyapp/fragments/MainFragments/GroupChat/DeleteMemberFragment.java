@@ -110,7 +110,7 @@ public class DeleteMemberFragment extends Fragment {
         btnDeleteMember.setOnClickListener(v -> {
             List<String> selectedMemberIds = deleteMemberAdapter.getSelectedMemberIds();
             String lastMemberId = null; // Biến để lưu trữ người cuối cùng còn sót lại
-            dynamoDBManager.deleteGroupFromUsers(groupID, selectedMemberIds);
+            dynamoDBManager.deleteGroupFromUsers(selectedMemberIds,groupID);
             dynamoDBManager.deleteUserFromGroups(groupID, selectedMemberIds);
 //            for (String memberId : selectedMemberIds) {
 //                Log.d("CheckMemberInDelete", memberId);
@@ -193,7 +193,7 @@ public class DeleteMemberFragment extends Fragment {
                             dynamoDBManager.deleteGroupConversation(groupID);
                             dynamoDBManager.deleteGroup(groupID);
 
-
+                           // changeData();
                             getActivity().getSupportFragmentManager().popBackStack();
                             getActivity().getSupportFragmentManager().popBackStack();
                             getActivity().getSupportFragmentManager().popBackStack();
@@ -201,10 +201,11 @@ public class DeleteMemberFragment extends Fragment {
 
                         }
                         else {
+                           // changeData();
                             getActivity().getSupportFragmentManager().popBackStack();
                             getActivity().getSupportFragmentManager().popBackStack();
                         }
-                        //  changeData();
+                          changeData();
 
                     }
                 });
@@ -218,11 +219,11 @@ public class DeleteMemberFragment extends Fragment {
     private void changeData() {
         viewModel.setData("New data");
     }
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        viewModel.setData("Change");
-        Log.d("Detach", "onDetach: ");
-    }
+//    @Override
+//    public void onDetach() {
+//        super.onDetach();
+//        viewModel.setData("Change");
+//        Log.d("Detach", "onDetach: ");
+//    }
 }
 

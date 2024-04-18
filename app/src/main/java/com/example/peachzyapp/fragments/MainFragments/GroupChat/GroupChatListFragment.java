@@ -139,16 +139,19 @@ private void resetRecycleView() {
     new Handler().postDelayed(new Runnable() {
         @Override
         public void run() {
-            Log.d("LivedataGroup1", "ok" + uid);
+
             listGroupChats.clear();
+
             dynamoDBManager.loadGroupList(uid, new DynamoDBManager.LoadGroupListListener() {
                 @Override
                 public void onGroupListFound(String id, String groupName, String avatar, String message, String name, String time) {
                     GroupChat groupChat = new GroupChat(id, groupName, avatar, message, name, time);
                     listGroupChats.add(groupChat);
                     groupChatListAdapter.notifyDataSetChanged();
+
                 }
             });
+            Log.d("LivedataGroup1", "ok" + uid);
         }
     }, 400); // 0.2 giây (200 mili giây)
 }

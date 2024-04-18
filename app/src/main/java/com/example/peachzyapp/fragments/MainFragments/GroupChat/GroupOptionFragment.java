@@ -128,7 +128,7 @@ public class GroupOptionFragment extends Fragment {
                     }
                 }
             });
-            changeData();
+           // changeData();
             getActivity().getSupportFragmentManager().popBackStack();
             getActivity().getSupportFragmentManager().popBackStack();
         });
@@ -167,7 +167,8 @@ public class GroupOptionFragment extends Fragment {
             // dynamoDBManager.deleteGroupFromUser(userID, groupID);
             //Xóa group
             dynamoDBManager.deleteGroup(groupID);
-            changeData();
+
+            //changeData();
             getActivity().getSupportFragmentManager().popBackStack();
             getActivity().getSupportFragmentManager().popBackStack();
         });
@@ -176,5 +177,18 @@ public class GroupOptionFragment extends Fragment {
     }
     private void changeData() {
         viewModel.setData("New data");
+    }
+//    @Override
+//    public void onDetach() {
+//        super.onDetach();
+//        viewModel.setData("Change");
+//        Log.d("Detach", "onDetach: ");
+//    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        changeData(); // Cập nhật LiveData ở đây
+        Log.d("Detach", "onDestroyView: ");
     }
 }
