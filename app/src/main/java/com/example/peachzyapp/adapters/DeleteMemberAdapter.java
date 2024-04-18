@@ -53,7 +53,7 @@ public class DeleteMemberAdapter extends RecyclerView.Adapter<DeleteMemberAdapte
             if (isChecked) {
                 if (memberId != null && !selectedMemberIds.contains(memberId)) {
                     selectedMemberIds.add(memberId);
-//                    Log.d("CheckIdInMember", memberId);
+                    Log.d("CheckIdInMember", memberId);
                 }
             } else {
                 selectedMemberIds.remove(memberId);

@@ -28,6 +28,8 @@ import com.example.peachzyapp.R;
 import com.example.peachzyapp.dynamoDB.DynamoDBManager;
 import com.example.peachzyapp.fragments.MainFragments.Chats.ChatHistoryFragment;
 
+import org.w3c.dom.Text;
+
 public class GroupOptionFragment extends Fragment {
     public static final String TAG= ChatHistoryFragment.class.getName();
     String groupID;
@@ -39,6 +41,7 @@ public class GroupOptionFragment extends Fragment {
     ImageButton btnOutGroup;
     ImageButton btnDeleteGroup;
     TextView tvDeleteGroup;
+    TextView tvDeleteMember;
     ImageView ivGroupAvatar;
     TextView tvGroupName;
     MainActivity mainActivity;
@@ -57,6 +60,7 @@ public class GroupOptionFragment extends Fragment {
         ivGroupAvatar=view.findViewById(R.id.ivGroupAvatar);
         tvGroupName=view.findViewById(R.id.tvGroupName);
         tvDeleteGroup=view.findViewById(R.id.tvDeleteGroup);
+        tvDeleteMember=view.findViewById(R.id.tvDeleteMember);
         //initial
         mainActivity = (MainActivity) getActivity();
         dynamoDBManager=new DynamoDBManager(getContext());
@@ -121,13 +125,16 @@ public class GroupOptionFragment extends Fragment {
                 if(groupID.equals(groupID)&&role.equals("leader"))
                 {
                     btnDeleteGroup.setEnabled(true);
+                    btnDeleteMember.setEnabled(true);
                 }
                 else
                 {
                     btnDeleteGroup.setAlpha(0.5f);
                     int grayColor = Color.argb(255, 128, 128, 128); // Màu xám (RGB: 128, 128, 128)
                     tvDeleteGroup.setTextColor(grayColor);
+                    tvDeleteMember.setTextColor(grayColor);
                     btnDeleteGroup.setEnabled(false);
+                    btnDeleteMember.setEnabled(false);
                 }
             }
         });

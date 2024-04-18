@@ -26,6 +26,7 @@ import com.example.peachzyapp.fragments.MainFragments.Chats.ChatHistoryFragment;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 public class AddMemberFragment extends Fragment {
     public static final String TAG= ChatHistoryFragment.class.getName();
@@ -81,8 +82,19 @@ public class AddMemberFragment extends Fragment {
             List<String> selectedMemberIds = addMemeberAdapter.getSelectedMemberIds();
             Log.d("CheckFriendIDFor",selectedMemberIds.toString());
             for (String memberId : selectedMemberIds) {
-                dynamoDBManager.updateGroupForAccount(memberId, groupID, "member");
-                dynamoDBManager.updateGroup(groupID, memberId);
+                CompletableFuture<Void> future1 = CompletableFuture.runAsync(() -> {
+                    dynamoDBManager.updateGroupForAccount(memberId, groupID, "member");
+                });
+
+                CompletableFuture<Void> future2 = CompletableFuture.runAsync(() -> {
+                    dynamoDBManager.updateGroup(groupID, memberId);
+                });
+
+                // Kết hợp hai CompletableFuture lại với nhau
+                CompletableFuture<Void> combinedFuture = CompletableFuture.allOf(future1, future2);
+
+                // Chờ đợi tất cả các tác vụ hoàn thành trước khi tiếp tục
+                combinedFuture.join();
             }
             getActivity().getSupportFragmentManager().popBackStack();
         });

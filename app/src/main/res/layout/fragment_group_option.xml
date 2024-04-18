@@ -130,7 +130,7 @@
                     android:src="@drawable/delete_user_to_group" />
 
                 <TextView
-                    android:id="@+id/textView2"
+                    android:id="@+id/tvDeleteMember"
                     android:layout_width="322dp"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="80dp"

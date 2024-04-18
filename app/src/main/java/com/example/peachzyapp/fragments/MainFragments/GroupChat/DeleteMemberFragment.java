@@ -114,8 +114,6 @@ public class DeleteMemberFragment extends Fragment {
                 dynamoDBManager.deleteGroupFromUser(memberId, groupID);
                 dynamoDBManager.deleteUserFromGroup(groupID, memberId);
             }
-
-
             countMembersInGroupWithDelay();
             changeData();
 
