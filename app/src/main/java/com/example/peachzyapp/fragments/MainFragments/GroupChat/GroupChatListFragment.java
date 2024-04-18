@@ -6,12 +6,14 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -115,24 +117,41 @@ public class GroupChatListFragment extends Fragment {
             }
         });
 
-        //RecyclerView.ItemDecoration itemDecoration=new DividerItemDecoration(mainActivity, DividerItemDecoration.VERTICAL);
-        //rcvGroupChatList.addItemDecoration(itemDecoration);
 
-        // Inflate the layout for this fragment
+
         return view;
     }
 
-    private void resetRecycleView(){
-        Log.d("LivedataGroup1", "ok"+uid);
-        listGroupChats.clear();
-        dynamoDBManager.loadGroupList(uid, new DynamoDBManager.LoadGroupListListener() {
-            @Override
-            public void onGroupListFound(String id, String groupName, String avatar, String message, String name, String time) {
-                GroupChat groupChat = new GroupChat(id,  groupName,  avatar,  message,  name,  time);
-                listGroupChats.add(groupChat);
-                groupChatListAdapter.notifyDataSetChanged();
+//    private void resetRecycleView(){
+//        Log.d("LivedataGroup1", "ok"+uid);
+//        listGroupChats.clear();
+//        dynamoDBManager.loadGroupList(uid, new DynamoDBManager.LoadGroupListListener() {
+//            @Override
+//            public void onGroupListFound(String id, String groupName, String avatar, String message, String name, String time) {
+//                GroupChat groupChat = new GroupChat(id,  groupName,  avatar,  message,  name,  time);
+//                listGroupChats.add(groupChat);
+//                groupChatListAdapter.notifyDataSetChanged();
+//
+//            }
+//        });
+//    }
+private void resetRecycleView() {
+    new Handler().postDelayed(new Runnable() {
+        @Override
+        public void run() {
+            Log.d("LivedataGroup1", "ok" + uid);
+            listGroupChats.clear();
+            dynamoDBManager.loadGroupList(uid, new DynamoDBManager.LoadGroupListListener() {
+                @Override
+                public void onGroupListFound(String id, String groupName, String avatar, String message, String name, String time) {
+                    GroupChat groupChat = new GroupChat(id, groupName, avatar, message, name, time);
+                    listGroupChats.add(groupChat);
+                    groupChatListAdapter.notifyDataSetChanged();
+                }
+            });
+        }
+    }, 300); // 0.2 giây (200 mili giây)
+}
 
-            }
-        });
-    }
+
 }

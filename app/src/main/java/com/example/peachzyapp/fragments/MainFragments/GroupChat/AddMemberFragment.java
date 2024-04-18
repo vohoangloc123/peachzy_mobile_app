@@ -75,6 +75,7 @@ public class AddMemberFragment extends Fragment {
                 dynamoDBManager.updateGroupForAccount(memberId, groupID);
                 dynamoDBManager.updateGroup(groupID, memberId);
             }
+            getActivity().getSupportFragmentManager().popBackStack();
         });
 
 

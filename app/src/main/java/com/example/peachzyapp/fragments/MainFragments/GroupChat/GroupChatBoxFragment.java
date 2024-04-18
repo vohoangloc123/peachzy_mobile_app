@@ -467,10 +467,10 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
         viewModel.setData("New data");
     }
 
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        viewModel.setData("Change");
-        Log.d("Detach", "onDetach: ");
-    }
+//    @Override
+//    public void onDetach() {
+//        super.onDetach();
+//        viewModel.setData("Change");
+//        Log.d("Detach", "onDetach: ");
+//    }
 }

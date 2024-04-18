@@ -150,6 +150,7 @@ public class CreateGroupChatFragment extends Fragment {
             dynamoDBManager.createGroup(groupID, memberIDs);
             dynamoDBManager.saveGroupConversation(groupID, "Vừa tạo group", groupName,currentTime, "https://chat-app-image-cnm.s3.ap-southeast-1.amazonaws.com/avatar.jpg", "");
             changeData();
+            getActivity().getSupportFragmentManager().popBackStack();
         });
 
         return view;
@@ -190,11 +191,11 @@ public class CreateGroupChatFragment extends Fragment {
         viewModel.setData("New data");
     }
 
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        viewModel.setData("Change");
-        Log.d("Detach", "onDetach: ");
-    }
+//    @Override
+//    public void onDetach() {
+//        super.onDetach();
+//        viewModel.setData("Change");
+//        Log.d("Detach", "onDetach: ");
+//    }
 
 }
