@@ -109,7 +109,7 @@
                 android:layout_height="59dp"
                 android:layout_marginTop="20dp"
                 android:backgroundTint="@color/btnColor"
-                android:text="@string/them_thanh_vien"
+                android:text="@string/xoa_thanh_vien"
                 android:textColor="@color/white"
                 android:textSize="20dp"
                 app:cornerRadius="5dp" />
