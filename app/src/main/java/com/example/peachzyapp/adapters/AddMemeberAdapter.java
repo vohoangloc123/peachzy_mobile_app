@@ -57,12 +57,6 @@ public class AddMemeberAdapter extends RecyclerView.Adapter<AddMemeberAdapter.Ad
             return;
         }
         holder.tvFriendNameAddMember.setText(friends.getName());
-//        Glide.with(holder.itemView.getContext())
-//                .load(friends.getAvatar())
-//                .placeholder(R.drawable.logo)
-//                .transform(new MultiTransformation<>(new CircleCrop()))
-//                .into(ivFriendAvatarAddMembers);
-
         // Gán ID vào tag của checkbox
         holder.cbAddMemberToGroup.setTag(friends.getId());
 

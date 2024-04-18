@@ -3,6 +3,7 @@ package com.example.peachzyapp;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
@@ -31,6 +32,7 @@ public class SignIn extends AppCompatActivity {
     private DynamoDBManager dynamoDBManager;
     private Regexp regexp;
     //for test
+    private FirebaseUser user;
     Button testButton;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,12 +96,13 @@ public class SignIn extends AppCompatActivity {
                         .addOnCompleteListener(this, task -> {
                             if (task.isSuccessful()) {
                                 // Log in success, update UI with the signed-in user's information
-                                FirebaseUser user = mAuth.getCurrentUser();
+                                user = mAuth.getCurrentUser();
 
-                                Intent intent = new Intent(this, MainActivity.class);
-                                intent.putExtra("uid", String.valueOf(user.getUid()));
-                                startActivity(intent);
-                                Toast.makeText(SignIn.this, "Log in successful.", Toast.LENGTH_SHORT).show();
+//                                Intent intent = new Intent(this, MainActivity.class);
+//                                intent.putExtra("uid", String.valueOf(user.getUid()));
+//                                startActivity(intent);
+//                                Toast.makeText(SignIn.this, "Log in successful.", Toast.LENGTH_SHORT).show();
+                                new CountDownTask().execute();
                             } else {
                                 // If log in fails, display a message to the user.
                                 Toast.makeText(SignIn.this, "Log in failed.", Toast.LENGTH_SHORT).show();
@@ -115,6 +118,36 @@ public class SignIn extends AppCompatActivity {
             Toast.makeText(SignIn.this, "Log in successful.", Toast.LENGTH_SHORT).show();
         });
 
+    }
+    private class CountDownTask extends AsyncTask<Void, Integer, Void> {
+        @Override
+        protected Void doInBackground(Void... voids) {
+            try {
+                // Đợi 3 giây
+                Thread.sleep(1500);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onProgressUpdate(Integer... values) {
+            super.onProgressUpdate(values);
+            // Hiển thị thông báo Toast với giá trị % đếm được
+            Toast.makeText(SignIn.this, "Logging in: " + values[0] + "%", Toast.LENGTH_SHORT).show();
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            // Chuyển sang MainActivity
+            Intent intent = new Intent(SignIn.this, MainActivity.class);
+            intent.putExtra("uid", String.valueOf(user.getUid()));
+            startActivity(intent);
+            // Hiển thị thông báo Toast khi đăng nhập thành công
+            Toast.makeText(SignIn.this, "Log in successful.", Toast.LENGTH_SHORT).show();
+        }
     }
     //Hiện thông báo regext
     private void notification(int stringId) {

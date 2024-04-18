@@ -48,7 +48,7 @@ public class GroupChatListFragment extends Fragment {
     private ImageButton btnOpenCreateGroup;
     private DynamoDBManager dynamoDBManager;
     private ArrayList<GroupConversation> groupConversationList;
-    String uid;
+    private String uid;
     private MyGroupViewModel viewModel;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,

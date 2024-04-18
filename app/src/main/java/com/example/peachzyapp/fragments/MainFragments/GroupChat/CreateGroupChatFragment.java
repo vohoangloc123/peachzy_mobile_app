@@ -73,6 +73,7 @@ public class CreateGroupChatFragment extends Fragment {
     private MyGroupViewModel viewModel;
     private ImageButton btnAvatarGroup;
     private CheckBox cbAddToGroup;
+    private Button btnCancel;
     private static final int PICK_IMAGE_REQUEST = 1;
     private AmazonS3 s3Client;
     private PutObjectRequest request;
@@ -95,6 +96,7 @@ public class CreateGroupChatFragment extends Fragment {
         btnFindFriend = view.findViewById(R.id.btnFindFriend);
         cbAddToGroup = view.findViewById(R.id.cbAddToGroup);
         btnCreateGroup = view.findViewById(R.id.btnCreateGroup);
+        btnCancel=view.findViewById(R.id.btnCancel);
         btnAvatarGroup = view.findViewById(R.id.btnAvatarGroup);
         dynamoDBManager = new DynamoDBManager(getActivity());
         mainActivity= (MainActivity) getActivity();
@@ -107,7 +109,9 @@ public class CreateGroupChatFragment extends Fragment {
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(mainActivity);
         rcvFriendListForGroup.setLayoutManager(linearLayoutManager);
         loadFriends();
-
+        btnCancel.setOnClickListener(v->{
+            getActivity().getSupportFragmentManager().popBackStack();
+        });
         btnFindFriend.setOnClickListener(v->{
             String infor = etFindByNameOrEmail.getText().toString().trim();
            // Log.d("Information", infor);

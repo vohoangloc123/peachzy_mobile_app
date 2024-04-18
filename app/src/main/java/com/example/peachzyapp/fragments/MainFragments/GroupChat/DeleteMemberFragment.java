@@ -107,17 +107,27 @@ public class DeleteMemberFragment extends Fragment {
         rcvDeleteMember.setAdapter(deleteMemberAdapter);
 
 
-        btnDeleteMember.setOnClickListener(v->{
+        btnDeleteMember.setOnClickListener(v -> {
             List<String> selectedMemberIds = deleteMemberAdapter.getSelectedMemberIds();
-            for (String memberId : selectedMemberIds) {
-                Log.d("CheckMemberInDelete", memberId);
-                dynamoDBManager.deleteGroupFromUser(memberId, groupID);
-                dynamoDBManager.deleteUserFromGroup(groupID, memberId);
-            }
+            String lastMemberId = null; // Biến để lưu trữ người cuối cùng còn sót lại
+            dynamoDBManager.deleteGroupFromUsers(groupID, selectedMemberIds);
+            dynamoDBManager.deleteUserFromGroups(groupID, selectedMemberIds);
+//            for (String memberId : selectedMemberIds) {
+//                Log.d("CheckMemberInDelete", memberId);
+//                dynamoDBManager.deleteGroupFromUser(memberId, groupID);
+//                dynamoDBManager.deleteUserFromGroup(groupID, memberId);
+//                lastMemberId = memberId; // Cập nhật biến lastMemberId với thành viên hiện tại trong vòng lặp
+//            }
+//
+//            // Kiểm tra xem lastMemberId có khác null hay không trước khi thực hiện cập nhật
+//            if (lastMemberId != null) {
+//                // Thực hiện cập nhật trên người cuối cùng còn sót lại
+//                dynamoDBManager.updateGroupForAccount(lastMemberId, groupID, "member");
+//                dynamoDBManager.updateGroup(groupID, lastMemberId);
+//            }
 
-
+            Log.d("RemainingMembers", selectedMemberIds.toString());
             countMembersInGroupWithDelay();
-
         });
         btnFindMember.setOnClickListener(v->{
             String infor = etNameOrEmail.getText().toString().trim();

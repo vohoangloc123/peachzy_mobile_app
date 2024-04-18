@@ -26,7 +26,6 @@ import com.example.peachzyapp.fragments.MainFragments.Chats.ChatHistoryFragment;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 public class AddMemberFragment extends Fragment {
     public static final String TAG= ChatHistoryFragment.class.getName();
@@ -77,25 +76,29 @@ public class AddMemberFragment extends Fragment {
         rcvAddMember.setAdapter(addMemeberAdapter);
 //        RecyclerView.ItemDecoration itemDecoration=new DividerItemDecoration(mainActivity, DividerItemDecoration.VERTICAL);
 //        rcvAddMember.addItemDecoration(itemDecoration);
-        btnAddMember.setOnClickListener(v->{
-            Log.d("CheckAddMember", "userID "+uid+" groupID: "+groupID);
+        btnAddMember.setOnClickListener(v -> {
+            Log.d("CheckAddMember", "userID " + uid + " groupID: " + groupID);
             List<String> selectedMemberIds = addMemeberAdapter.getSelectedMemberIds();
-            Log.d("CheckFriendIDFor",selectedMemberIds.toString());
-            for (String memberId : selectedMemberIds) {
-                CompletableFuture<Void> future1 = CompletableFuture.runAsync(() -> {
-                    dynamoDBManager.updateGroupForAccount(memberId, groupID, "member");
-                });
+            Log.d("CheckFriendIDFor", selectedMemberIds.toString());
+            dynamoDBManager.updateGroupForAccounts(selectedMemberIds, groupID, "member");
+            dynamoDBManager.updateGroups(groupID, selectedMemberIds);
+//            String lastMemberId = null; // Biến để lưu trữ người cuối cùng còn sót lại
+//
+//            for (String memberId : selectedMemberIds) {
+//                dynamoDBManager.updateGroupForAccount(memberId, groupID, "member");
+//                dynamoDBManager.updateGroup(groupID, memberId);
+//
+//                lastMemberId = memberId; // Cập nhật biến lastMemberId với thành viên hiện tại trong vòng lặp
+//            }
+//
+//            // Kiểm tra xem lastMemberId có khác null hay không trước khi thực hiện cập nhật
+//            if (lastMemberId != null) {
+//                // Thực hiện cập nhật trên người cuối cùng còn sót lại
+//                dynamoDBManager.updateGroupForAccount(lastMemberId, groupID, "member");
+//                dynamoDBManager.updateGroup(groupID, lastMemberId);
+//            }
 
-                CompletableFuture<Void> future2 = CompletableFuture.runAsync(() -> {
-                    dynamoDBManager.updateGroup(groupID, memberId);
-                });
-
-                // Kết hợp hai CompletableFuture lại với nhau
-                CompletableFuture<Void> combinedFuture = CompletableFuture.allOf(future1, future2);
-
-                // Chờ đợi tất cả các tác vụ hoàn thành trước khi tiếp tục
-                combinedFuture.join();
-            }
+            Log.d("RemainingMembers", selectedMemberIds.toString());
             getActivity().getSupportFragmentManager().popBackStack();
         });
         btnFindFriend.setOnClickListener(v->{
