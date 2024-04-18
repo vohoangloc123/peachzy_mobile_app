@@ -7,8 +7,8 @@
         android:title="@string/title_chats" />
     <item
         android:id="@+id/navigation_notifications"
-        android:icon="@drawable/ic_baseline_notifications_24"
-        android:title="@string/title_notifications" />
+        android:icon="@drawable/baseline_groups_24"
+        android:title="@string/title_groups" />
     <item
         android:id="@+id/navigation_users"
         android:icon="@drawable/ic_baseline_people_24"

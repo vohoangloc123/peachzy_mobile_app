@@ -6,6 +6,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -27,6 +30,9 @@ import java.util.List;
 public class AddMemberFragment extends Fragment {
     public static final String TAG= ChatHistoryFragment.class.getName();
     private Button btnAddMember;
+    private Button btnCancel;
+    private ImageButton btnFindFriend;
+    private EditText etNameOrEmail;
     private View view;
     private MainActivity mainActivity;
     private ArrayList<FriendItem> friendList;
@@ -35,6 +41,7 @@ public class AddMemberFragment extends Fragment {
     private RecyclerView rcvAddMember;
     private String uid;
     private String groupID;
+    private FriendItem friendItem;
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -43,7 +50,9 @@ public class AddMemberFragment extends Fragment {
         mainActivity= (MainActivity) getActivity();
         dynamoDBManager = new DynamoDBManager(getActivity());
         btnAddMember=view.findViewById(R.id.btnAddMember);
-
+        btnFindFriend=view.findViewById(R.id.btnFindFriend);
+        btnCancel=view.findViewById(R.id.btnCancel);
+        etNameOrEmail=view.findViewById(R.id.etNameOrEmail);
         //truyen id
         Bundle bundleReceive=getArguments();
         uid = bundleReceive.getString("uid");
@@ -75,6 +84,51 @@ public class AddMemberFragment extends Fragment {
                 dynamoDBManager.updateGroupForAccount(memberId, groupID, "member");
                 dynamoDBManager.updateGroup(groupID, memberId);
             }
+            getActivity().getSupportFragmentManager().popBackStack();
+        });
+        btnFindFriend.setOnClickListener(v->{
+            String infor = etNameOrEmail.getText().toString().trim();
+             Log.d("Information", infor);
+            dynamoDBManager.findFriendByInfor(infor, uid,new DynamoDBManager.FriendFoundListener() {
+                @Override
+                public void onFriendFound(String id, String name, String avatar) {
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            friendItem = new FriendItem(id, avatar, name);
+                            friendList.clear();
+                            friendList.add(friendItem);
+
+                            addMemeberAdapter.notifyDataSetChanged();
+                            Toast.makeText(getActivity(), "Friend found!", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+
+                @Override
+                public void onFriendNotFound() {
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(getActivity(), "Friend not found", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+
+                @Override
+                public void onError(Exception e) {
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Log.e("Error", "Exception occurred: ", e);
+                            Toast.makeText(getActivity(), "Error occurred: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+            });
+
+        });
+        btnCancel.setOnClickListener(v->{
             getActivity().getSupportFragmentManager().popBackStack();
         });
 
@@ -133,6 +187,8 @@ public class AddMemberFragment extends Fragment {
         });
 
 
+
     }
+
 
 }

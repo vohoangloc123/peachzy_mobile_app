@@ -57,7 +57,7 @@
             android:orientation="horizontal">
 
             <ImageButton
-                android:id="@+id/btnFindFriendAddMember"
+                android:id="@+id/btnFindFriend"
                 android:layout_width="72dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
@@ -65,7 +65,7 @@
                 android:src="@drawable/search" />
 
             <EditText
-                android:id="@+id/etNameOrEmailAddMember"
+                android:id="@+id/etNameOrEmail"
                 android:layout_width="320dp"
                 android:layout_height="50dp"
                 android:background="@drawable/edittext_search"

@@ -508,10 +508,18 @@ public void goToDetailFragment(ChatBox chatBox) {
     @Override
     public void onBackPressed() {
         // Kiểm tra xem có Fragment trong BackStack không
-//        Toast.makeText(getApplicationContext(), "Worked", Toast.LENGTH_SHORT).show();
         if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
+            // Lấy fragment đầu tiên trong BackStack
+            Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.etFind);
+
+            // Kiểm tra loại fragment và ẩn thanh điều hướng tương ứng
+            if (fragment instanceof GroupChatBoxFragment || fragment instanceof GroupOptionFragment ||fragment instanceof DeleteMemberFragment||fragment instanceof AddMemberFragment) {
+                showBottomNavigation(false); // Ẩn thanh điều hướng
+            } else {
+                showBottomNavigation(true); // Hiện thanh điều hướng cho các fragment khác
+            }
+
             // Pop Fragment ra khỏi BackStack
-            showBottomNavigation(true);
             getSupportFragmentManager().popBackStack();
         } else {
             // Nếu không có Fragment trong BackStack, thoát ứng dụng
