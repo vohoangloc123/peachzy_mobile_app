@@ -12,6 +12,7 @@ import android.os.Bundle;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
+import android.os.Debug;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -121,6 +122,7 @@ public class GroupOptionFragment extends Fragment {
                     if (countMember <= 1) {
                         dynamoDBManager.deleteGroup(groupID);
                         dynamoDBManager.deleteGroupConversation(groupID);
+                        changeData();
                         getActivity().getSupportFragmentManager().popBackStack();
                     }else
                     {
@@ -132,10 +134,12 @@ public class GroupOptionFragment extends Fragment {
             getActivity().getSupportFragmentManager().popBackStack();
             getActivity().getSupportFragmentManager().popBackStack();
         });
-        dynamoDBManager.getGroupInfoByUser(userID, new DynamoDBManager.LoadGroupInfoListener() {
+        Log.d("CheckID136", groupID);
+        dynamoDBManager.getGroupInfoByUser(userID,groupID, new DynamoDBManager.LoadGroupInfoListener() {
             @Override
-            public void onGroupInfoFound(String groupID, String role) {
-                if(groupID.equals(groupID)&&role.equals("leader"))
+            public void onGroupInfoLoaded(String role) {
+                Log.d("CheckGroup131", role);
+                if(role.equals("leader"))
                 {
                     btnDeleteGroup.setEnabled(true);
                     btnDeleteMember.setEnabled(true);
@@ -149,6 +153,16 @@ public class GroupOptionFragment extends Fragment {
                     btnDeleteGroup.setEnabled(false);
                     btnDeleteMember.setEnabled(false);
                 }
+            }
+
+            @Override
+            public void onGroupInfoNotFound() {
+
+            }
+
+            @Override
+            public void onLoadError(Exception e) {
+
             }
         });
         btnDeleteGroup.setOnClickListener(v->{

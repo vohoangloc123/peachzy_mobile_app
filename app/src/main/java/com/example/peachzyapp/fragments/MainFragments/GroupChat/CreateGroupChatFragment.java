@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Debug;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -164,18 +165,19 @@ public class CreateGroupChatFragment extends Fragment {
 
         btnCreateGroup.setOnClickListener(v -> {
             String groupName = etGroupName.getText().toString().trim();
-            String groupID = randomNumber() + "-" + uid;
+            String groupID = "-"+randomNumber() + "-" + uid;
             String currentTime = Utils.getCurrentTime();
-            List<String> arrayToAddLeaderToGroup = createGroupChatAdapter.getSelectedFriendIds();
+            List<String> arrayToAddLeaderToGroup = new ArrayList<>();
+            List<String> selectedFriendIds = createGroupChatAdapter.getSelectedFriendIds();
             arrayToAddLeaderToGroup.add(uid);
+            Log.d("CheckCreateGroup140", "Mảng có uid leader "+arrayToAddLeaderToGroup);
+            Log.d("CheckCreateGroup140", "Mảng có uid mọi người member "+selectedFriendIds);
+
             if (groupName.equals("")) {
                 Toast.makeText(getActivity(), "Tên group không được để trống", Toast.LENGTH_SHORT).show();
                 return;
             }
             if (urlAvatar != null) {
-                // Lấy danh sách ID đã chọn từ adapter
-                List<String> selectedFriendIds = createGroupChatAdapter.getSelectedFriendIds();
-
                 // Kiểm tra số lượng thành viên đã chọn
                 if (selectedFriendIds.size() >=2) {
                     // Thực hiện các thao tác khi số lượng thành viên đủ
@@ -191,8 +193,6 @@ public class CreateGroupChatFragment extends Fragment {
                     Toast.makeText(getContext(), "Chưa đủ số lượng thành viên để tạo group tối thiểu là 2 người", Toast.LENGTH_LONG).show();
                 }
             } else if (urlAvatar == null) {
-                List<String> selectedFriendIds = createGroupChatAdapter.getSelectedFriendIds();
-
                 // Kiểm tra số lượng thành viên đã chọn
                 if (selectedFriendIds.size() >= 2) {
                     // Thực hiện các thao tác khi số lượng thành viên đủ

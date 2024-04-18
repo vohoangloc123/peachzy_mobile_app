@@ -134,6 +134,7 @@ public class DeleteMemberFragment extends Fragment {
 
             Log.d("RemainingMembers", selectedMemberIds.toString());
             countMembersInGroupWithDelay();
+            changeData();
         });
         btnFindMember.setOnClickListener(v->{
             String infor = etNameOrEmail.getText().toString().trim();
