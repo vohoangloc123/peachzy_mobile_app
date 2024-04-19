@@ -169,6 +169,8 @@ public class CreateGroupChatFragment extends Fragment {
             String currentTime = Utils.getCurrentTime();
             List<String> arrayToAddLeaderToGroup = new ArrayList<>();
             List<String> selectedFriendIds = createGroupChatAdapter.getSelectedFriendIds();
+            List<String> selectedFriendIDsToCreateGroup=createGroupChatAdapter.getSelectedFriendIds();
+            selectedFriendIDsToCreateGroup.add(uid);
             arrayToAddLeaderToGroup.add(uid);
             Log.d("CheckCreateGroup140", "Mảng có uid leader "+arrayToAddLeaderToGroup);
             Log.d("CheckCreateGroup140", "Mảng có uid mọi người member "+selectedFriendIds);
@@ -185,7 +187,7 @@ public class CreateGroupChatFragment extends Fragment {
                     for (String friendId : selectedFriendIds) {
                         dynamoDBManager.updateGroupForAccount(friendId, groupID, "member");
                     }
-                    dynamoDBManager.createGroup(groupID,  arrayToAddLeaderToGroup);
+                    dynamoDBManager.createGroup(groupID,  selectedFriendIDsToCreateGroup);
                     dynamoDBManager.saveGroupConversation(groupID, "Vừa tạo group", groupName, currentTime, urlAvatar, "");
                     getActivity().getSupportFragmentManager().popBackStack();
                 } else {
@@ -200,7 +202,7 @@ public class CreateGroupChatFragment extends Fragment {
                     for (String friendId : selectedFriendIds) {
                         dynamoDBManager.updateGroupForAccount(friendId, groupID, "member");
                     }
-                    dynamoDBManager.createGroup(groupID,  arrayToAddLeaderToGroup);
+                    dynamoDBManager.createGroup(groupID,  selectedFriendIDsToCreateGroup);
                     dynamoDBManager.saveGroupConversation(groupID, "Vừa tạo group", groupName, currentTime, "https://chat-app-image-cnm.s3.ap-southeast-1.amazonaws.com/avatar.jpg", "");
                     getActivity().getSupportFragmentManager().popBackStack();
                 }else {
