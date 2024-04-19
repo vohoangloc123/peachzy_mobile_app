@@ -221,6 +221,7 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
         });
         btnBack.setOnClickListener(v->{
                 getActivity().getSupportFragmentManager().popBackStack();
+            mainActivity.showBottomNavigation(true);
         });
        return view;
     }

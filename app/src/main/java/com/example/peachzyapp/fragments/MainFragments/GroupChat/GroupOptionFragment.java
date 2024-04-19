@@ -124,15 +124,18 @@ public class GroupOptionFragment extends Fragment {
                         dynamoDBManager.deleteGroupConversation(groupID);
                         changeData();
                         getActivity().getSupportFragmentManager().popBackStack();
+                        mainActivity.showBottomNavigation(true);
                     }else
                     {
                         getActivity().getSupportFragmentManager().popBackStack();
+                        mainActivity.showBottomNavigation(true);
                     }
                 }
             });
            // changeData();
             getActivity().getSupportFragmentManager().popBackStack();
             getActivity().getSupportFragmentManager().popBackStack();
+            mainActivity.showBottomNavigation(true);
         });
         Log.d("CheckID136", groupID);
         dynamoDBManager.getGroupInfoByUser(userID,groupID, new DynamoDBManager.LoadGroupInfoListener() {
@@ -181,10 +184,9 @@ public class GroupOptionFragment extends Fragment {
             // dynamoDBManager.deleteGroupFromUser(userID, groupID);
             //Xóa group
             dynamoDBManager.deleteGroup(groupID);
-
-            //changeData();
             getActivity().getSupportFragmentManager().popBackStack();
             getActivity().getSupportFragmentManager().popBackStack();
+            mainActivity.showBottomNavigation(true);
         });
 
        return view;

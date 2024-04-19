@@ -112,6 +112,7 @@ public class CreateGroupChatFragment extends Fragment {
         loadFriends();
         btnCancel.setOnClickListener(v->{
             getActivity().getSupportFragmentManager().popBackStack();
+            mainActivity.showBottomNavigation(true);
         });
         btnFindFriend.setOnClickListener(v->{
             String infor = etFindByNameOrEmail.getText().toString().trim();
@@ -167,14 +168,11 @@ public class CreateGroupChatFragment extends Fragment {
             String groupName = etGroupName.getText().toString().trim();
             String groupID = "-"+randomNumber() + "-" + uid;
             String currentTime = Utils.getCurrentTime();
-            List<String> arrayToAddLeaderToGroup = new ArrayList<>();
             List<String> selectedFriendIds = createGroupChatAdapter.getSelectedFriendIds();
-            List<String> selectedFriendIDsToCreateGroup=createGroupChatAdapter.getSelectedFriendIds();
+            List<String> selectedFriendIDsToCreateGroup = new ArrayList<>(selectedFriendIds);
             selectedFriendIDsToCreateGroup.add(uid);
-            arrayToAddLeaderToGroup.add(uid);
-            Log.d("CheckCreateGroup140", "Mảng có uid leader "+arrayToAddLeaderToGroup);
             Log.d("CheckCreateGroup140", "Mảng có uid mọi người member "+selectedFriendIds);
-
+            Log.d("CheckCreateGroup140", "Mảng có uid mọi người member và cả leader"+selectedFriendIDsToCreateGroup);
             if (groupName.equals("")) {
                 Toast.makeText(getActivity(), "Tên group không được để trống", Toast.LENGTH_SHORT).show();
                 return;
@@ -190,6 +188,7 @@ public class CreateGroupChatFragment extends Fragment {
                     dynamoDBManager.createGroup(groupID,  selectedFriendIDsToCreateGroup);
                     dynamoDBManager.saveGroupConversation(groupID, "Vừa tạo group", groupName, currentTime, urlAvatar, "");
                     getActivity().getSupportFragmentManager().popBackStack();
+                    mainActivity.showBottomNavigation(true);
                 } else {
                     // Hiển thị Toast thông báo khi số lượng thành viên không đủ
                     Toast.makeText(getContext(), "Chưa đủ số lượng thành viên để tạo group tối thiểu là 2 người", Toast.LENGTH_LONG).show();
@@ -205,6 +204,7 @@ public class CreateGroupChatFragment extends Fragment {
                     dynamoDBManager.createGroup(groupID,  selectedFriendIDsToCreateGroup);
                     dynamoDBManager.saveGroupConversation(groupID, "Vừa tạo group", groupName, currentTime, "https://chat-app-image-cnm.s3.ap-southeast-1.amazonaws.com/avatar.jpg", "");
                     getActivity().getSupportFragmentManager().popBackStack();
+                    mainActivity.showBottomNavigation(true);
                 }else {
                     // Hiển thị Toast thông báo khi số lượng thành viên không đủ
                     Toast.makeText(getContext(), "Chưa đủ số lượng thành viên để tạo group tối thiểu là 2 người", Toast.LENGTH_LONG).show();

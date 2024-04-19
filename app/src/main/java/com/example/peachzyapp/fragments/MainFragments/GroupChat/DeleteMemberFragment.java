@@ -136,50 +136,16 @@ public class DeleteMemberFragment extends Fragment {
             countMembersInGroupWithDelay();
            // changeData();
         });
-        btnFindMember.setOnClickListener(v->{
-            String infor = etNameOrEmail.getText().toString().trim();
-            // Log.d("Information", infor);
-            dynamoDBManager.findFriendByInfor(infor, uid,new DynamoDBManager.FriendFoundListener() {
-                @Override
-                public void onFriendFound(String id, String name, String avatar) {
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            friendItem = new FriendItem(id, avatar, name);
-                            memberList.clear();
-                            memberList.add(friendItem);
-
-                            deleteMemberAdapter.notifyDataSetChanged();
-                            Toast.makeText(getActivity(), "Friend found!", Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                }
-
-                @Override
-                public void onFriendNotFound() {
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(getActivity(), "Friend not found", Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                }
-
-                @Override
-                public void onError(Exception e) {
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Log.e("Error", "Exception occurred: ", e);
-                            Toast.makeText(getActivity(), "Error occurred: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                }
-            });
-
+        btnFindMember.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String info = etNameOrEmail.getText().toString().trim();
+                searchForMember(info);
+            }
         });
         btnCancel.setOnClickListener(v->{
             getActivity().getSupportFragmentManager().popBackStack();
+            mainActivity.showBottomNavigation(true);
         });
 
 
@@ -204,15 +170,13 @@ public class DeleteMemberFragment extends Fragment {
                             getActivity().getSupportFragmentManager().popBackStack();
                             getActivity().getSupportFragmentManager().popBackStack();
                             getActivity().getSupportFragmentManager().popBackStack();
-
+                            mainActivity.showBottomNavigation(true);
 
                         }
                         else {
-                           // changeData();
                             getActivity().getSupportFragmentManager().popBackStack();
                             getActivity().getSupportFragmentManager().popBackStack();
                         }
-                          //changeData();
 
                     }
                 });
@@ -222,7 +186,45 @@ public class DeleteMemberFragment extends Fragment {
     }
 
 
+    private void searchForMember(String info) {
+        dynamoDBManager.findFriendByInfor(info, uid, new DynamoDBManager.FriendFoundListener() {
+            @Override
+            public void onFriendFound(String id, String name, String avatar) {
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        friendItem = new FriendItem(id, avatar, name);
+                        memberList.clear();
+                        memberList.add(friendItem);
 
+                        deleteMemberAdapter.notifyDataSetChanged();
+                        Toast.makeText(getActivity(), "Friend found!", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+
+            @Override
+            public void onFriendNotFound() {
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(getActivity(), "Friend not found", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+
+            @Override
+            public void onError(Exception e) {
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Log.e("Error", "Exception occurred: ", e);
+                        Toast.makeText(getActivity(), "Error occurred: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+        });
+    }
     private void changeData() {
         viewModel.setData("New data");
     }
