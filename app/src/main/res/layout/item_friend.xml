@@ -3,7 +3,8 @@
     android:layout_height="wrap_content"
     android:orientation="horizontal"
     android:padding="5dp"
-    android:background="@color/white">
+    android:background="@color/white"
+    android:layout_marginBottom="10dp">
 
     <ImageView
         android:id="@+id/ivFriendAvatar"

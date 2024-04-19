@@ -65,8 +65,8 @@ public class RequestReceivedFragment extends Fragment {
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(mainActivity);
         rcvRequestReceived.setLayoutManager(linearLayoutManager);
 
-        RecyclerView.ItemDecoration itemDecoration = new DividerItemDecoration(mainActivity, DividerItemDecoration.VERTICAL);
-        rcvRequestReceived.addItemDecoration(itemDecoration);
+//        RecyclerView.ItemDecoration itemDecoration = new DividerItemDecoration(mainActivity, DividerItemDecoration.VERTICAL);
+//        rcvRequestReceived.addItemDecoration(itemDecoration);
 
         requestReceivedAdapter = new RequestReceivedAdapter(friendList);
         requestReceivedAdapter.setUid(uid);

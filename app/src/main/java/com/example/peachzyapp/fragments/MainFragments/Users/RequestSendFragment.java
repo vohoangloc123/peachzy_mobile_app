@@ -80,8 +80,8 @@ public class RequestSendFragment extends Fragment {
 
         requestSentAdapter= new RequestSentAdapter(friendList);
         rcvRequestSent.setAdapter(requestSentAdapter);
-        RecyclerView.ItemDecoration itemDecoration=new DividerItemDecoration(mainActivity, DividerItemDecoration.VERTICAL);
-        rcvRequestSent.addItemDecoration(itemDecoration);
+//        RecyclerView.ItemDecoration itemDecoration=new DividerItemDecoration(mainActivity, DividerItemDecoration.VERTICAL);
+//        rcvRequestSent.addItemDecoration(itemDecoration);
 
         return view;
     }

@@ -138,8 +138,8 @@ public class FriendsFragment extends Fragment {
             }
         });
 
-        RecyclerView.ItemDecoration itemDecoration=new DividerItemDecoration(mainActivity, DividerItemDecoration.VERTICAL);
-        rcvFriendList.addItemDecoration(itemDecoration);
+//        RecyclerView.ItemDecoration itemDecoration=new DividerItemDecoration(mainActivity, DividerItemDecoration.VERTICAL);
+//        rcvFriendList.addItemDecoration(itemDecoration);
         return view;
     }
 
