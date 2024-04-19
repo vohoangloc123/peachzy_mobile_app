@@ -151,6 +151,7 @@ private void resetRecycleView() {
 
                 }
             });
+            groupChatListAdapter.notifyDataSetChanged();
             Log.d("LivedataGroup1", "ok" + uid);
         }
     }, 400); // 0.2 giây (200 mili giây)

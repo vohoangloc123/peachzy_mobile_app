@@ -13,6 +13,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import android.os.Debug;
+import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -116,23 +117,23 @@ public class GroupOptionFragment extends Fragment {
         btnOutGroup.setOnClickListener(v->{
             dynamoDBManager.deleteUserFromGroup(groupID, userID);
             dynamoDBManager.deleteGroupFromUser(userID, groupID);
-            dynamoDBManager.countMembersInGroup(groupID, new DynamoDBManager.CountMembersCallback() {
-                @Override
-                public void onCountComplete(int countMember) {
-                    if (countMember <= 1) {
-                        dynamoDBManager.deleteGroup(groupID);
-                        dynamoDBManager.deleteGroupConversation(groupID);
-                        changeData();
-                        getActivity().getSupportFragmentManager().popBackStack();
-                        mainActivity.showBottomNavigation(true);
-                    }else
-                    {
-                        getActivity().getSupportFragmentManager().popBackStack();
-                        mainActivity.showBottomNavigation(true);
-                    }
-                }
-            });
-           // changeData();
+//            dynamoDBManager.countMembersInGroup(groupID, new DynamoDBManager.CountMembersCallback() {
+//                @Override
+//                public void onCountComplete(int countMember) {
+//                    if (countMember <= 1) {
+//                        dynamoDBManager.deleteGroup(groupID);
+//                        dynamoDBManager.deleteGroupConversation(groupID);
+//                        changeData();
+//                        getActivity().getSupportFragmentManager().popBackStack();
+//                        mainActivity.showBottomNavigation(true);
+//                    }else
+//                    {
+//                        getActivity().getSupportFragmentManager().popBackStack();
+//                        mainActivity.showBottomNavigation(true);
+//                    }
+//                }
+//            });
+            countMembersInGroupWithDelay();
             getActivity().getSupportFragmentManager().popBackStack();
             getActivity().getSupportFragmentManager().popBackStack();
             mainActivity.showBottomNavigation(true);
@@ -191,15 +192,34 @@ public class GroupOptionFragment extends Fragment {
 
        return view;
     }
+
+    public void countMembersInGroupWithDelay() {
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                dynamoDBManager.countMembersInGroup(groupID, new DynamoDBManager.CountMembersCallback() {
+                    @Override
+                    public void onCountComplete(int countMember) {
+
+                        Log.d("onCountComplete", countMember + "" );
+                        if (countMember <= 1) {
+                            Log.d("onCountComplete1", "ok");
+                            dynamoDBManager.deleteGroupConversation(groupID);
+                            dynamoDBManager.deleteGroup(groupID);
+
+                        }
+
+                    }
+                });
+            }
+
+        }, 200); // 0.5 giây (500 mili giây)
+    }
+
     private void changeData() {
         viewModel.setData("New data");
     }
-//    @Override
-//    public void onDetach() {
-//        super.onDetach();
-//        viewModel.setData("Change");
-//        Log.d("Detach", "onDetach: ");
-//    }
+
 
     @Override
     public void onDestroyView() {
