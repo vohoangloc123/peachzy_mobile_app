@@ -134,7 +134,7 @@ public class DeleteMemberFragment extends Fragment {
 
             Log.d("RemainingMembers", selectedMemberIds.toString());
             countMembersInGroupWithDelay();
-            changeData();
+           // changeData();
         });
         btnFindMember.setOnClickListener(v->{
             String infor = etNameOrEmail.getText().toString().trim();
@@ -212,7 +212,7 @@ public class DeleteMemberFragment extends Fragment {
                             getActivity().getSupportFragmentManager().popBackStack();
                             getActivity().getSupportFragmentManager().popBackStack();
                         }
-                          changeData();
+                          //changeData();
 
                     }
                 });
