@@ -117,22 +117,6 @@ public class GroupOptionFragment extends Fragment {
         btnOutGroup.setOnClickListener(v->{
             dynamoDBManager.deleteUserFromGroup(groupID, userID);
             dynamoDBManager.deleteGroupFromUser(userID, groupID);
-//            dynamoDBManager.countMembersInGroup(groupID, new DynamoDBManager.CountMembersCallback() {
-//                @Override
-//                public void onCountComplete(int countMember) {
-//                    if (countMember <= 1) {
-//                        dynamoDBManager.deleteGroup(groupID);
-//                        dynamoDBManager.deleteGroupConversation(groupID);
-//                        changeData();
-//                        getActivity().getSupportFragmentManager().popBackStack();
-//                        mainActivity.showBottomNavigation(true);
-//                    }else
-//                    {
-//                        getActivity().getSupportFragmentManager().popBackStack();
-//                        mainActivity.showBottomNavigation(true);
-//                    }
-//                }
-//            });
             countMembersInGroupWithDelay();
             getActivity().getSupportFragmentManager().popBackStack();
             getActivity().getSupportFragmentManager().popBackStack();

@@ -24,6 +24,14 @@
             android:background="@color/btnColor"
             android:orientation="horizontal">
 
+            <ImageButton
+                android:id="@+id/btnBack"
+                android:layout_width="84dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:backgroundTint="@color/btnColor"
+                android:src="@drawable/arrow_left" />
+
             <TextView
                 android:id="@+id/textView"
                 android:layout_width="300dp"
@@ -52,6 +60,37 @@
                 />
 
         </LinearLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="49dp"
+            android:layout_marginBottom="10dp"
+            android:paddingLeft="100dp">
+
+            <ImageButton
+
+                android:id="@+id/btnChangeAvatar"
+
+                android:layout_width="194dp"
+                android:layout_height="40dp"
+                android:background="@drawable/border_button_profile"
+                android:paddingRight="130dp"
+                android:src="@drawable/replace" />
+
+            <TextView
+                android:id="@+id/tv2"
+                android:layout_width="205dp"
+                android:layout_height="39dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="-59dp"
+                android:layout_marginBottom="4dp"
+                android:paddingLeft="60dp"
+                android:text="@string/change_image"
+                android:textColor="@color/btnColor"
+                android:textSize="18dp"
+                android:textStyle="bold" />
+        </RelativeLayout>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="69dp"
@@ -73,8 +112,8 @@
                 android:textSize="18dp"
                 android:textStyle="bold" />
 
-            <TextView
-                android:id="@+id/tvName"
+            <EditText
+                android:id="@+id/etName"
                 android:layout_width="240dp"
                 android:layout_height="40dp"
                 android:layout_marginTop="10dp"
@@ -114,20 +153,27 @@
                 android:textSize="18dp"
                 android:textStyle="bold" />
 
-            <TextView
-                android:id="@+id/tvGender"
-                android:layout_width="240dp"
-                android:layout_height="40dp"
-                android:layout_marginTop="10dp"
-                android:background="@drawable/edittext_profile_no_border"
-                android:ems="10"
-                android:hint="@string/gender"
-                android:inputType=""
-                android:textColor="@color/black"
-                android:textSize="15dp"
-                android:textStyle="bold"
+            <RadioGroup
+                android:id="@+id/rSex"
+                android:layout_width="250dp"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
 
-                />
+                <RadioButton
+                    android:id="@+id/rMale"
+                    android:layout_width="109dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/male"
+                    android:textColor="@color/black" />
+
+                <RadioButton
+                    android:id="@+id/rFemale"
+                    android:layout_width="100dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/female"
+                    android:textColor="@color/black" />
+            </RadioGroup>
+
 
         </LinearLayout>
         <LinearLayout
@@ -149,7 +195,7 @@
                 android:textStyle="bold" />
 
             <TextView
-                android:id="@+id/tvDateOfBirth"
+                android:id="@+id/etDateOfBirth"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
@@ -183,7 +229,7 @@
                 android:textStyle="bold" />
 
             <TextView
-                android:id="@+id/tvEmail"
+                android:id="@+id/etEmail"
                 android:layout_width="150dp"
                 android:layout_height="37dp"
                 android:layout_weight="1"
@@ -203,7 +249,9 @@
             >
 
             <ImageButton
-                android:id="@+id/btnChangeProfile"
+
+                android:id="@+id/btnSave"
+
                 android:layout_width="150dp"
                 android:layout_height="55dp"
                 android:background="@drawable/border_button_profile"
@@ -218,34 +266,7 @@
                 android:layout_marginEnd="-59dp"
                 android:layout_marginBottom="4dp"
                 android:paddingLeft="70dp"
-                android:text="Change profile"
-                android:textColor="@color/btnColor"
-                android:textSize="19dp"
-                android:textStyle="bold" />
-        </RelativeLayout>
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingLeft="10dp"
-            android:layout_marginLeft="60dp">
-
-            <ImageButton
-                android:id="@+id/btnChangePassword"
-                android:layout_width="270dp"
-                android:layout_height="55dp"
-                android:background="@drawable/border_button_profile"
-                android:paddingRight="200dp"
-                android:src="@drawable/password" />
-
-            <TextView
-                android:id="@+id/tv1"
-                android:layout_width="275dp"
-                android:layout_height="46dp"
-                android:layout_marginTop="11dp"
-                android:layout_marginEnd="-59dp"
-                android:layout_marginBottom="4dp"
-                android:paddingLeft="70dp"
-                android:text="change password"
+                android:text="@string/save"
                 android:textColor="@color/btnColor"
                 android:textSize="19dp"
                 android:textStyle="bold" />

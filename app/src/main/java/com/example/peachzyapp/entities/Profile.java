@@ -63,4 +63,16 @@ public class Profile {
     public void setDateOfBirth(String dateOfBirth) {
         this.dateOfBirth = dateOfBirth;
     }
+
+    @Override
+    public String toString() {
+        return "Profile{" +
+                "id='" + id + '\'' +
+                ", name='" + name + '\'' +
+                ", email='" + email + '\'' +
+                ", avatar='" + avatar + '\'' +
+                ", sex=" + sex +
+                ", dateOfBirth='" + dateOfBirth + '\'' +
+                '}';
+    }
 }

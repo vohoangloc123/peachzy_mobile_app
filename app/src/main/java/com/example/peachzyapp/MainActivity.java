@@ -26,6 +26,8 @@ import com.example.peachzyapp.fragments.MainFragments.GroupChat.DeleteMemberFrag
 import com.example.peachzyapp.fragments.MainFragments.GroupChat.GroupChatBoxFragment;
 import com.example.peachzyapp.fragments.MainFragments.GroupChat.GroupOptionFragment;
 import com.example.peachzyapp.fragments.MainFragments.Profiles.ChangePasswordFragment;
+import com.example.peachzyapp.fragments.MainFragments.Profiles.EditProfileFragment;
+import com.example.peachzyapp.fragments.MainFragments.Profiles.ProfileFragment;
 import com.example.peachzyapp.fragments.MainFragments.Users.AddFriendFragment;
 import com.example.peachzyapp.fragments.MainFragments.Chats.ChatHistoryFragment;
 import com.example.peachzyapp.fragments.MainFragments.Chats.ChatListsFragment;
@@ -103,19 +105,13 @@ public class MainActivity extends AppCompatActivity {
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
                 int itemId = menuItem.getItemId();
                 if (itemId == R.id.navigation_chats) {
-                  //  Toast.makeText(MainActivity.this, "Chuyển tab 1", Toast.LENGTH_SHORT).show();
-                    // Gọi reloadData() khi chuyển sang tab 1
                     ChatListsFragment chatLists = (ChatListsFragment) viewPager.getAdapter().instantiateItem(viewPager, 0);
-//                    chatLists.reloadData();
                     viewPager.setCurrentItem(0);
                 } else if (itemId == R.id.navigation_notifications) {
-
                     viewPager.setCurrentItem(1);
                 } else if (itemId == R.id.navigation_users) {
-                   // Toast.makeText(MainActivity.this, "Chuyển tab 3", Toast.LENGTH_SHORT).show();
                     viewPager.setCurrentItem(2);
                 } else if (itemId == R.id.navigation_profile) {
-                   // Toast.makeText(MainActivity.this, "Chuyển tab 4", Toast.LENGTH_SHORT).show();
                     viewPager.setCurrentItem(3);
                 }
                 return true;
@@ -497,6 +493,68 @@ public void goToDetailFragment(ChatBox chatBox) {
         fragmentTransaction.addToBackStack(addMemberFragment.TAG);
         fragmentTransaction.commit();
 
+    }
+    public void goToEditProfileFragment(Bundle bundle) {
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+        EditProfileFragment editProfileFragment=new EditProfileFragment();
+        // Thêm ChatHistoryFragment
+        fragmentTransaction.add(R.id.etFind, editProfileFragment, editProfileFragment.TAG);
+
+        // Tìm và ẩn tất cả các Fragment khác
+        Fragment chatListsFragment = (Fragment) viewPager.getAdapter().instantiateItem(viewPager, 0);
+        Fragment notificationFragment = (Fragment) viewPager.getAdapter().instantiateItem(viewPager, 1);
+        Fragment usersFragment = (Fragment) viewPager.getAdapter().instantiateItem(viewPager, 2);
+        Fragment profileFragment = (Fragment) viewPager.getAdapter().instantiateItem(viewPager, 3);
+
+        if (chatListsFragment != null) {
+            fragmentTransaction.hide(chatListsFragment);
+        }
+        if (notificationFragment != null) {
+            fragmentTransaction.hide(notificationFragment);
+        }
+        if (usersFragment != null) {
+            fragmentTransaction.hide(usersFragment);
+        }
+        if (profileFragment != null) {
+            fragmentTransaction.hide(profileFragment);
+        }
+
+        // Ẩn bottomNavigationView
+        showBottomNavigation(false);
+        editProfileFragment.setArguments(bundle);
+        fragmentTransaction.addToBackStack(editProfileFragment.TAG);
+        fragmentTransaction.commit();
+    }
+    public void goToProfileFragment(Bundle bundle) {
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+        ProfileFragment profileFragment = new ProfileFragment();
+        // Thêm ProfileFragment
+        fragmentTransaction.add(R.id.etFind, profileFragment, profileFragment.TAG);
+
+        // Ẩn tất cả các Fragment khác
+        Fragment chatListsFragment = (Fragment) viewPager.getAdapter().instantiateItem(viewPager, 0);
+        Fragment notificationFragment = (Fragment) viewPager.getAdapter().instantiateItem(viewPager, 1);
+        Fragment usersFragment = (Fragment) viewPager.getAdapter().instantiateItem(viewPager, 2);
+        Fragment editProfileFragment = (Fragment) viewPager.getAdapter().instantiateItem(viewPager, 3);
+
+        if (chatListsFragment != null) {
+            fragmentTransaction.hide(chatListsFragment);
+        }
+        if (notificationFragment != null) {
+            fragmentTransaction.hide(notificationFragment);
+        }
+        if (usersFragment != null) {
+            fragmentTransaction.hide(usersFragment);
+        }
+        if (editProfileFragment != null) {
+
+        }
+
+        profileFragment.setArguments(bundle);
+        fragmentTransaction.addToBackStack(profileFragment.TAG);
+        fragmentTransaction.commit();
+        // Hiển thị bottomNavigationView
+        showBottomNavigation(true);
     }
     public void showBottomNavigation(boolean show) {
         if (show) {

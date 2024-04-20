@@ -228,11 +228,5 @@ public class DeleteMemberFragment extends Fragment {
     private void changeData() {
         viewModel.setData("New data");
     }
-//    @Override
-//    public void onDetach() {
-//        super.onDetach();
-//        viewModel.setData("Change");
-//        Log.d("Detach", "onDetach: ");
-//    }
 }
 
