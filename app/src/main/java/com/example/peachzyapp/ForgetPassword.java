@@ -1,6 +1,7 @@
 package com.example.peachzyapp;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -20,7 +21,8 @@ import com.google.firebase.auth.FirebaseAuth;
 
 public class ForgetPassword extends AppCompatActivity {
     EditText etEmail;
-    Button forgetPasswordButton;
+    Button btnForgetPassword;
+    Button btnSignIn;
     private Regexp regexp;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,7 +31,8 @@ public class ForgetPassword extends AppCompatActivity {
         setContentView(R.layout.activity_forget_password);
         OTPManager otpManager = new OTPManager();
         etEmail = findViewById(R.id.etEmail);
-        forgetPasswordButton = findViewById(R.id.btnForgetPassword);
+        btnForgetPassword = findViewById(R.id.btnForgetPassword);
+        btnSignIn= findViewById(R.id.btnSignIn);
         // Khai báo Regexp
         regexp= new Regexp();
         Context context = this;
@@ -40,7 +43,11 @@ public class ForgetPassword extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-        forgetPasswordButton.setOnClickListener(v -> {
+        btnSignIn.setOnClickListener(v->{
+            Intent intent = new Intent(ForgetPassword.this, SignIn.class);
+            startActivity(intent);
+        });
+        btnForgetPassword.setOnClickListener(v -> {
             String email = etEmail.getText().toString().trim();
 
             if (TextUtils.isEmpty(email)) {
