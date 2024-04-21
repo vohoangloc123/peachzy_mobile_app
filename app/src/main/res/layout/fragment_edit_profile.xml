@@ -33,12 +33,13 @@
                 android:src="@drawable/arrow_left" />
 
             <TextView
+                android:layout_marginTop="5dp"
                 android:id="@+id/textView"
                 android:layout_width="300dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:padding="15dp"
-                android:text="@string/user_information"
+                android:text="Edit user information"
                 android:textColor="@color/white"
                 android:textSize="20dp" />
         </LinearLayout>

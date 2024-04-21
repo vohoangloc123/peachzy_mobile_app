@@ -84,7 +84,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_alignParentEnd="true"
-                    android:layout_marginEnd="0dp"
+                    android:layout_marginEnd="-1dp"
                     android:layout_weight="1"
                     android:background="@color/bgWhiteBlue"
                     android:paddingRight="300dp"
@@ -100,9 +100,7 @@
                     android:padding="15dp"
                     android:text="@string/them_thanh_vien"
                     android:textColor="@color/black"
-                    android:textSize="20dp" />
-
-
+                    android:textSize="20dp"/>
             </RelativeLayout>
 
         </LinearLayout>
@@ -123,7 +121,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_alignParentEnd="true"
-                    android:layout_marginEnd="0dp"
+                    android:layout_marginEnd="-2dp"
                     android:layout_weight="1"
                     android:background="@color/bgWhiteBlue"
                     android:paddingRight="300dp"
@@ -140,8 +138,6 @@
                     android:text="@string/xoa_thanh_vien"
                     android:textColor="@color/black"
                     android:textSize="20dp" />
-
-
             </RelativeLayout>
 
 
@@ -164,11 +160,11 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_alignParentEnd="true"
-                    android:layout_marginEnd="0dp"
+                    android:layout_marginEnd="-1dp"
                     android:layout_weight="1"
                     android:background="@color/bgWhiteBlue"
                     android:paddingRight="300dp"
-                    android:src="@drawable/delete_group"/>
+                    android:src="@drawable/delete_group" />
 
                 <TextView
                     android:id="@+id/tvDeleteGroup"

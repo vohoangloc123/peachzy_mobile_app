@@ -80,4 +80,6 @@
     <string name="xoa_thanh_vien">Delete member</string>
     <string name="xoa_nhom">Delete group</string>
     <string name="roi_nhom">Leave group</string>
+    <string name="message">Message</string>
+    <string name="change_profile">Change profile</string>
 </resources>

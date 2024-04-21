@@ -28,6 +28,7 @@
                 android:id="@+id/textView"
                 android:layout_width="300dp"
                 android:layout_height="match_parent"
+                android:textAlignment="center"
                 android:layout_weight="1"
                 android:padding="15dp"
                 android:text="@string/user_information"

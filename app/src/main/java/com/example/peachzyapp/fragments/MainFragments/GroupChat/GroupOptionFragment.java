@@ -162,7 +162,7 @@ public class GroupOptionFragment extends Fragment {
 //            dynamoDBManager.deleteUserFromGroup(groupID, userID);
             dynamoDBManager.findMemberOfGroup(groupID, new DynamoDBManager.ListMemberListener() {
                 @Override
-                public void ListMemberID(String id) {
+                public void ListMemberID(String id, String avatar, String name) {
                     dynamoDBManager.deleteGroupFromUser(id, groupID);
                 }
             });

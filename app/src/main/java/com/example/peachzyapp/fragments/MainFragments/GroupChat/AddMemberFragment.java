@@ -82,21 +82,6 @@ public class AddMemberFragment extends Fragment {
             Log.d("CheckFriendIDFor", selectedMemberIds.toString());
             dynamoDBManager.updateGroupForAccounts(selectedMemberIds, groupID, "member");
             dynamoDBManager.updateGroups(groupID, selectedMemberIds);
-//            String lastMemberId = null; // Biến để lưu trữ người cuối cùng còn sót lại
-//
-//            for (String memberId : selectedMemberIds) {
-//                dynamoDBManager.updateGroupForAccount(memberId, groupID, "member");
-//                dynamoDBManager.updateGroup(groupID, memberId);
-//
-//                lastMemberId = memberId; // Cập nhật biến lastMemberId với thành viên hiện tại trong vòng lặp
-//            }
-//
-//            // Kiểm tra xem lastMemberId có khác null hay không trước khi thực hiện cập nhật
-//            if (lastMemberId != null) {
-//                // Thực hiện cập nhật trên người cuối cùng còn sót lại
-//                dynamoDBManager.updateGroupForAccount(lastMemberId, groupID, "member");
-//                dynamoDBManager.updateGroup(groupID, lastMemberId);
-//            }
 
             Log.d("RemainingMembers", selectedMemberIds.toString());
             getActivity().getSupportFragmentManager().popBackStack();
@@ -158,20 +143,19 @@ public class AddMemberFragment extends Fragment {
         }
         return list;
     }
-    private void loadFriends()
-    {
+    private void loadFriends() {
         friendList.clear();
 
-        List<String> memberList = new ArrayList<>();
+        List<FriendItem> memberList = new ArrayList<>();
         dynamoDBManager.findMemberOfGroup(groupID, new DynamoDBManager.ListMemberListener() {
             @Override
-            public void ListMemberID(String id) {
-                memberList.add(id);
-
+            public void ListMemberID(String id, String avatar, String name) {
+                FriendItem friendItem=new FriendItem(id, avatar, name);
+                memberList.add(friendItem);
             }
         });
 
-        dynamoDBManager.getIDFriend(uid,"1", new DynamoDBManager.AlreadyFriendListener() {
+        dynamoDBManager.getIDFriend(uid, "1", new DynamoDBManager.AlreadyFriendListener() {
             @Override
             public void onFriendAlreadyFound(FriendItem data) {
 
@@ -187,10 +171,6 @@ public class AddMemberFragment extends Fragment {
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-//                        //Log.d("onDATAREquest", "run: "+data.getName());
-//                        friendList.add(friendItem);
-//                        addMemeberAdapter.notifyDataSetChanged();
-
                         if (!memberList.contains(friendItem.getId())) {
                             friendList.add(friendItem);
                             addMemeberAdapter.notifyDataSetChanged();
@@ -198,12 +178,9 @@ public class AddMemberFragment extends Fragment {
                     }
                 });
             }
-
         });
-
-
-
     }
-
-
 }
+
+
+
