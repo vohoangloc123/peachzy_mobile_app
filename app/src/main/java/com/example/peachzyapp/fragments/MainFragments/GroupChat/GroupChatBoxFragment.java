@@ -26,6 +26,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -116,8 +118,7 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
         //xử lý resize giao diện và đẩy edit text và button lên khi chat ngoài ra còn load tin nhắn mói từ dưới lên
         InputMethodManager inputManager = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
         inputManager.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT);
-        getActivity().getWindow().setSoftInputMode(
-                WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+
         //bundle
         groupID = bundleReceive.getString("groupID");
         Log.d("CheckBundleOfGroupChat", "onCreateView: "+groupID);
@@ -150,14 +151,11 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
         recyclerView.setAdapter(adapter);
         //load messages
         updateRecyclerView();
+        ((LinearLayoutManager)recyclerView.getLayoutManager()).setStackFromEnd(true);
+        getActivity().getWindow().setSoftInputMode(
+                WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
         //web socket
         initWebSocket();
-//        int countMembers=dynamoDBManager.countMembersInGroup(groupID);
-//        Log.d("CheckMemberCount", groupID+": "+String.valueOf(countMembers));
-//        if(countMembers<10)
-//        {
-//            dynamoDBManager.deleteGroupConversation(groupID);
-//        }
         dynamoDBManager.getProfileByUID(userID, new DynamoDBManager.FriendFoundForGetUIDByEmailListener() {
             @Override
             public void onFriendFound(String uid, String name, String email, String avatar, Boolean sex, String dateOfBirth) {
