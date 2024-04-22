@@ -124,7 +124,7 @@ public class SignIn extends AppCompatActivity {
         protected Void doInBackground(Void... voids) {
             try {
                 // Đợi 3 giây
-                Thread.sleep(1500);
+                Thread.sleep(200);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

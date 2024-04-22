@@ -35,6 +35,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.MultiTransformation;
 import com.bumptech.glide.load.resource.bitmap.CircleCrop;
 import com.example.peachzyapp.LiveData.MyGroupViewModel;
+import com.example.peachzyapp.LiveData.MyProfileViewModel;
 import com.example.peachzyapp.MainActivity;
 import com.example.peachzyapp.R;
 import com.example.peachzyapp.Regexp.Regexp;
@@ -72,11 +73,11 @@ public class EditProfileFragment extends Fragment {
     PutObjectRequest request;
     String urlAvatar;
     Regexp regexp;
-    private MyGroupViewModel viewModel;
+    private MyProfileViewModel viewModel;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        viewModel = new ViewModelProvider(this).get(MyGroupViewModel.class);
+        viewModel = new ViewModelProvider(this).get(MyProfileViewModel.class);
     }
 
     public static void loadCircularImage(Context context, Bitmap bitmap, ImageView imageView) {
@@ -100,7 +101,7 @@ public class EditProfileFragment extends Fragment {
                              Bundle savedInstanceState) {
         regexp= new Regexp();
         View view = inflater.inflate(R.layout.fragment_edit_profile, container, false);
-        viewModel = new ViewModelProvider(requireActivity()).get(MyGroupViewModel.class);
+        viewModel = new ViewModelProvider(requireActivity()).get(MyProfileViewModel.class);
         etName = view.findViewById(R.id.etName);
         etDateOfBirth = view.findViewById(R.id.etDateOfBirth);
         tvEmail = view.findViewById(R.id.etEmail);

@@ -19,6 +19,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.MultiTransformation;
 import com.bumptech.glide.load.resource.bitmap.CircleCrop;
 import com.example.peachzyapp.LiveData.MyGroupViewModel;
+import com.example.peachzyapp.LiveData.MyProfileViewModel;
 import com.example.peachzyapp.MainActivity;
 import com.example.peachzyapp.R;
 import com.example.peachzyapp.Regexp.Regexp;
@@ -39,7 +40,7 @@ public class ProfileFragment extends Fragment {
     MainActivity mainActivity;
     String urlAvatar;
     Regexp regexp;
-    MyGroupViewModel viewModel;
+    MyProfileViewModel viewModel;
     public static void loadCircularImageUrl(Context context, String url, ImageView imageView) {
 
         Glide.with(context)
@@ -77,7 +78,7 @@ public class ProfileFragment extends Fragment {
         if (bundle != null) {
             uid = bundle.getString("uid");
         }
-        viewModel = new ViewModelProvider(requireActivity()).get(MyGroupViewModel.class);
+        viewModel = new ViewModelProvider(requireActivity()).get(MyProfileViewModel.class);
         viewModel.getData().observe(getViewLifecycleOwner(), new Observer<String>() {
             @Override
             public void onChanged(String newData) {
