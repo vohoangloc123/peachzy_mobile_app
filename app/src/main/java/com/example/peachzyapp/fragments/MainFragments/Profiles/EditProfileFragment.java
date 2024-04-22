@@ -225,6 +225,12 @@ public class EditProfileFragment extends Fragment {
         dynamoDBManager.getProfileByUID(uid, new DynamoDBManager.FriendFoundForGetUIDByEmailListener() {
             @Override
             public void onFriendFound(String id, String name, String email, String avatar, Boolean sex, String dateOfBirth) {
+
+
+            }
+
+            @Override
+            public void onFriendFound(String uid, String name, String email, String avatar, Boolean sex, String dateOfBirth, String role) {
                 SharedPreferences preferences = getActivity().getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
                 uid = preferences.getString("uid", null);
                 if (uid != null) {
@@ -233,10 +239,11 @@ public class EditProfileFragment extends Fragment {
                 } else {
                     Log.e("checkUID1", "UID is null");
                 }
+                String finalUid = uid;
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        Profile profile=new Profile(id, name, email, avatar, sex, dateOfBirth);
+                        Profile profile=new Profile(finalUid, name, email, avatar, sex, dateOfBirth);
                         Log.d("GetProfile400", profile.toString());
                         etName.setText(profile.getName());
                         tvEmail.setText(profile.getEmail());
@@ -257,7 +264,6 @@ public class EditProfileFragment extends Fragment {
                         Toast.makeText(getActivity(), "Profile!", Toast.LENGTH_SHORT).show();
                     }
                 });
-
             }
 
             @Override

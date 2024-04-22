@@ -4,6 +4,8 @@ public class FriendItem {
     private String id;
     private String avatar;
     private String name;
+    private String role;
+
 
     public FriendItem(String name) {
         this.name = name;
@@ -18,6 +20,21 @@ public class FriendItem {
         this.id = id;
         this.avatar = avatar;
         this.name = name;
+    }
+
+    public FriendItem(String id, String avatar, String name, String role) {
+        this.id = id;
+        this.avatar = avatar;
+        this.name = name;
+        this.role = role;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
     }
 
     public String getId() {

@@ -109,7 +109,12 @@ public class ProfileFragment extends Fragment {
     public void loadProfile(String uid){
         dynamoDBManager.getProfileByUID(uid, new DynamoDBManager.FriendFoundForGetUIDByEmailListener() {
             @Override
-            public void onFriendFound(String id, String name, String email, String avatar, Boolean sex, String dateOfBirth) {
+            public void onFriendFound(String uid, String name, String email, String avatar, Boolean sex, String dateOfBirth) {
+
+            }
+
+            @Override
+            public void onFriendFound(String id, String name, String email, String avatar, Boolean sex, String dateOfBirth, String role) {
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {

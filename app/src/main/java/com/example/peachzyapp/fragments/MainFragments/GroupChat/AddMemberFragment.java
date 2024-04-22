@@ -13,13 +13,12 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.peachzyapp.MainActivity;
 import com.example.peachzyapp.R;
-import com.example.peachzyapp.adapters.AddMemeberAdapter;
+import com.example.peachzyapp.adapters.AddMemberAdapter;
 import com.example.peachzyapp.dynamoDB.DynamoDBManager;
 import com.example.peachzyapp.entities.FriendItem;
 
@@ -36,7 +35,7 @@ public class AddMemberFragment extends Fragment {
     private MainActivity mainActivity;
     private ArrayList<FriendItem> friendList;
     private DynamoDBManager dynamoDBManager;
-    private AddMemeberAdapter addMemeberAdapter;
+    private AddMemberAdapter addMemberAdapter;
     private RecyclerView rcvAddMember;
     private String uid;
     private String groupID;
@@ -66,18 +65,18 @@ public class AddMemberFragment extends Fragment {
 
         //addMemeberAdapter = new AddMemeberAdapter(getListFriends());
         loadFriends();
-        addMemeberAdapter = new AddMemeberAdapter(friendList);
+        addMemberAdapter = new AddMemberAdapter(friendList);
 
 
         //dynamoDBManager.findMemberOfGroup(groupID);
 
 
-        rcvAddMember.setAdapter(addMemeberAdapter);
+        rcvAddMember.setAdapter(addMemberAdapter);
 //        RecyclerView.ItemDecoration itemDecoration=new DividerItemDecoration(mainActivity, DividerItemDecoration.VERTICAL);
 //        rcvAddMember.addItemDecoration(itemDecoration);
         btnAddMember.setOnClickListener(v -> {
             Log.d("CheckAddMember", "userID " + uid + " groupID: " + groupID);
-            List<String> selectedMemberIds = addMemeberAdapter.getSelectedMemberIds();
+            List<String> selectedMemberIds = addMemberAdapter.getSelectedMemberIds();
             Log.d("CheckFriendIDFor", selectedMemberIds.toString());
             dynamoDBManager.updateGroupForAccounts(selectedMemberIds, groupID, "member");
             dynamoDBManager.updateGroups(groupID, selectedMemberIds);
@@ -113,7 +112,7 @@ public class AddMemberFragment extends Fragment {
                             friendList.clear();
                             friendList.add(friendItem);
 
-                            addMemeberAdapter.notifyDataSetChanged();
+                            addMemberAdapter.notifyDataSetChanged();
                             Toast.makeText(getActivity(), "Friend found!", Toast.LENGTH_SHORT).show();
                         }
                     });
@@ -189,7 +188,7 @@ public class AddMemberFragment extends Fragment {
 
                         if (!memberList.contains(friendItem.getId())) {
                             friendList.add(friendItem);
-                            addMemeberAdapter.notifyDataSetChanged();
+                            addMemberAdapter.notifyDataSetChanged();
                         }
                     }
                 });

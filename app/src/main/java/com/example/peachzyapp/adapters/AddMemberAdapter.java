@@ -15,7 +15,7 @@ import com.example.peachzyapp.entities.FriendItem;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AddMemeberAdapter extends RecyclerView.Adapter<AddMemeberAdapter.AddMembersViewHolder>{
+public class AddMemberAdapter extends RecyclerView.Adapter<AddMemberAdapter.AddMembersViewHolder>{
     private List<FriendItem> listFriend;
     public ImageView ivFriendAvatarAddMembers;
     private List<String> selectedMemberIds = new ArrayList<>();
@@ -23,7 +23,7 @@ public class AddMemeberAdapter extends RecyclerView.Adapter<AddMemeberAdapter.Ad
         return selectedMemberIds;
     }
 
-    public AddMemeberAdapter(List<FriendItem> mListFriend) {
+    public AddMemberAdapter(List<FriendItem> mListFriend) {
         this.listFriend = mListFriend;
     }
 

@@ -82,4 +82,5 @@
     <string name="roi_nhom">Leave group</string>
     <string name="message">Message</string>
     <string name="change_profile">Change profile</string>
+    <string name="edit_user_information">Edit user information</string>
 </resources>

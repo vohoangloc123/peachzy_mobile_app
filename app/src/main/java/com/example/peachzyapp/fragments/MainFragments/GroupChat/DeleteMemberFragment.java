@@ -75,11 +75,16 @@ public class DeleteMemberFragment extends Fragment {
         groupID = bundleReceive.getString("groupID");
         Log.d("CheckGroupIdHere", groupID+" "+uid);
         memberList = new ArrayList<>();
-        dynamoDBManager.findMemberOfGroup(groupID, id -> dynamoDBManager.getProfileByUID(id, new DynamoDBManager.FriendFoundForGetUIDByEmailListener() {
+        dynamoDBManager.findMemberOfGroup(groupID, id -> dynamoDBManager.getProfileByUID(id, groupID, new DynamoDBManager.FriendFoundForGetUIDByEmailListener() {
             @Override
-            public void onFriendFound(String id, String name, String email, String avatar, Boolean sex, String dateOfBirth) {
+            public void onFriendFound(String uid, String name, String email, String avatar, Boolean sex, String dateOfBirth) {
+
+            }
+
+            @Override
+            public void onFriendFound(String id, String name, String email, String avatar, Boolean sex, String dateOfBirth, String role) {
                 // Tạo FriendItem từ thông tin đã nhận được
-                FriendItem friend = new FriendItem(id, avatar, name);
+                FriendItem friend = new FriendItem(id, avatar, name, role);
                 Log.d("FoundSSSS", "UID nhận: "+friend.getId()+" và "+"UID truyền"+uid);
                 memberList.add(friend);
                 Iterator<FriendItem> iterator = memberList.iterator();
@@ -110,7 +115,7 @@ public class DeleteMemberFragment extends Fragment {
                 // Xử lý trường hợp lỗi
             }
         }));
-        deleteMemberAdapter = new DeleteMemberAdapter(memberList);
+        deleteMemberAdapter = new DeleteMemberAdapter(memberList, getActivity(), groupID, uid, dynamoDBManager,  mainActivity, getActivity().getSupportFragmentManager());
         rcvDeleteMember.setAdapter(deleteMemberAdapter);
         btnDeleteMember.setOnClickListener(v -> {
             List<String> selectedMemberIds = deleteMemberAdapter.getSelectedMemberIds();

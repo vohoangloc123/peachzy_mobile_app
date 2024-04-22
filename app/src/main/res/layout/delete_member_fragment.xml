@@ -105,7 +105,7 @@
 
             <Button
                 android:id="@+id/btnDeleteMember"
-                android:layout_width="178dp"
+                android:layout_width="215dp"
                 android:layout_height="59dp"
                 android:layout_marginTop="20dp"
                 android:backgroundTint="@color/btnColor"

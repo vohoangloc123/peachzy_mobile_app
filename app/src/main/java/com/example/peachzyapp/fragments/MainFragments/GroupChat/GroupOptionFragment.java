@@ -134,9 +134,7 @@ public class GroupOptionFragment extends Fragment {
                     btnDeleteGroup.setAlpha(0.5f);
                     int grayColor = Color.argb(255, 128, 128, 128); // Màu xám (RGB: 128, 128, 128)
                     tvDeleteGroup.setTextColor(grayColor);
-                    tvDeleteMember.setTextColor(grayColor);
                     btnDeleteGroup.setEnabled(false);
-                    btnDeleteMember.setEnabled(false);
                 }
             }
 

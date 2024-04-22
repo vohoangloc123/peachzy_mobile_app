@@ -15,7 +15,7 @@
         android:background="@color/bgWhiteBlue"
         android:orientation="vertical"
         tools:layout_editor_absoluteX="0dp"
-        tools:layout_editor_absoluteY="-37dp">
+        tools:layout_editor_absoluteY="0dp">
 
 
         <LinearLayout
@@ -33,13 +33,13 @@
                 android:src="@drawable/arrow_left" />
 
             <TextView
-                android:layout_marginTop="5dp"
                 android:id="@+id/textView"
                 android:layout_width="300dp"
                 android:layout_height="match_parent"
+                android:layout_marginTop="5dp"
                 android:layout_weight="1"
                 android:padding="15dp"
-                android:text="Edit user information"
+                android:text="@string/edit_user_information"
                 android:textColor="@color/white"
                 android:textSize="20dp" />
         </LinearLayout>
@@ -47,8 +47,8 @@
         <LinearLayout
             android:layout_width="120dp"
             android:layout_height="131dp"
-            android:layout_marginTop="5dp"
             android:layout_marginLeft="135dp"
+            android:layout_marginTop="5dp"
             android:orientation="horizontal">
 
             <ImageView
@@ -57,8 +57,7 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:background="@color/bgWhiteBlue"
-                android:src="@drawable/user_avatar"
-                />
+                android:src="@drawable/user_avatar" />
 
         </LinearLayout>
 
@@ -132,7 +131,6 @@
         </LinearLayout>
 
 
-
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="60dp"
@@ -177,6 +175,7 @@
 
 
         </LinearLayout>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="58dp"
@@ -243,32 +242,33 @@
         </LinearLayout>
 
         <RelativeLayout
-            android:layout_marginBottom="10dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingLeft="130dp"
+            android:layout_marginBottom="10dp"
+            android:background="@color/btnEdit"
+
             >
 
             <ImageButton
 
                 android:id="@+id/btnSave"
-
-                android:layout_width="150dp"
+                android:layout_width="match_parent"
                 android:layout_height="55dp"
-                android:background="@drawable/border_button_profile"
+                android:backgroundTint="@color/btnEdit"
+                android:outlineAmbientShadowColor="@color/black"
                 android:paddingRight="80dp"
-                android:src="@drawable/save" />
+                android:src="@drawable/save_30_black" />
 
             <TextView
                 android:id="@+id/text_view"
-                android:layout_width="183dp"
-                android:layout_height="43dp"
+                android:layout_width="318dp"
+                android:layout_height="38dp"
                 android:layout_marginTop="12dp"
                 android:layout_marginEnd="-59dp"
                 android:layout_marginBottom="4dp"
-                android:paddingLeft="70dp"
+                android:paddingLeft="200dp"
                 android:text="@string/save"
-                android:textColor="@color/btnColor"
+                android:textColor="@color/black"
                 android:textSize="19dp"
                 android:textStyle="bold" />
         </RelativeLayout>

@@ -555,6 +555,7 @@ public void goToDetailFragment(ChatBox chatBox) {
         // Hiển thị bottomNavigationView
         showBottomNavigation(true);
     }
+
     public void showBottomNavigation(boolean show) {
         if (show) {
             bottomNavigationView.setVisibility(View.VISIBLE);

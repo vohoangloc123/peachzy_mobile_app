@@ -43,6 +43,17 @@
                 android:textSize="15dp"
                 android:textStyle="bold"
                 android:textColor="@color/black"/>
+            <TextView
+                android:id="@+id/tvRole"
+                android:layout_width="127dp"
+                android:layout_height="61dp"
+                android:layout_weight="1"
+                android:paddingLeft="15dp"
+                android:paddingTop="20dp"
+                android:text="Role"
+                android:textSize="15dp"
+                android:textStyle="bold"
+                android:textColor="@color/black"/>
 
             <CheckBox
                 android:id="@+id/cbDeleteMember"
@@ -50,6 +61,13 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1" />
 
+            <ImageButton
+                android:id="@+id/btnMore"
+                android:layout_width="50dp"
+                android:layout_height="60dp"
+                android:layout_weight="1"
+                android:background="@color/white"
+                android:src="@drawable/ic_more_vert_black_24dp" />
 
         </LinearLayout>
     </LinearLayout>

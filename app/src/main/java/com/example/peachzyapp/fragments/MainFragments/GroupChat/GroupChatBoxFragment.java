@@ -159,6 +159,11 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
             }
 
             @Override
+            public void onFriendFound(String uid, String name, String email, String avatar, Boolean sex, String dateOfBirth, String role) {
+
+            }
+
+            @Override
             public void onFriendNotFound() {
 
             }
