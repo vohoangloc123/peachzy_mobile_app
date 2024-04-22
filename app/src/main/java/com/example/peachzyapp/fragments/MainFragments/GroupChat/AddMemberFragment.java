@@ -145,11 +145,8 @@ public class AddMemberFragment extends Fragment {
         btnCancel.setOnClickListener(v->{
             getActivity().getSupportFragmentManager().popBackStack();
         });
-
-
         return view;
     }
-
     private List<FriendItem> getListFriends() {
         List<FriendItem> list= new ArrayList<>();
         for(int i=1; i<10;i++){

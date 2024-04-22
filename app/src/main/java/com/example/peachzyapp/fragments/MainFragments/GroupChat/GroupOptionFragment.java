@@ -31,8 +31,6 @@ import com.example.peachzyapp.MainActivity;
 import com.example.peachzyapp.R;
 import com.example.peachzyapp.dynamoDB.DynamoDBManager;
 
-import org.w3c.dom.Text;
-
 public class GroupOptionFragment extends Fragment {
     public static final String TAG= GroupOptionFragment.class.getName();
     String groupID;

@@ -25,18 +25,15 @@ import java.util.List;
 public class DeleteMemberAdapter extends RecyclerView.Adapter<DeleteMemberAdapter.DeleteMemberViewHolder>{
     private List<FriendItem> listMember;
     private List<String> selectedMemberIds = new ArrayList<>();
-
     public DeleteMemberAdapter(List<FriendItem> listMember) {
         this.listMember = listMember;
     }
-
     @NonNull
     @Override
     public DeleteMemberViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_delete_member, parent, false);
         return new DeleteMemberViewHolder(view);
     }
-
     @Override
     public void onBindViewHolder(@NonNull DeleteMemberViewHolder holder, int position) {
         FriendItem member = listMember.get(position);
@@ -46,7 +43,6 @@ public class DeleteMemberAdapter extends RecyclerView.Adapter<DeleteMemberAdapte
                 .placeholder(R.drawable.logo)
                 .transform(new MultiTransformation<Bitmap>(new CircleCrop()))
                 .into(holder.ivMemberAvatar);
-
         holder.cbDeleteMember.setTag(member.getId());
         holder.cbDeleteMember.setOnCheckedChangeListener((buttonView, isChecked) -> {
             String memberId = (String) buttonView.getTag();
@@ -60,21 +56,17 @@ public class DeleteMemberAdapter extends RecyclerView.Adapter<DeleteMemberAdapte
             }
         });
     }
-
     @Override
     public int getItemCount() {
         return listMember.size();
     }
-
     public List<String> getSelectedMemberIds() {
         return selectedMemberIds;
     }
-
     public static class DeleteMemberViewHolder extends RecyclerView.ViewHolder {
         public TextView tvMemberName;
         public CheckBox cbDeleteMember;
         public ImageView ivMemberAvatar;
-
         public DeleteMemberViewHolder(@NonNull View itemView) {
             super(itemView);
             tvMemberName = itemView.findViewById(R.id.tvMemberName);
