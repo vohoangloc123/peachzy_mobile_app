@@ -29,7 +29,6 @@ import com.example.peachzyapp.fragments.MainFragments.Profiles.ChangePasswordFra
 import com.example.peachzyapp.fragments.MainFragments.Profiles.EditProfileFragment;
 import com.example.peachzyapp.fragments.MainFragments.Profiles.ProfileFragment;
 import com.example.peachzyapp.fragments.MainFragments.Users.AddFriendFragment;
-import com.example.peachzyapp.fragments.MainFragments.Chats.ChatHistoryFragment;
 import com.example.peachzyapp.fragments.MainFragments.Chats.ChatListsFragment;
 import com.example.peachzyapp.fragments.MainFragments.Users.RequestReceivedFragment;
 import com.example.peachzyapp.fragments.MainFragments.Users.RequestSendFragment;
@@ -120,13 +119,13 @@ public class MainActivity extends AppCompatActivity {
     }
 public void goToDetailFragment(ChatBox chatBox) {
     FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-    ChatHistoryFragment chatHistoryFragment = new ChatHistoryFragment();
+    RequestReceivedFragment requestReceivedFragment=new RequestReceivedFragment();
     Bundle bundle = new Bundle();
     bundle.putSerializable("object_chatbox", chatBox);
-    chatHistoryFragment.setArguments(bundle);
+    requestReceivedFragment.setArguments(bundle);
 
     // Thêm ChatHistoryFragment
-    fragmentTransaction.add(R.id.etFind, chatHistoryFragment, ChatHistoryFragment.TAG);
+    fragmentTransaction.add(R.id.etFind, requestReceivedFragment, requestReceivedFragment.TAG);
 
     // Tìm và ẩn tất cả các Fragment khác
     Fragment chatListsFragment = (Fragment) viewPager.getAdapter().instantiateItem(viewPager, 0);
@@ -149,7 +148,7 @@ public void goToDetailFragment(ChatBox chatBox) {
 
     // Ẩn bottomNavigationView
     showBottomNavigation(false);
-    fragmentTransaction.addToBackStack(ChatHistoryFragment.TAG);
+    fragmentTransaction.addToBackStack(requestReceivedFragment.TAG);
     fragmentTransaction.commit();
 }
     public void goToDetailFragmentAddFriend() {

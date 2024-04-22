@@ -55,7 +55,7 @@ public class RequestReceivedAdapter extends RecyclerView.Adapter<RequestReceived
     @NonNull
     @Override
     public FriendViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.activity_request_received_adapter, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_request_received, parent, false);
         ivAvatar = view.findViewById(R.id.ivFriendAvatar); // Khởi tạo avatarImageView ở đây
         btnAccept = view.findViewById(R.id.btnAccept);
         dynamoDBManager = new DynamoDBManager(view.getContext());

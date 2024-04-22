@@ -24,30 +24,32 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CreateGroupChatAdapter extends RecyclerView.Adapter<CreateGroupChatAdapter.CreateGroupChatViewHolder>{
+    public ImageView ivFriendAvatar;
     private List<FriendItem> listFriend;
-    private List<FriendItem> selectedFriends = new ArrayList<>();
-
+    private List<String> selectedFriendIds = new ArrayList<>();
     // Các phương thức và thuộc tính khác
 
-    // Phương thức để trả về danh sách bạn bè đã chọn
-    public List<FriendItem> getSelectedFriends() {
-        return selectedFriends;
+    // Phương thức để trả về danh sách ID đã chọn
+    public List<String> getSelectedFriendIds() {
+        return selectedFriendIds;
     }
-
     public CreateGroupChatAdapter(List<FriendItem> mListFriend) {
         this.listFriend = mListFriend;
     }
 
     @Override
     public int getItemCount() {
-        return listFriend != null ? listFriend.size() : 0;
+        if(listFriend!=null)
+        {
+            return listFriend.size();
+        }
+        return 0;
     }
-
     @NonNull
     @Override
-    public CreateGroupChatViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.activity_add_friend_to_group_fragments, parent, false);
-        return new CreateGroupChatViewHolder(view);
+    public CreateGroupChatAdapter.CreateGroupChatViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.add_friend_to_group_fragment, parent, false);
+        return new CreateGroupChatAdapter.CreateGroupChatViewHolder(view);
     }
 
     @Override
@@ -61,28 +63,39 @@ public class CreateGroupChatAdapter extends RecyclerView.Adapter<CreateGroupChat
                 .load(friend.getAvatar())
                 .placeholder(R.drawable.logo)
                 .transform(new MultiTransformation<Bitmap>(new CircleCrop()))
-                .into(holder.ivFriendAvatar);
+                .into(ivFriendAvatar);
 
-        holder.cbAddToGroup.setOnCheckedChangeListener(null); // Tránh lắng nghe sự kiện lặp lại khi recycling view
-        holder.cbAddToGroup.setChecked(selectedFriends.contains(friend)); // Kiểm tra nếu friend đã được chọn trước đó
-
+        // Gán ID vào tag của checkbox
+        holder.cbAddToGroup.setTag(friend.getId());
         holder.cbAddToGroup.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
-                    // Nếu checkbox được chọn, thêm đối tượng friend vào danh sách đã chọn
-                    selectedFriends.add(new FriendItem(friend.getId(),  friend.getAvatar(),friend.getName()));
+                    // Lấy ID từ tag của checkbox
+                    String friendId = (String) buttonView.getTag();
+                    if (friendId != null) {
+                        Log.d("CheckFriendID", friendId);
+                        // Thêm ID vào danh sách nếu chưa tồn tại
+                        if (!selectedFriendIds.contains(friendId)) {
+                            selectedFriendIds.add(friendId);
+                        }
+                    } else {
+                        Log.d("CheckFriendID", "FriendId is null");
+                    }
                 } else {
-                    // Nếu checkbox không được chọn, loại bỏ đối tượng friend khỏi danh sách đã chọn
-                    selectedFriends.remove(friend);
+                    // Nếu checkbox không được chọn, loại bỏ ID khỏi danh sách
+                    String friendId = (String) buttonView.getTag();
+                    if (friendId != null) {
+                        selectedFriendIds.remove(friendId);
+                    }
                 }
             }
         });
+
     }
 
     public class CreateGroupChatViewHolder extends RecyclerView.ViewHolder {
         public TextView tvFriendName;
-        public ImageView ivFriendAvatar;
         public CheckBox cbAddToGroup;
 
         public CreateGroupChatViewHolder(@NonNull View itemView) {
@@ -90,6 +103,10 @@ public class CreateGroupChatAdapter extends RecyclerView.Adapter<CreateGroupChat
             tvFriendName = itemView.findViewById(R.id.tvFriendName);
             ivFriendAvatar = itemView.findViewById(R.id.ivFriendAvatar);
             cbAddToGroup = itemView.findViewById(R.id.cbAddToGroup);
+
+            // Gán ID vào tag của checkbox trong constructor
+            cbAddToGroup.setTag(null);
         }
     }
+
 }

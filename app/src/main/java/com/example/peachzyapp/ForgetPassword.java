@@ -28,7 +28,7 @@ public class ForgetPassword extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_forget_password);
+        setContentView(R.layout.forget_password_activity);
         OTPManager otpManager = new OTPManager();
         etEmail = findViewById(R.id.etEmail);
         btnForgetPassword = findViewById(R.id.btnForgetPassword);

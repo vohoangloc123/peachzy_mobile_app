@@ -22,13 +22,12 @@ import com.example.peachzyapp.R;
 import com.example.peachzyapp.adapters.AddMemeberAdapter;
 import com.example.peachzyapp.dynamoDB.DynamoDBManager;
 import com.example.peachzyapp.entities.FriendItem;
-import com.example.peachzyapp.fragments.MainFragments.Chats.ChatHistoryFragment;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class AddMemberFragment extends Fragment {
-    public static final String TAG= ChatHistoryFragment.class.getName();
+    public static final String TAG= AddMemberFragment.class.getName();
     private Button btnAddMember;
     private Button btnCancel;
     private ImageButton btnFindFriend;
@@ -82,13 +81,28 @@ public class AddMemberFragment extends Fragment {
             Log.d("CheckFriendIDFor", selectedMemberIds.toString());
             dynamoDBManager.updateGroupForAccounts(selectedMemberIds, groupID, "member");
             dynamoDBManager.updateGroups(groupID, selectedMemberIds);
+//            String lastMemberId = null; // Biến để lưu trữ người cuối cùng còn sót lại
+//
+//            for (String memberId : selectedMemberIds) {
+//                dynamoDBManager.updateGroupForAccount(memberId, groupID, "member");
+//                dynamoDBManager.updateGroup(groupID, memberId);
+//
+//                lastMemberId = memberId; // Cập nhật biến lastMemberId với thành viên hiện tại trong vòng lặp
+//            }
+//
+//            // Kiểm tra xem lastMemberId có khác null hay không trước khi thực hiện cập nhật
+//            if (lastMemberId != null) {
+//                // Thực hiện cập nhật trên người cuối cùng còn sót lại
+//                dynamoDBManager.updateGroupForAccount(lastMemberId, groupID, "member");
+//                dynamoDBManager.updateGroup(groupID, lastMemberId);
+//            }
 
             Log.d("RemainingMembers", selectedMemberIds.toString());
             getActivity().getSupportFragmentManager().popBackStack();
         });
         btnFindFriend.setOnClickListener(v->{
             String infor = etNameOrEmail.getText().toString().trim();
-             Log.d("Information", infor);
+            Log.d("Information", infor);
             dynamoDBManager.findFriendByInfor(infor, uid,new DynamoDBManager.FriendFoundListener() {
                 @Override
                 public void onFriendFound(String id, String name, String avatar) {
@@ -143,19 +157,20 @@ public class AddMemberFragment extends Fragment {
         }
         return list;
     }
-    private void loadFriends() {
+    private void loadFriends()
+    {
         friendList.clear();
 
-        List<FriendItem> memberList = new ArrayList<>();
+        List<String> memberList = new ArrayList<>();
         dynamoDBManager.findMemberOfGroup(groupID, new DynamoDBManager.ListMemberListener() {
             @Override
-            public void ListMemberID(String id, String avatar, String name) {
-                FriendItem friendItem=new FriendItem(id, avatar, name);
-                memberList.add(friendItem);
+            public void ListMemberID(String id) {
+                memberList.add(id);
+
             }
         });
 
-        dynamoDBManager.getIDFriend(uid, "1", new DynamoDBManager.AlreadyFriendListener() {
+        dynamoDBManager.getIDFriend(uid,"1", new DynamoDBManager.AlreadyFriendListener() {
             @Override
             public void onFriendAlreadyFound(FriendItem data) {
 
@@ -171,6 +186,10 @@ public class AddMemberFragment extends Fragment {
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+//                        //Log.d("onDATAREquest", "run: "+data.getName());
+//                        friendList.add(friendItem);
+//                        addMemeberAdapter.notifyDataSetChanged();
+
                         if (!memberList.contains(friendItem.getId())) {
                             friendList.add(friendItem);
                             addMemeberAdapter.notifyDataSetChanged();
@@ -178,9 +197,12 @@ public class AddMemberFragment extends Fragment {
                     }
                 });
             }
+
         });
+
+
+
     }
+
+
 }
-
-
-

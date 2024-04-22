@@ -83,11 +83,12 @@ public class DeleteMemberFragment extends Fragment {
         memberList = new ArrayList<>();
 
 
-        dynamoDBManager.findMemberOfGroup(groupID, new DynamoDBManager.ListMemberListener() {
+        dynamoDBManager.findMemberOfGroup(groupID, id -> dynamoDBManager.getProfileByUID(id, new DynamoDBManager.FriendFoundForGetUIDByEmailListener() {
             @Override
-            public void ListMemberID(String id, String avatar, String name) {
+            public void onFriendFound(String id, String name, String email, String avatar, Boolean sex, String dateOfBirth) {
+                // Tạo FriendItem từ thông tin đã nhận được
                 FriendItem friend = new FriendItem(id, avatar, name);
-                Log.d("FoundSSSS", "UID nhận: " + friend.getId() + " và " + "UID truyền" + uid);
+                Log.d("FoundSSSS", "UID nhận: "+friend.getId()+" và "+"UID truyền"+uid);
                 memberList.add(friend);
                 Iterator<FriendItem> iterator = memberList.iterator();
                 while (iterator.hasNext()) {
@@ -97,7 +98,8 @@ public class DeleteMemberFragment extends Fragment {
                         iterator.remove(); // Xóa đối tượng khỏi danh sách
                         break; // Đã xóa, không cần lặp tiếp
 //                        Log.d("FoundSSSS", "YES");
-                    } else {
+                    }else
+                    {
                         Log.d("FoundSSSS", "NO");
                     }
                 }
@@ -108,7 +110,17 @@ public class DeleteMemberFragment extends Fragment {
                     }
                 });
             }
-        });
+
+            @Override
+            public void onFriendNotFound() {
+                // Xử lý trường hợp không tìm thấy bạn bè
+            }
+
+            @Override
+            public void onError(Exception e) {
+                // Xử lý trường hợp lỗi
+            }
+        }));
 
         deleteMemberAdapter = new DeleteMemberAdapter(memberList);
         rcvDeleteMember.setAdapter(deleteMemberAdapter);
@@ -122,7 +134,7 @@ public class DeleteMemberFragment extends Fragment {
 
             Log.d("RemainingMembers", selectedMemberIds.toString());
             countMembersInGroupWithDelay();
-           // changeData();
+            // changeData();
         });
         btnFindMember.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -154,7 +166,7 @@ public class DeleteMemberFragment extends Fragment {
                             dynamoDBManager.deleteGroupConversation(groupID);
                             dynamoDBManager.deleteGroup(groupID);
 
-                           // changeData();
+                            // changeData();
                             getActivity().getSupportFragmentManager().popBackStack();
                             getActivity().getSupportFragmentManager().popBackStack();
                             getActivity().getSupportFragmentManager().popBackStack();
@@ -217,4 +229,3 @@ public class DeleteMemberFragment extends Fragment {
         viewModel.setData("New data");
     }
 }
-

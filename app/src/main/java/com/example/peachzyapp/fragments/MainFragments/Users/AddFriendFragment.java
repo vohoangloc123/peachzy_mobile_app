@@ -1,6 +1,5 @@
 package com.example.peachzyapp.fragments.MainFragments.Users;
 
-import android.media.Image;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -37,7 +36,7 @@ public class AddFriendFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.activity_add_friend_fragments, container, false);
+        View view = inflater.inflate(R.layout.add_friend_fragment, container, false);
         etEmail = view.findViewById(R.id.etEmail);
         btnFind = view.findViewById(R.id.btnFind);
         btnBack = view.findViewById(R.id.btnBack);
@@ -45,7 +44,7 @@ public class AddFriendFragment extends Fragment {
         mainActivity = (MainActivity) getActivity();
         listView = view.findViewById(R.id.list_item);
         friendItems = new ArrayList<>();
-        friendAdapter = new FriendAdapter(getActivity(), R.layout.activity_friend_adapter, friendItems);
+        friendAdapter = new FriendAdapter(getActivity(), R.layout.item_add_friend, friendItems);
         listView.setAdapter(friendAdapter);
         uid=getArguments().getString("uid");
         friendAdapter.setUid(uid);

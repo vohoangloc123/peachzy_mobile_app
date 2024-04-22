@@ -14,9 +14,7 @@ import android.widget.Toast;
 
 import com.example.peachzyapp.OTPAuthentication.OTPManager;
 import com.example.peachzyapp.R;
-import com.example.peachzyapp.fragments.SignUpFragments.OTPFragment;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 
 public class ForgetPasswordOTPFragments extends Fragment {
     private EditText etOTPEntered;
@@ -31,7 +29,7 @@ public class ForgetPasswordOTPFragments extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view= inflater.inflate(R.layout.fragment_forget_password_o_t_p_fragments, container, false);
+        View view= inflater.inflate(R.layout.fragment_forget_password_otp_fragments, container, false);
         etOTPEntered=view.findViewById(R.id.etOTP);
         btnVerifyOTP=view.findViewById(R.id.btnVerifyOTP);
         otpManager= new OTPManager();

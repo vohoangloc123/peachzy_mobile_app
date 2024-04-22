@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 
-import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
@@ -16,18 +15,13 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import com.example.peachzyapp.LiveData.MyViewChatModel;
-import com.example.peachzyapp.LiveData.MyViewModel;
 import com.example.peachzyapp.adapters.ConversationAdapter;
 import com.example.peachzyapp.MainActivity;
 import com.example.peachzyapp.R;
-import com.example.peachzyapp.adapters.FriendAlreadyAdapter;
 import com.example.peachzyapp.dynamoDB.DynamoDBManager;
 import com.example.peachzyapp.entities.Conversation;
-
-import org.checkerframework.checker.units.qual.C;
 
 import java.util.ArrayList;
 
@@ -47,7 +41,7 @@ public class ChatListsFragment extends Fragment {
                              Bundle savedInstanceState) {
         mainActivity = (MainActivity) getActivity();
         // Inflate the layout for this fragment
-        view = inflater.inflate(R.layout.fragment_chat_lists, container, false);
+        view = inflater.inflate(R.layout.fragment_chat_list, container, false);
         dynamoDBManager = new DynamoDBManager(getActivity());
         rcvChatList = view.findViewById(R.id.rcvConversation);
         rcvChatList.setLayoutManager(new LinearLayoutManager(mainActivity));

@@ -1,14 +1,11 @@
 package com.example.peachzyapp.adapters;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.graphics.Bitmap;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
@@ -19,7 +16,6 @@ import com.bumptech.glide.load.MultiTransformation;
 import com.bumptech.glide.load.resource.bitmap.CircleCrop;
 import com.example.peachzyapp.R;
 import com.example.peachzyapp.entities.GroupChat;
-import com.example.peachzyapp.entities.Item;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
@@ -37,13 +33,11 @@ public class GroupChatBoxAdapter extends RecyclerView.Adapter<GroupChatViewHolde
         this.groupChatItems = groupChatItems;
         notifyDataSetChanged(); // Cập nhật giao diện khi dữ liệu thay đổi
     }
-
     @NonNull
     @Override
     public GroupChatViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new GroupChatViewHolder(LayoutInflater.from(context).inflate(R.layout.item_group_chat_view, parent,false));
+        return new GroupChatViewHolder(LayoutInflater.from(context).inflate(R.layout.item_group_chat_box, parent,false));
     }
-
     @Override
     public void onBindViewHolder(@NonNull GroupChatViewHolder holder, int position) {
         GroupChat currentItem = groupChatItems.get(position);
@@ -68,7 +62,6 @@ public class GroupChatBoxAdapter extends RecyclerView.Adapter<GroupChatViewHolde
             holder.tvUserName.setVisibility(View.GONE);
             // Nếu tin nhắn chứa đường dẫn của hình ảnh từ S3
             if (isS3ImageUrl(currentItem.getMessage())) {
-
                 holder.tvGroupMessage.setVisibility(View.GONE);
                 holder.tvGroupLink.setVisibility(View.GONE);
                 holder.ivGroupMessage.setVisibility(View.VISIBLE); // Hiển thị ivMessage
@@ -114,7 +107,6 @@ public class GroupChatBoxAdapter extends RecyclerView.Adapter<GroupChatViewHolde
             }
  }
     }
-
     @Override
     public int getItemCount() {
         return groupChatItems.size();

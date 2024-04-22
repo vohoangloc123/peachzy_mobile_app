@@ -46,6 +46,7 @@ import com.example.peachzyapp.R;
 import com.example.peachzyapp.SocketIO.MyWebSocket;
 import com.example.peachzyapp.adapters.ChatBoxAdapter;
 import com.example.peachzyapp.dynamoDB.DynamoDBManager;
+import com.example.peachzyapp.entities.ChatBox;
 import com.example.peachzyapp.entities.Item;
 
 import java.io.ByteArrayOutputStream;
@@ -68,7 +69,7 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
     TextView etName;
     private List<Item> listMessage = new ArrayList<>();
     private ChatBoxAdapter adapter;
-    public static final String TAG= ChatHistoryFragment.class.getName();
+    public static final String TAG= ChatBoxFragment.class.getName();
     MyWebSocket myWebSocket;
     RecyclerView recyclerView;
     int newPosition;

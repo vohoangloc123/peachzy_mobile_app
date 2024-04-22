@@ -40,7 +40,7 @@ public class OTPFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_o_t_p, container, false);
+        View view = inflater.inflate(R.layout.fragment_otp, container, false);
         etOTP = view.findViewById(R.id.etOTP);
         btnVerifyOTP = view.findViewById(R.id.btnVerifyOTP);
 

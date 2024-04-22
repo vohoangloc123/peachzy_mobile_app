@@ -30,12 +30,11 @@ import com.example.peachzyapp.LiveData.MyGroupViewModel;
 import com.example.peachzyapp.MainActivity;
 import com.example.peachzyapp.R;
 import com.example.peachzyapp.dynamoDB.DynamoDBManager;
-import com.example.peachzyapp.fragments.MainFragments.Chats.ChatHistoryFragment;
 
 import org.w3c.dom.Text;
 
 public class GroupOptionFragment extends Fragment {
-    public static final String TAG= ChatHistoryFragment.class.getName();
+    public static final String TAG= GroupOptionFragment.class.getName();
     String groupID;
     String groupName;
     String groupAvatar;
@@ -162,7 +161,7 @@ public class GroupOptionFragment extends Fragment {
 //            dynamoDBManager.deleteUserFromGroup(groupID, userID);
             dynamoDBManager.findMemberOfGroup(groupID, new DynamoDBManager.ListMemberListener() {
                 @Override
-                public void ListMemberID(String id, String avatar, String name) {
+                public void ListMemberID(String id) {
                     dynamoDBManager.deleteGroupFromUser(id, groupID);
                 }
             });
@@ -174,7 +173,7 @@ public class GroupOptionFragment extends Fragment {
             mainActivity.showBottomNavigation(true);
         });
 
-       return view;
+        return view;
     }
 
     public void countMembersInGroupWithDelay() {

@@ -9,7 +9,6 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Debug;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -26,8 +25,6 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -48,8 +45,6 @@ import com.example.peachzyapp.SocketIO.MyWebSocket;
 import com.example.peachzyapp.adapters.GroupChatBoxAdapter;
 import com.example.peachzyapp.dynamoDB.DynamoDBManager;
 import com.example.peachzyapp.entities.GroupChat;
-import com.example.peachzyapp.entities.Item;
-import com.example.peachzyapp.fragments.MainFragments.Chats.ChatHistoryFragment;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -63,7 +58,7 @@ import java.util.Locale;
 import java.util.Random;
 
 public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSocketListener {
-    public static final String TAG= ChatHistoryFragment.class.getName();
+    public static final String TAG= GroupChatBoxFragment.class.getName();
     TextView tvGroupName;
     EditText etGroupMessage;
     ImageButton btnSend;
@@ -181,10 +176,13 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
                 if (!message.isEmpty()) {
                     // Add the new message to the list and notify adapter
                     String currentTime = Utils.getCurrentTime();
+                    //B1 hiển thị lên giao diện chat
                     listGroupMessage.add(new GroupChat(groupID, groupName, userAvatar, message, userName, currentTime, userID));
                     adapter.notifyItemInserted(listGroupMessage.size() - 1);
                     recyclerView.scrollToPosition(listGroupMessage.size() - 1);
+                    //B2 gửi lên socket
                     myWebSocket.sendMessage(message);
+                    //B3 đẩy lên dynamoDB để load lại tin nhắn khi out ra khung chat
                     dynamoDBManager.saveGroupMessage(groupID, message, currentTime, userID, userAvatar, userName);
                     dynamoDBManager.saveGroupConversation(groupID, message, groupName, currentTime,userAvatar, userName);
                     scrollToBottom();
@@ -240,6 +238,7 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
                 request = new PutObjectRequest("chat-app-document-cnm", fileName+fileExtension, inputStream, new ObjectMetadata());
                 String urlFile = "https://chat-app-document-cnm.s3.ap-southeast-1.amazonaws.com/" + fileName +fileExtension;
                 Log.d("uploadFile: ",urlFile);
+                //đẩy lên s3
                 s3Client.putObject(request);
                 myWebSocket.sendMessage(urlFile);
                 String currentTime = Utils.getCurrentTime();
@@ -376,7 +375,6 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
     public void updateRecyclerView() {
         // Xóa bỏ các tin nhắn cũ từ listMessage
         listGroupMessage.clear();
-
         // Thêm các tin nhắn mới từ DynamoDB vào danh sách hiện tại
         List<GroupChat> newMessages = dynamoDBManager.loadGroupMessages(groupID);
         for (GroupChat message : newMessages) {
@@ -420,6 +418,7 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
             String currentTime = Utils.getCurrentTime();
             listGroupMessage.add(new GroupChat(groupID, groupName,"https://chat-app-image-cnm.s3.ap-southeast-1.amazonaws.com/avatar.jpg", receivedMessage, "Loc", currentTime, "111"));
             Log.d("CheckingListMessage",  listGroupMessage.toString());
+            //B2.1 load dữ liệu
             newPosition = listGroupMessage.size() - 1; // Vị trí mới của tin nhắn
             adapter.notifyItemInserted(newPosition);
             scrollToBottom();

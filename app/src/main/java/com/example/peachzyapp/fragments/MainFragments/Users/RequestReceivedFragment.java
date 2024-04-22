@@ -9,7 +9,6 @@ import android.widget.ImageButton;
 
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -19,13 +18,11 @@ import com.example.peachzyapp.R;
 import com.example.peachzyapp.adapters.RequestReceivedAdapter;
 import com.example.peachzyapp.dynamoDB.DynamoDBManager;
 import com.example.peachzyapp.entities.FriendItem;
-import com.example.peachzyapp.fragments.MainFragments.Chats.ChatHistoryFragment;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class RequestReceivedFragment extends Fragment {
-    public static final String TAG = ChatHistoryFragment.class.getName();
+    public static final String TAG = RequestReceivedFragment.class.getName();
     ImageButton btnBack;
     String uid;
     private DynamoDBManager dynamoDBManager;
@@ -50,7 +47,7 @@ public class RequestReceivedFragment extends Fragment {
                              Bundle savedInstanceState) {
         friendList = new ArrayList<>();
         dynamoDBManager = new DynamoDBManager(getActivity());
-        view = inflater.inflate(R.layout.activity_request_received_fragments, container, false);
+        view = inflater.inflate(R.layout.request_received_fragment, container, false);
         btnBack = view.findViewById(R.id.btnBack);
         Bundle bundleReceive = getArguments();
         uid = bundleReceive.getString("uid");

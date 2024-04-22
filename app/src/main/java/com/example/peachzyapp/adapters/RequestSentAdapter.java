@@ -38,7 +38,7 @@ public class RequestSentAdapter extends RecyclerView.Adapter<RequestSentAdapter.
     @NonNull
     @Override
     public RequestSentAdapter.FriendViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.activity_request_sent_adapter, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_request_sent, parent, false);
         return new RequestSentAdapter.FriendViewHolder(view);
     }
 

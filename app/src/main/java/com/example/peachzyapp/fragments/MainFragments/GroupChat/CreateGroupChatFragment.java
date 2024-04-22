@@ -46,7 +46,6 @@ import com.example.peachzyapp.adapters.CreateGroupChatAdapter;
 import com.example.peachzyapp.adapters.RequestSentAdapter;
 import com.example.peachzyapp.dynamoDB.DynamoDBManager;
 import com.example.peachzyapp.entities.FriendItem;
-import com.example.peachzyapp.fragments.MainFragments.Chats.ChatHistoryFragment;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -58,7 +57,7 @@ import java.util.Locale;
 import java.util.Random;
 
 public class CreateGroupChatFragment extends Fragment {
-    public static final String TAG= ChatHistoryFragment.class.getName();
+    public static final String TAG= CreateGroupChatFragment.class.getName();
     private View view;
     private ImageButton btnFindFriend;
     private Button btnCreateGroup;
@@ -79,8 +78,6 @@ public class CreateGroupChatFragment extends Fragment {
     private AmazonS3 s3Client;
     private PutObjectRequest request;
     private String urlAvatar;
-    private String myUserName;
-    private String myUserAvatar;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -92,7 +89,7 @@ public class CreateGroupChatFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         friendList = new ArrayList<>();
-        view = inflater.inflate(R.layout.activity_create_group_fragments, container, false);
+        view = inflater.inflate(R.layout.create_group_fragment, container, false);
         viewModel = new ViewModelProvider(requireActivity()).get(MyGroupViewModel.class);
         etFindByNameOrEmail= view.findViewById(R.id.etNameOrEmail);
         etGroupName= view.findViewById(R.id.etGroupName);
@@ -118,7 +115,7 @@ public class CreateGroupChatFragment extends Fragment {
         });
         btnFindFriend.setOnClickListener(v->{
             String infor = etFindByNameOrEmail.getText().toString().trim();
-           // Log.d("Information", infor);
+            // Log.d("Information", infor);
             dynamoDBManager.findFriendByInfor(infor, uid,new DynamoDBManager.FriendFoundListener() {
                 @Override
                 public void onFriendFound(String id, String name, String avatar) {
@@ -128,6 +125,7 @@ public class CreateGroupChatFragment extends Fragment {
                             friendItem = new FriendItem(id, avatar, name);
                             friendList.clear();
                             friendList.add(friendItem);
+
                             createGroupChatAdapter.notifyDataSetChanged();
                             Toast.makeText(getActivity(), "Friend found!", Toast.LENGTH_SHORT).show();
                         }
@@ -159,32 +157,19 @@ public class CreateGroupChatFragment extends Fragment {
         });
 
         createGroupChatAdapter= new CreateGroupChatAdapter(friendList);
+        //createGroupChatAdapter= new CreateGroupChatAdapter(getListFriends());
 
         rcvFriendListForGroup.setAdapter(createGroupChatAdapter);
-        dynamoDBManager.getProfileByUID(uid, new DynamoDBManager.FriendFoundForGetUIDByEmailListener() {
-            @Override
-            public void onFriendFound(String uid, String name, String email, String avatar, Boolean sex, String dateOfBirth) {
-                myUserName=name;
-                myUserAvatar=avatar;
-            }
+//        RecyclerView.ItemDecoration itemDecoration=new DividerItemDecoration(mainActivity, DividerItemDecoration.VERTICAL);
+//        rcvFriendListForGroup.addItemDecoration(itemDecoration);
 
-            @Override
-            public void onFriendNotFound() {
-
-            }
-
-            @Override
-            public void onError(Exception e) {
-
-            }
-        });
         btnCreateGroup.setOnClickListener(v -> {
             String groupName = etGroupName.getText().toString().trim();
             String groupID = "-"+randomNumber() + "-" + uid;
             String currentTime = Utils.getCurrentTime();
-            List<FriendItem> selectedFriendIds = createGroupChatAdapter.getSelectedFriends();
-            List<FriendItem> selectedFriendIDsToCreateGroup = new ArrayList<>(selectedFriendIds);
-            selectedFriendIDsToCreateGroup.add(new FriendItem(uid, myUserAvatar, myUserName));
+            List<String> selectedFriendIds = createGroupChatAdapter.getSelectedFriendIds();
+            List<String> selectedFriendIDsToCreateGroup = new ArrayList<>(selectedFriendIds);
+            selectedFriendIDsToCreateGroup.add(uid);
             Log.d("CheckCreateGroup140", "Mảng có uid mọi người member "+selectedFriendIds);
             Log.d("CheckCreateGroup140", "Mảng có uid mọi người member và cả leader"+selectedFriendIDsToCreateGroup);
             if (groupName.equals("")) {
@@ -196,8 +181,8 @@ public class CreateGroupChatFragment extends Fragment {
                 if (selectedFriendIds.size() >=2) {
                     // Thực hiện các thao tác khi số lượng thành viên đủ
                     dynamoDBManager.updateGroupForAccount(uid, groupID, "leader");
-                    for (FriendItem friendId : selectedFriendIds) {
-                        dynamoDBManager.updateGroupForAccount(friendId.getId(), groupID, "member");
+                    for (String friendId : selectedFriendIds) {
+                        dynamoDBManager.updateGroupForAccount(friendId, groupID, "member");
                     }
                     dynamoDBManager.createGroup(groupID,  selectedFriendIDsToCreateGroup);
                     dynamoDBManager.saveGroupConversation(groupID, "Vừa tạo group", groupName, currentTime, urlAvatar, "");
@@ -212,8 +197,8 @@ public class CreateGroupChatFragment extends Fragment {
                 if (selectedFriendIds.size() >= 2) {
                     // Thực hiện các thao tác khi số lượng thành viên đủ
                     dynamoDBManager.updateGroupForAccount(uid, groupID, "leader");
-                    for (FriendItem friendId : selectedFriendIds) {
-                        dynamoDBManager.updateGroupForAccount(friendId.getId(), groupID, "member");
+                    for (String friendId : selectedFriendIds) {
+                        dynamoDBManager.updateGroupForAccount(friendId, groupID, "member");
                     }
                     dynamoDBManager.createGroup(groupID,  selectedFriendIDsToCreateGroup);
                     dynamoDBManager.saveGroupConversation(groupID, "Vừa tạo group", groupName, currentTime, "https://chat-app-image-cnm.s3.ap-southeast-1.amazonaws.com/avatar.jpg", "");
@@ -335,7 +320,7 @@ public class CreateGroupChatFragment extends Fragment {
         viewModel.setData("New data");
     }
 
-        @Override
+    @Override
     public void onDetach() {
         super.onDetach();
         viewModel.setData("Change");
