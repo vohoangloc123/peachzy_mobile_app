@@ -87,7 +87,6 @@ public class ChatListsFragment extends Fragment {
                 bundle.putString("friend_id", id);
                 bundle.putString("urlAvatar",urlAvatar);
                 bundle.putString("friendName", friendName);
-//                bundle.putString("friendName");
                 Log.d("urlAvatarhere", urlAvatar);
                 mainActivity.goToChatBoxFragment(bundle);
             }

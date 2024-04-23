@@ -86,6 +86,7 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
     ImageButton btnLink;
     String userName;
     String friendName;
+    String userAvatar;
     private static final int PICK_DOCUMENT_REQUEST = 2;
 
     private MyViewChatModel viewModel;
@@ -163,6 +164,7 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
             @Override
             public void onFriendFound(String uid, String name, String email, String avatar, Boolean sex, String dateOfBirth, String role) {
                 userName=name;
+                userAvatar=avatar;
             }
 
             @Override
@@ -207,8 +209,8 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
                         protected Void doInBackground(Void... voids) {
                             dynamoDBManager.saveMessage(uid + friend_id, message, currentTime, true);
                             dynamoDBManager.saveMessage(friend_id + uid, message, currentTime, false);
-                            dynamoDBManager.saveConversation(uid, uid + friend_id, friend_id, message, currentTime, urlAvatar, friendName);
-                            dynamoDBManager.saveConversation(friend_id, friend_id + uid, uid,message, currentTime, urlAvatar, userName);
+                            dynamoDBManager.saveConversation(uid,  friend_id, message, currentTime, urlAvatar, friendName);
+                            dynamoDBManager.saveConversation(friend_id, uid,message, currentTime, userAvatar, userName);
                             return null;
                         }
                     }.execute();
@@ -325,8 +327,8 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
             protected Void doInBackground(Void... voids) {
                 dynamoDBManager.saveMessage(uid + friend_id, urlImage, currentTime, true);
                 dynamoDBManager.saveMessage(friend_id + uid, urlImage, currentTime, false);
-                dynamoDBManager.saveConversation(uid, uid + friend_id, friend_id, message, currentTime, urlAvatar, friendName);
-                dynamoDBManager.saveConversation(friend_id, friend_id + uid, uid, message, currentTime, urlAvatar, userName);
+                dynamoDBManager.saveConversation(uid,  friend_id, message, currentTime, urlAvatar, friendName);
+                dynamoDBManager.saveConversation(friend_id, uid, message, currentTime, urlAvatar, userName);
                 return null;
             }
         }.execute();
@@ -381,8 +383,8 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
                         String currentTime = Utils.getCurrentTime();
                         dynamoDBManager.saveMessage(uid + friend_id, urlFile, currentTime, true);
                         dynamoDBManager.saveMessage(friend_id + uid, urlFile, currentTime, false);
-                        dynamoDBManager.saveConversation(uid, uid + friend_id, friend_id, "Tập tin", currentTime, urlAvatar, friendName);
-                        dynamoDBManager.saveConversation(friend_id, friend_id + uid, uid,"Tập tin", currentTime,urlAvatar, userName);
+                        dynamoDBManager.saveConversation(uid, friend_id, "Tập tin", currentTime, urlAvatar, friendName);
+                        dynamoDBManager.saveConversation(friend_id, uid,"Tập tin", currentTime,urlAvatar, userName);
                         return null;
                     }
                 }.execute();
