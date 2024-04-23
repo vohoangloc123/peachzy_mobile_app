@@ -2,6 +2,7 @@ package com.example.peachzyapp.adapters;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,10 +25,12 @@ public class ChatBoxAdapter extends RecyclerView.Adapter<ChatViewHolder> {
 
     Context context;
     List<Item> items;
+    String userID;
 
-    public ChatBoxAdapter(Context context, List<Item> items) {
+    public ChatBoxAdapter(Context context, List<Item> items, String userID) {
         this.context = context;
         this.items = items;
+        this.userID=userID;
     }
     public void setItems(List<Item> items) {
         this.items = items;
@@ -43,25 +46,23 @@ public class ChatBoxAdapter extends RecyclerView.Adapter<ChatViewHolder> {
     @Override
     public void onBindViewHolder(@NonNull ChatViewHolder holder, int position) {
         Item currentItem = items.get(position);
-
         // Kiểm tra xem tin nhắn có phải của người gửi hay không
-        boolean isSentByMe = currentItem.isSentByMe();
-
         // Hiển thị avatar
-//        Picasso.get().load(currentItem.getAvatar()).into(holder.ivAvatar);
+        Picasso.get().load(currentItem.getAvatar()).into(holder.ivAvatar);
         Glide.with(holder.itemView.getContext())
                 .load(currentItem.getAvatar())
                 .placeholder(R.drawable.logo)
                 .transform(new MultiTransformation<Bitmap>(new CircleCrop()))
                 .into(holder.ivAvatar);
-
         // Hiển thị thời gian
         holder.tvTime.setText(currentItem.getTime());
         RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) holder.tvMessage.getLayoutParams();
         RelativeLayout.LayoutParams paramsOfImage = (RelativeLayout.LayoutParams) holder.ivMessage.getLayoutParams();
         RelativeLayout.LayoutParams paramsOfFile = (RelativeLayout.LayoutParams) holder.tvLink.getLayoutParams();
+        Log.d("Check612", "WORK1"+currentItem.getUserID()+userID);
         // Nếu tin nhắn là của người gửi
-        if (isSentByMe) {
+        if (currentItem.getUserID().equals(userID)) {
+            Log.d("Check612", "WORK2");
             params.addRule(RelativeLayout.ALIGN_PARENT_END);
             paramsOfImage.addRule(RelativeLayout.ALIGN_PARENT_END);
             paramsOfFile.addRule(RelativeLayout.ALIGN_PARENT_END);
@@ -91,7 +92,8 @@ public class ChatBoxAdapter extends RecyclerView.Adapter<ChatViewHolder> {
                 holder.tvLink.setVisibility(View.GONE);
                 holder.tvMessage.setVisibility(View.VISIBLE);
             }
-        } else if(!isSentByMe) { // Nếu tin nhắn là của người nhận
+        } else if(!currentItem.getUserID().equals(userID)) { // Nếu tin nhắn là của người nhận
+            Log.d("Check612", "WORK3");
             holder.tvMessage.setTextColor(context.getColor(R.color.black));
             params.addRule(RelativeLayout.ALIGN_PARENT_START);
             paramsOfImage.addRule(RelativeLayout.ALIGN_PARENT_START);

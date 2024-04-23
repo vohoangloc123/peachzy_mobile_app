@@ -17,6 +17,14 @@ public class Conversation {
         this.name = name;
     }
 
+    public Conversation(String conversationID, String message, String time, String avatar, String name) {
+        this.conversationID = conversationID;
+        this.message = message;
+        this.time = time;
+        this.avatar = avatar;
+        this.name = name;
+    }
+
     public String getFriendID() {
         return friendID;
     }

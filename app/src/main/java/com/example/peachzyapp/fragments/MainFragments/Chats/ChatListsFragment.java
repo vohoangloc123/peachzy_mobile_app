@@ -35,6 +35,7 @@ public class ChatListsFragment extends Fragment {
     private String uid;
     private ConversationAdapter conversationAdapter;
     private MyViewChatModel viewModel;
+    String channelID;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -62,21 +63,14 @@ public class ChatListsFragment extends Fragment {
         } else {
             Log.e("FriendcheckUID", "UID is null");
         }
-        dynamoDBManager.loadConversation1(uid, new DynamoDBManager.LoadConversationListener() {
+
+        dynamoDBManager.loadConversationList(uid, new DynamoDBManager.LoadConversationListListener() {
             @Override
-            public void onConversationFound(String conversationID, String friendID ,String message, String time, String avatar, String name) {
-                Conversation conversation = new Conversation(conversationID, friendID, message, time, avatar, name);
+            public void onConversationListFound(String id, String avatar, String message, String name, String time) {
+                Conversation conversation = new Conversation(id, message, time, avatar, name);
+                Log.d("checkChatLists819", conversation.toString());
                 conversationsList.add(conversation);
-                Log.d("ConversationListSize", "Size: " + conversationsList.size());
-
-                Log.d("ConversationFound", "Conversation ID: " + conversationID + ", Message: " + message + ", Time: " + time + ", Avatar: " + avatar + ", Name: " + name+", FriendI: "+friendID);
-                // Notify adapter that data set has changed after all conversations are added
                 conversationAdapter.notifyDataSetChanged();
-            }
-
-            @Override
-            public void onLoadConversationError(Exception e) {
-                e.printStackTrace();
             }
         });
         conversationAdapter.setOnItemClickListener(new ConversationAdapter.OnItemClickListener(){
@@ -84,11 +78,10 @@ public class ChatListsFragment extends Fragment {
             @Override
             public void onItemClick(String id, String urlAvatar, String friendName) {
                 Bundle bundle = new Bundle();
-                bundle.putString("friend_id", id);
+//                Log.d("Check821821", id);
                 bundle.putString("urlAvatar",urlAvatar);
+                bundle.putString("channelID", id);
                 bundle.putString("friendName", friendName);
-//                bundle.putString("friendName");
-                Log.d("urlAvatarhere", urlAvatar);
                 mainActivity.goToChatBoxFragment(bundle);
             }
         });
@@ -101,7 +94,7 @@ public class ChatListsFragment extends Fragment {
                 // Cập nhật RecyclerView hoặc bất kỳ thành phần UI nào khác ở đây
                 // newData chứa dữ liệu mới từ Fragment con
                //conversationsList.clear();
-                resetRecycleView();
+                resetRecycleView(uid);
                 ///
             }
         });
@@ -109,25 +102,22 @@ public class ChatListsFragment extends Fragment {
         return view;
     }
 
-    private void resetRecycleView() {
+    private void resetRecycleView(String channelID) {
         conversationsList.clear();
         Log.d("batdauchay", "yes: ");
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                dynamoDBManager.loadConversation1(uid, new DynamoDBManager.LoadConversationListener() {
+                dynamoDBManager.loadConversation(channelID, new DynamoDBManager.LoadConversationListListener() {
                     @Override
-                    public void onConversationFound(String conversationID, String friendID, String message, String time, String avatar, String name) {
-                        Conversation conversation = new Conversation(conversationID, friendID, message, time, avatar, name);
+                    public void onConversationListFound(String id, String avatar, String message, String name, String time) {
+                        Conversation conversation = new Conversation(id, message, time, avatar, name);
                         conversationsList.add(conversation);
                         conversationAdapter.notifyDataSetChanged();
                     }
-
-                    @Override
-                    public void onLoadConversationError(Exception e) {
-                        e.printStackTrace();
-                    }
                 });
+
+
             }
         }, 1000); // 2000 milliseconds = 2 seconds
     }

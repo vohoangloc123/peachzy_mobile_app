@@ -69,7 +69,7 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
             @Override
             public void onClick(View v) {
                 if (mListener != null) {
-                    mListener.onItemClick(conversation.getFriendID(), conversation.getAvatar(), conversation.getName());
+                    mListener.onItemClick(conversation.getConversationID(), conversation.getAvatar(), conversation.getName());
                 }
             }
         });
