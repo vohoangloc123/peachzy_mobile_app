@@ -27,7 +27,7 @@ import com.example.peachzyapp.entities.FriendItem;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DeleteMemberAdapter extends RecyclerView.Adapter<DeleteMemberAdapter.DeleteMemberViewHolder> {
+public class ManageMemberAdapter extends RecyclerView.Adapter<ManageMemberAdapter.DeleteMemberViewHolder> {
     private List<FriendItem> listMember;
     private List<String> selectedMemberIds = new ArrayList<>();
     private static final String TAG = "DeleteMemberAdapter";
@@ -37,7 +37,7 @@ public class DeleteMemberAdapter extends RecyclerView.Adapter<DeleteMemberAdapte
     private DynamoDBManager dynamoDBManager;
     private MainActivity mainActivity;
     private FragmentManager fragmentManager;
-    public DeleteMemberAdapter(List<FriendItem> listMember, Context context, String groupID, String uid, DynamoDBManager dynamoDBManager, MainActivity mainActivity, FragmentManager fragmentManager) {
+    public ManageMemberAdapter(List<FriendItem> listMember, Context context, String groupID, String uid, DynamoDBManager dynamoDBManager, MainActivity mainActivity, FragmentManager fragmentManager) {
         this.listMember = listMember;
         this.context = context;
         this.groupID = groupID;
@@ -50,7 +50,7 @@ public class DeleteMemberAdapter extends RecyclerView.Adapter<DeleteMemberAdapte
     @NonNull
     @Override
     public DeleteMemberViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_delete_member, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_manage_member, parent, false);
         return new DeleteMemberViewHolder(view, context);
     }
 
@@ -88,7 +88,6 @@ public class DeleteMemberAdapter extends RecyclerView.Adapter<DeleteMemberAdapte
             ivMemberAvatar = itemView.findViewById(R.id.ivMemberAvatar);
             btnMore = itemView.findViewById(R.id.btnMore);
             btnMore.setOnClickListener(this);
-            this.context = context;
         }
 
         public void bind(FriendItem member, int position) {

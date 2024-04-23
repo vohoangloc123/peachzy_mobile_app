@@ -4,15 +4,11 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.graphics.ColorMatrix;
-import android.graphics.ColorMatrixColorFilter;
-import android.media.Image;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
-import android.os.Debug;
 import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -21,7 +17,6 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.MultiTransformation;
@@ -37,12 +32,13 @@ public class GroupOptionFragment extends Fragment {
     String groupName;
     String groupAvatar;
     ImageButton btnBack;
-    ImageButton btnDeleteMember;
+    ImageButton btnListMember;
     ImageButton btnAddMember;
     ImageButton btnOutGroup;
     ImageButton btnDeleteGroup;
+    ImageButton btnManageMember;
     TextView tvDeleteGroup;
-    TextView tvDeleteMember;
+    TextView tvManageMember;
     ImageView ivGroupAvatar;
     TextView tvGroupName;
     MainActivity mainActivity;
@@ -62,14 +58,15 @@ public class GroupOptionFragment extends Fragment {
         View view= inflater.inflate(R.layout.fragment_group_option, container, false);
         viewModel = new ViewModelProvider(requireActivity()).get(MyGroupViewModel.class);
         btnBack=view.findViewById(R.id.btnBack);
-        btnDeleteMember=view.findViewById(R.id.btnDeleteMember);
+        btnListMember =view.findViewById(R.id.btnListMember);
         btnAddMember=view.findViewById(R.id.btnAddMember);
         btnOutGroup=view.findViewById(R.id.btnOutGroup);
-        btnDeleteGroup=view.findViewById(R.id.btnDeleteGroup);
+        btnDeleteGroup =view.findViewById(R.id.btnDeleteGroup);
+        btnManageMember =view.findViewById(R.id.btnManageMember);
         ivGroupAvatar=view.findViewById(R.id.ivGroupAvatar);
         tvGroupName=view.findViewById(R.id.tvGroupName);
         tvDeleteGroup=view.findViewById(R.id.tvDeleteGroup);
-        tvDeleteMember=view.findViewById(R.id.tvDeleteMember);
+        tvManageMember =view.findViewById(R.id.tvManageMember);
         //initial
         mainActivity = (MainActivity) getActivity();
         dynamoDBManager=new DynamoDBManager(getContext());
@@ -99,10 +96,16 @@ public class GroupOptionFragment extends Fragment {
         btnBack.setOnClickListener(v->{
             getActivity().getSupportFragmentManager().popBackStack();
         });
-        btnDeleteMember.setOnClickListener(v->{
+        btnListMember.setOnClickListener(v->{
             Bundle bundle = new Bundle();
             bundle.putString("groupID", groupID);
-            mainActivity.goToDeleteMember(bundle);
+            mainActivity.goToListMember(bundle);
+            Log.d("CheckButton", "WORK");
+        });
+        btnManageMember.setOnClickListener(v->{
+            Bundle bundle = new Bundle();
+            bundle.putString("groupID", groupID);
+            mainActivity.goToManageMember(bundle);
             Log.d("CheckButton", "WORK");
         });
         btnAddMember.setOnClickListener(v->{
@@ -127,13 +130,16 @@ public class GroupOptionFragment extends Fragment {
                 if(role.equals("leader"))
                 {
                     btnDeleteGroup.setEnabled(true);
-                    btnDeleteMember.setEnabled(true);
+                    btnManageMember.setEnabled(true);
                 }
                 else
                 {
                     btnDeleteGroup.setAlpha(0.5f);
+                    btnManageMember.setAlpha(0.5f);
                     int grayColor = Color.argb(255, 128, 128, 128); // Màu xám (RGB: 128, 128, 128)
                     tvDeleteGroup.setTextColor(grayColor);
+                    tvManageMember.setTextColor(grayColor);
+                    btnManageMember.setEnabled(false);
                     btnDeleteGroup.setEnabled(false);
                 }
             }

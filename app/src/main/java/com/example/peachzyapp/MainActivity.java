@@ -22,7 +22,8 @@ import com.example.peachzyapp.entities.ChatBox;
 import com.example.peachzyapp.fragments.MainFragments.Chats.ChatBoxFragment;
 import com.example.peachzyapp.fragments.MainFragments.GroupChat.AddMemberFragment;
 import com.example.peachzyapp.fragments.MainFragments.GroupChat.CreateGroupChatFragment;
-import com.example.peachzyapp.fragments.MainFragments.GroupChat.DeleteMemberFragment;
+import com.example.peachzyapp.fragments.MainFragments.GroupChat.ListMemberFragment;
+import com.example.peachzyapp.fragments.MainFragments.GroupChat.ManageMemberFragment;
 import com.example.peachzyapp.fragments.MainFragments.GroupChat.GroupChatBoxFragment;
 import com.example.peachzyapp.fragments.MainFragments.GroupChat.GroupOptionFragment;
 import com.example.peachzyapp.fragments.MainFragments.Profiles.ChangePasswordFragment;
@@ -424,13 +425,13 @@ public void goToDetailFragment(ChatBox chatBox) {
         fragmentTransaction.commit();
 
     }
-    public void goToDeleteMember(Bundle bundle) {
+    public void goToManageMember(Bundle bundle) {
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
 
-        DeleteMemberFragment deleteMemberFragment=new DeleteMemberFragment();
+        ManageMemberFragment manageMemberFragment =new ManageMemberFragment();
 
         // Thêm ChatHistoryFragment
-        fragmentTransaction.add(R.id.etFind, deleteMemberFragment, deleteMemberFragment.TAG);
+        fragmentTransaction.add(R.id.etFind, manageMemberFragment, manageMemberFragment.TAG);
 
         // Tìm và ẩn tất cả các Fragment khác
         Fragment chatListsFragment = (Fragment) viewPager.getAdapter().instantiateItem(viewPager, 0);
@@ -453,8 +454,42 @@ public void goToDetailFragment(ChatBox chatBox) {
 
         // Ẩn bottomNavigationView
         showBottomNavigation(false);
-        deleteMemberFragment.setArguments(bundle);
-        fragmentTransaction.addToBackStack(deleteMemberFragment.TAG);
+        manageMemberFragment.setArguments(bundle);
+        fragmentTransaction.addToBackStack(manageMemberFragment.TAG);
+        fragmentTransaction.commit();
+
+    }
+    public void goToListMember(Bundle bundle) {
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+
+        ListMemberFragment listMemberFragment=new ListMemberFragment();
+
+        // Thêm ChatHistoryFragment
+        fragmentTransaction.add(R.id.etFind, listMemberFragment, listMemberFragment.TAG);
+
+        // Tìm và ẩn tất cả các Fragment khác
+        Fragment chatListsFragment = (Fragment) viewPager.getAdapter().instantiateItem(viewPager, 0);
+        Fragment notificationFragment = (Fragment) viewPager.getAdapter().instantiateItem(viewPager, 1);
+        Fragment usersFragment = (Fragment) viewPager.getAdapter().instantiateItem(viewPager, 2);
+        Fragment profileFragment = (Fragment) viewPager.getAdapter().instantiateItem(viewPager, 3);
+
+        if (chatListsFragment != null) {
+            fragmentTransaction.hide(chatListsFragment);
+        }
+        if (notificationFragment != null) {
+            fragmentTransaction.hide(notificationFragment);
+        }
+        if (usersFragment != null) {
+            fragmentTransaction.hide(usersFragment);
+        }
+        if (profileFragment != null) {
+            fragmentTransaction.hide(profileFragment);
+        }
+
+        // Ẩn bottomNavigationView
+        showBottomNavigation(false);
+        listMemberFragment.setArguments(bundle);
+        fragmentTransaction.addToBackStack(listMemberFragment.TAG);
         fragmentTransaction.commit();
 
     }
@@ -571,7 +606,7 @@ public void goToDetailFragment(ChatBox chatBox) {
             Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.etFind);
 
             // Kiểm tra loại fragment và ẩn thanh điều hướng tương ứng
-            if (fragment instanceof GroupChatBoxFragment || fragment instanceof GroupOptionFragment ||fragment instanceof DeleteMemberFragment||fragment instanceof AddMemberFragment) {
+            if (fragment instanceof GroupChatBoxFragment || fragment instanceof GroupOptionFragment ||fragment instanceof ManageMemberFragment ||fragment instanceof AddMemberFragment) {
                 showBottomNavigation(false); // Ẩn thanh điều hướng
             } else {
                 showBottomNavigation(true); // Hiện thanh điều hướng cho các fragment khác

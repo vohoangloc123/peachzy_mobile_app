@@ -81,6 +81,8 @@
     <string name="xoa_thanh_vien">Delete member</string>
     <string name="xoa_nhom">Delete group</string>
     <string name="roi_nhom">Leave group</string>
+    <string name="manage_member">Manage member</string>
+    <string name="list_member">List member</string>
     <string name="message">Message</string>
     <string name="change_profile">Change profile</string>
     <string name="edit_user_information">Edit user information</string>

@@ -117,7 +117,44 @@
                 android:orientation="horizontal">
 
                 <ImageButton
-                    android:id="@+id/btnDeleteMember"
+                    android:id="@+id/btnListMember"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_alignParentEnd="true"
+                    android:layout_marginEnd="-2dp"
+                    android:layout_weight="1"
+                    android:background="@color/bgWhiteBlue"
+                    android:paddingRight="300dp"
+                    android:src="@drawable/baseline_people_outline_26" />
+                <TextView
+                    android:id="@+id/tvListMember"
+                    android:layout_width="322dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="80dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_weight="1"
+                    android:padding="15dp"
+                    android:text="@string/list_member"
+                    android:textColor="@color/black"
+                    android:textSize="20dp" />
+            </RelativeLayout>
+
+
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="89dp"
+            android:background="@drawable/edittext_profile"
+            android:orientation="vertical">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="75dp"
+
+                android:orientation="horizontal">
+
+                <ImageButton
+                    android:id="@+id/btnManageMember"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_alignParentEnd="true"
@@ -127,14 +164,14 @@
                     android:paddingRight="300dp"
                     android:src="@drawable/delete_user_to_group" />
                 <TextView
-                    android:id="@+id/tvDeleteMember"
+                    android:id="@+id/tvManageMember"
                     android:layout_width="322dp"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="80dp"
                     android:layout_marginTop="5dp"
                     android:layout_weight="1"
                     android:padding="15dp"
-                    android:text="@string/xoa_thanh_vien"
+                    android:text="@string/manage_member"
                     android:textColor="@color/black"
                     android:textSize="20dp" />
             </RelativeLayout>

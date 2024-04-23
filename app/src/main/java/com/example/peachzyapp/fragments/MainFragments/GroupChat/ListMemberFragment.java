@@ -3,12 +3,10 @@ package com.example.peachzyapp.fragments.MainFragments.GroupChat;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
@@ -16,27 +14,26 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.peachzyapp.LiveData.MyGroupViewModel;
 import com.example.peachzyapp.MainActivity;
 import com.example.peachzyapp.R;
-import com.example.peachzyapp.adapters.DeleteMemberAdapter;
+import com.example.peachzyapp.adapters.ListMemberAdapter;
+import com.example.peachzyapp.adapters.ManageMemberAdapter;
 import com.example.peachzyapp.dynamoDB.DynamoDBManager;
 import com.example.peachzyapp.entities.FriendItem;
+
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
-public class DeleteMemberFragment extends Fragment {
-    public static final String TAG= DeleteMemberFragment.class.getName();
+
+public class ListMemberFragment extends Fragment {
+    public static final String TAG= ListMemberFragment.class.getName();
     private View view;
     private ImageButton btnFindMember;
-    private Button btnCancel;
+    private ImageButton btnBack;
     private EditText etNameOrEmail;
     private MainActivity mainActivity;
     private ArrayList<FriendItem> memberList;
@@ -44,8 +41,7 @@ public class DeleteMemberFragment extends Fragment {
     private DynamoDBManager dynamoDBManager;
     private String groupID;
     private String uid;
-    private DeleteMemberAdapter deleteMemberAdapter;
-    public Button btnDeleteMember;
+    private ListMemberAdapter listMemberAdapter;
     private MyGroupViewModel viewModel;
     private FriendItem friendItem;
     @Override
@@ -58,17 +54,19 @@ public class DeleteMemberFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        view = inflater.inflate(R.layout.delete_member_fragment, container, false);
+        view = inflater.inflate(R.layout.list_member_fragment, container, false);
         viewModel = new ViewModelProvider(requireActivity()).get(MyGroupViewModel.class);
         btnFindMember=view.findViewById(R.id.btnFindMember);
-        btnCancel=view.findViewById(R.id.btnCancel);
+        btnBack=view.findViewById(R.id.btnBack);
         etNameOrEmail=view.findViewById(R.id.etNameOrEmail);
+        rcvDeleteMember = view.findViewById(R.id.rcvListMember);
+        //initial
         dynamoDBManager = new DynamoDBManager(getActivity());
         mainActivity = (MainActivity) getActivity();
-        rcvDeleteMember = view.findViewById(R.id.rcvDeleteMember);
-        btnDeleteMember=view.findViewById(R.id.btnDeleteMember);
+        //set layout
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(mainActivity);
         rcvDeleteMember.setLayoutManager(linearLayoutManager);
+        //get data
         Bundle bundleReceive = getArguments();
         SharedPreferences preferences = getActivity().getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
         uid = preferences.getString("uid", null);
@@ -102,7 +100,7 @@ public class DeleteMemberFragment extends Fragment {
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        deleteMemberAdapter.notifyDataSetChanged();
+                        listMemberAdapter.notifyDataSetChanged();
                     }
                 });
             }
@@ -115,17 +113,10 @@ public class DeleteMemberFragment extends Fragment {
                 // Xử lý trường hợp lỗi
             }
         }));
-        deleteMemberAdapter = new DeleteMemberAdapter(memberList, getActivity(), groupID, uid, dynamoDBManager,  mainActivity, getActivity().getSupportFragmentManager());
-        rcvDeleteMember.setAdapter(deleteMemberAdapter);
-        btnDeleteMember.setOnClickListener(v -> {
-            List<String> selectedMemberIds = deleteMemberAdapter.getSelectedMemberIds();
-            String lastMemberId = null; // Biến để lưu trữ người cuối cùng còn sót lại
-            dynamoDBManager.deleteGroupFromUsers(selectedMemberIds, groupID);
-            dynamoDBManager.deleteUserFromGroups(groupID, selectedMemberIds);
-
-            Log.d("RemainingMembers", selectedMemberIds.toString());
-            countMembersInGroupWithDelay();
-            // changeData();
+        listMemberAdapter = new ListMemberAdapter(memberList, groupID, uid, dynamoDBManager);
+        rcvDeleteMember.setAdapter(listMemberAdapter);
+        btnBack.setOnClickListener(v->{
+            getActivity().getSupportFragmentManager().popBackStack();
         });
         btnFindMember.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -134,48 +125,10 @@ public class DeleteMemberFragment extends Fragment {
                 searchForMember(info);
             }
         });
-        btnCancel.setOnClickListener(v->{
-            getActivity().getSupportFragmentManager().popBackStack();
-            mainActivity.showBottomNavigation(true);
-        });
 
 
         return view;
     }
-
-    public void countMembersInGroupWithDelay() {
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                dynamoDBManager.countMembersInGroup(groupID, new DynamoDBManager.CountMembersCallback() {
-                    @Override
-                    public void onCountComplete(int countMember) {
-
-                        Log.d("onCountComplete", countMember + "" );
-                        if (countMember <= 1) {
-                            Log.d("onCountComplete1", "ok");
-                            dynamoDBManager.deleteGroupConversation(groupID);
-                            dynamoDBManager.deleteGroup(groupID);
-
-                            // changeData();
-                            getActivity().getSupportFragmentManager().popBackStack();
-                            getActivity().getSupportFragmentManager().popBackStack();
-                            getActivity().getSupportFragmentManager().popBackStack();
-                            mainActivity.showBottomNavigation(true);
-
-                        }
-                        else {
-                            getActivity().getSupportFragmentManager().popBackStack();
-                            getActivity().getSupportFragmentManager().popBackStack();
-                        }
-
-                    }
-                });
-            }
-
-        }, 200); // 0.5 giây (500 mili giây)
-    }
-
 
     private void searchForMember(String info) {
         dynamoDBManager.findFriendByInfor(info, uid, new DynamoDBManager.FriendFoundListener() {
@@ -188,7 +141,7 @@ public class DeleteMemberFragment extends Fragment {
                         memberList.clear();
                         memberList.add(friendItem);
 
-                        deleteMemberAdapter.notifyDataSetChanged();
+                        listMemberAdapter.notifyDataSetChanged();
                         Toast.makeText(getActivity(), "Friend found!", Toast.LENGTH_SHORT).show();
                     }
                 });
