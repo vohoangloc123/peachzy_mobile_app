@@ -1,5 +1,6 @@
 package com.example.peachzyapp.adapters;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.view.LayoutInflater;
@@ -65,6 +66,31 @@ public class FriendAdapter extends ArrayAdapter<FriendItem> {
 //            Picasso.get().load(avatarUrl).placeholder(R.drawable.logo).into(avatarImageView);
             nameTextView.setText(name);
 
+            //Xử lý xem đã có trong danh sách hay chưa
+            dynamoDBManager.checkAlreadyFriend(uid, friendId, new DynamoDBManager.CheckAlreadyFriendListener() {
+                @Override
+                public void onCheckComplete(boolean isFriend) {
+                    if(isFriend){
+                        ((Activity)mContext).runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                addFriendButton.setEnabled(false);
+                                addFriendButton.setAlpha(0.5f);
+                            }
+                        });
+                    }
+                    else {
+                        ((Activity)mContext).runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                addFriendButton.setEnabled(true);
+                                addFriendButton.setAlpha(1f);
+                            }
+                        });
+                    }
+                }
+            });
+
             // Xử lý sự kiện khi nút được nhấn
             addFriendButton.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -74,6 +100,9 @@ public class FriendAdapter extends ArrayAdapter<FriendItem> {
                     dynamoDBManager.addFriend(uid, friendId, "2",uid+"-"+friendId);
                     dynamoDBManager.addFriend(friendId, uid, "3",uid+"-"+friendId);
                     Toast.makeText(mContext, "Add friend button clicked for " + name, Toast.LENGTH_SHORT).show();
+
+                    remove(friendItem);
+                    notifyDataSetChanged();
                 }
             });
 

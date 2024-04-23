@@ -8,6 +8,7 @@
     <string name="title_chat">Chat</string>
     <string name="user_image">User image</string>
     <string name="accept">Accept</string>
+    <string name="cancel">Cancel</string>
     <string name="decline">Decline</string>
     <string name="enter_message">Enter message</string>
     <string name="send">Send</string>
