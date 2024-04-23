@@ -65,11 +65,11 @@ public class ChatListsFragment extends Fragment {
         dynamoDBManager.loadConversation1(uid, new DynamoDBManager.LoadConversationListener() {
             @Override
             public void onConversationFound(String conversationID, String friendID ,String message, String time, String avatar, String name) {
-                Conversation conversation = new Conversation(conversationID, friendID, message, time, avatar, name);
+                Conversation conversation = new Conversation(conversationID, friendID ,message, time, avatar, name);
                 conversationsList.add(conversation);
                 Log.d("ConversationListSize", "Size: " + conversationsList.size());
 
-                Log.d("ConversationFound", "Conversation ID: " + conversationID + ", Message: " + message + ", Time: " + time + ", Avatar: " + avatar + ", Name: " + name+", FriendI: "+friendID);
+                Log.d("ConversationFound", "Conversation ID: " + conversationID + ", Message: " + message + ", Time: " + time + ", Avatar: " + avatar + ", Name: " + name);
                 // Notify adapter that data set has changed after all conversations are added
                 conversationAdapter.notifyDataSetChanged();
             }
@@ -117,7 +117,7 @@ public class ChatListsFragment extends Fragment {
             public void run() {
                 dynamoDBManager.loadConversation1(uid, new DynamoDBManager.LoadConversationListener() {
                     @Override
-                    public void onConversationFound(String conversationID, String friendID, String message, String time, String avatar, String name) {
+                    public void onConversationFound(String conversationID, String friendID,String message, String time, String avatar, String name) {
                         Conversation conversation = new Conversation(conversationID, friendID, message, time, avatar, name);
                         conversationsList.add(conversation);
                         conversationAdapter.notifyDataSetChanged();

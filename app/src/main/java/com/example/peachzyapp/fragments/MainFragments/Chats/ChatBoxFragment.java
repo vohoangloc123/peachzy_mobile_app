@@ -156,13 +156,13 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
 
             @Override
             public void onFriendFound(String uid, String name, String email, String avatar, Boolean sex, String dateOfBirth) {
-                userName=name;
+
 
             }
 
             @Override
             public void onFriendFound(String uid, String name, String email, String avatar, Boolean sex, String dateOfBirth, String role) {
-
+                userName=name;
             }
 
             @Override
