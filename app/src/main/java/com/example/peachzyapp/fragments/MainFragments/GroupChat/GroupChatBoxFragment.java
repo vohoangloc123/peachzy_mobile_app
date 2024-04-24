@@ -154,13 +154,12 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
         dynamoDBManager.getProfileByUID(userID, new DynamoDBManager.FriendFoundForGetUIDByEmailListener() {
             @Override
             public void onFriendFound(String uid, String name, String email, String avatar, Boolean sex, String dateOfBirth) {
-                userName=name;
-                userAvatar=avatar;
             }
 
             @Override
             public void onFriendFound(String uid, String name, String email, String avatar, Boolean sex, String dateOfBirth, String role) {
-
+                userName=name;
+                userAvatar=avatar;
             }
 
             @Override

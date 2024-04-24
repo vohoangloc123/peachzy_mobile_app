@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:drawable="@color/btnColor"
-
-        />
+        android:drawable="@color/bgWhiteBlue"/>
 
     <item
         android:id="@+id/imageView5"
         android:width="96dp"
         android:height="96dp"
         android:gravity="center"
-        android:drawable="@drawable/logo" />
+        android:drawable="@drawable/logo"
+        android:animation="@anim/rotate_anim"/>
 </layer-list>
