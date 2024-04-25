@@ -151,6 +151,4 @@ public class ChatListsFragment extends Fragment {
 //            }
 //        });
 //    }
-
-
 }

@@ -1,4 +1,4 @@
-package com.example.peachzyapp.fragments.MainFragments.GroupChat;
+package com.example.peachzyapp.fragments.MainFragments.GroupChat.Option;
 
 import android.os.Bundle;
 import android.util.Log;

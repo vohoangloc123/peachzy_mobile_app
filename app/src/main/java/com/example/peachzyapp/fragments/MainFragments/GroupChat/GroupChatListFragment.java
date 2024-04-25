@@ -93,7 +93,7 @@ public class GroupChatListFragment extends Fragment {
                 resetRecycleView();
             }
         });
-
+        listGroupChats.clear();
         dynamoDBManager.loadGroupList(uid, new DynamoDBManager.LoadGroupListListener() {
             @Override
             public void onGroupListFound(String id, String groupName, String avatar, String message, String name, String time) {
