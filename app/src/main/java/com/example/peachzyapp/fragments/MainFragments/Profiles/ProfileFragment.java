@@ -1,5 +1,7 @@
 package com.example.peachzyapp.fragments.MainFragments.Profiles;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.os.Bundle;
@@ -23,6 +25,7 @@ import com.example.peachzyapp.LiveData.MyProfileViewModel;
 import com.example.peachzyapp.MainActivity;
 import com.example.peachzyapp.R;
 import com.example.peachzyapp.Regexp.Regexp;
+import com.example.peachzyapp.SignIn;
 import com.example.peachzyapp.dynamoDB.DynamoDBManager;
 import com.example.peachzyapp.entities.Profile;
 import com.squareup.picasso.Picasso;
@@ -36,6 +39,7 @@ public class ProfileFragment extends Fragment {
     String uid;
     ImageButton btnChangeProfile;
     ImageButton btnChangePassword;
+    ImageButton btnSignOut;
     ImageView ivAvatar;
     MainActivity mainActivity;
     String urlAvatar;
@@ -61,6 +65,7 @@ public class ProfileFragment extends Fragment {
         btnChangeProfile =view.findViewById(R.id.btnChangeProfile);
         tvDateOfBirth=view.findViewById(R.id.tvDateOfBirth);
         btnChangePassword=view.findViewById(R.id.btnChangePassword);
+        btnSignOut=view.findViewById(R.id.btnSignOut);
         //initial
         dynamoDBManager = new DynamoDBManager(getActivity());
         mainActivity= (MainActivity) getActivity();
@@ -103,6 +108,22 @@ public class ProfileFragment extends Fragment {
 
         btnChangeProfile.setOnClickListener(v -> {
             mainActivity.goToEditProfileFragment(bundle);
+        });
+        btnSignOut.setOnClickListener(v -> {
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setTitle("Confirm Logout");
+            builder.setMessage("Are you sure you want to log out?");
+            builder.setPositiveButton("Yes", (dialog, which) -> {
+                // Nếu người dùng đồng ý, thực hiện chuyển đổi sang activity đăng nhập
+                Intent intent = new Intent(getActivity(), SignIn.class);
+                startActivity(intent);
+            });
+            builder.setNegativeButton("Cancel", (dialog, which) -> {
+                // Nếu người dùng hủy bỏ, đóng dialog và không thực hiện hành động gì
+                dialog.dismiss();
+            });
+            builder.show();
         });
         return view;
     }

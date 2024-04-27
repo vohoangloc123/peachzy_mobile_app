@@ -260,6 +260,33 @@
                 android:textStyle="bold" />
         </RelativeLayout>
 
+        <RelativeLayout
+            android:layout_marginBottom="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/btnEdit"
+            >
+            <ImageButton
+                android:id="@+id/btnSignOut"
+                android:layout_width="match_parent"
+                android:layout_height="55dp"
+                android:backgroundTint="@color/btnEdit"
+                android:paddingRight="180dp"
+                android:src="@drawable/baseline_exit_to_app_30" />
+
+            <TextView
+                android:layout_width="359dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:layout_marginEnd="-59dp"
+                android:layout_marginBottom="4dp"
+                android:paddingLeft="150dp"
+                android:text="@string/sign_out"
+                android:textColor="@color/black"
+                android:textSize="19dp"
+                android:textStyle="bold" />
+        </RelativeLayout>
+
 
 
     </LinearLayout>
