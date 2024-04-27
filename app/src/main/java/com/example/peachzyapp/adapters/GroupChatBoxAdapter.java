@@ -177,7 +177,6 @@ public class GroupChatBoxAdapter extends RecyclerView.Adapter<GroupChatViewHolde
                 holder.ivGroupMessage.setVisibility(View.GONE); // Hiển thị ivMessage
                 holder.vvGroupMessage.setVisibility(View.VISIBLE);
                 String videoUrl = currentItem.getMessage();
-
                 // Tải video từ URL và đặt nó vào VideoView
 
                 try {

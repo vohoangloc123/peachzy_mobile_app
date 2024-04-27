@@ -62,14 +62,20 @@
             android:layout_marginTop="5dp"/>
 
     </LinearLayout>
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rcvGroupChat"
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="611dp"
-        android:layout_above="@+id/layout_input"
-        android:layout_marginBottom="2dp"
-        android:background="@color/bgWhiteBlue" />
+        android:layout_above="@+id/layout_input">
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rcvGroupChat"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_above="@+id/layout_input"
+            android:layout_marginBottom="2dp"
+            android:background="@color/bgWhiteBlue" />
+
+    </ScrollView>
+
 
     <LinearLayout
         android:id="@+id/layout_input"

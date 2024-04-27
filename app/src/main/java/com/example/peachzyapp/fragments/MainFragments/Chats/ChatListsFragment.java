@@ -35,7 +35,6 @@ public class ChatListsFragment extends Fragment {
     private String uid;
     private ConversationAdapter conversationAdapter;
     private MyViewChatModel viewModel;
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -45,20 +44,16 @@ public class ChatListsFragment extends Fragment {
         dynamoDBManager = new DynamoDBManager(getActivity());
         rcvChatList = view.findViewById(R.id.rcvConversation);
         rcvChatList.setLayoutManager(new LinearLayoutManager(mainActivity));
-
         // Initialize conversationsList before calling loadConversations()
         conversationsList = new ArrayList<>();
         conversationAdapter = new ConversationAdapter(conversationsList);
         // Set adapter to RecyclerView
         rcvChatList.setAdapter(conversationAdapter);
-
         SharedPreferences preferences = getActivity().getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
         uid = preferences.getString("uid", null);
-
         if (uid != null) {
             Log.d("FriendcheckUIDInChatListFragment", uid);
             // Sử dụng "uid" ở đây cho các mục đích của bạn
-
         } else {
             Log.e("FriendcheckUID", "UID is null");
         }
@@ -73,7 +68,6 @@ public class ChatListsFragment extends Fragment {
                 // Notify adapter that data set has changed after all conversations are added
                 conversationAdapter.notifyDataSetChanged();
             }
-
             @Override
             public void onLoadConversationError(Exception e) {
                 e.printStackTrace();
@@ -130,7 +124,6 @@ public class ChatListsFragment extends Fragment {
             }
         }, 1000); // 2000 milliseconds = 2 seconds
     }
-
     // Function to load conversations
 //    private void loadConversations() {
 //        dynamoDBManager.loadConversation1(uid, new DynamoDBManager.LoadConversationListener() {

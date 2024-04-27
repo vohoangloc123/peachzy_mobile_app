@@ -241,10 +241,10 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
             mainActivity.goToGroupOption(bundle);
         });
         btnBack.setOnClickListener(v->{
-                getActivity().getSupportFragmentManager().popBackStack();
+            getActivity().getSupportFragmentManager().popBackStack();
             mainActivity.showBottomNavigation(true);
         });
-       return view;
+        return view;
     }
 
     private void uploadFile (Uri uri){
@@ -318,44 +318,44 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK && data != null) {
             Uri fileUri=data.getData();
             String mimeType = getActivity().getContentResolver().getType(fileUri);
-           if(mimeType != null && mimeType.startsWith("image/"))
-           {
-               Log.d("IsVideo", "NO");
-               if (data.getClipData() != null) {
-                   // Người dùng chọn nhiều hình ảnh
-                   int count = data.getClipData().getItemCount();
-                   for (int i = 0; i < count; i++) {
-                       Uri imageUri = data.getClipData().getItemAt(i).getUri();
-                       try {
-                           Bitmap bitmap = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), imageUri);
-                           // Chuyển đổi bitmap thành chuỗi Base64
-                           ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-                           bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
-                           // Upload ảnh lên S3 và gửi tin nhắn chứa URL ảnh đến WebSocket, sau đó lưu vào DynamoDB
-                           uploadImageToS3AndSocketAndDynamoDB(imageUri);
-                       } catch (IOException e) {
-                           e.printStackTrace();
-                       }
-                   }
-               } else if (data.getData() != null) {
-                   // Người dùng chỉ chọn một hình ảnh
-                   Uri imageUri = data.getData();
-                   try {
-                       Bitmap bitmap = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), imageUri);
-                       // Chuyển đổi bitmap thành chuỗi Base64
-                       ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-                       bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
-                       // Upload ảnh lên S3 và gửi tin nhắn chứa URL ảnh đến WebSocket, sau đó lưu vào DynamoDB
-                       uploadImageToS3AndSocketAndDynamoDB(imageUri);
-                   } catch (IOException e) {
-                       e.printStackTrace();
-                   }
-               }
-           }else if(mimeType != null && mimeType.startsWith("video/")) {
-               Log.d("IsVideo", "YES");
-               Log.d("IsVideo", fileUri.toString());
-               uploadVideoToS3AndSocketAndDynamoDB(fileUri);
-           }
+            if(mimeType != null && mimeType.startsWith("image/"))
+            {
+                Log.d("IsVideo", "NO");
+                if (data.getClipData() != null) {
+                    // Người dùng chọn nhiều hình ảnh
+                    int count = data.getClipData().getItemCount();
+                    for (int i = 0; i < count; i++) {
+                        Uri imageUri = data.getClipData().getItemAt(i).getUri();
+                        try {
+                            Bitmap bitmap = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), imageUri);
+                            // Chuyển đổi bitmap thành chuỗi Base64
+                            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                            bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
+                            // Upload ảnh lên S3 và gửi tin nhắn chứa URL ảnh đến WebSocket, sau đó lưu vào DynamoDB
+                            uploadImageToS3AndSocketAndDynamoDB(imageUri);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                } else if (data.getData() != null) {
+                    // Người dùng chỉ chọn một hình ảnh
+                    Uri imageUri = data.getData();
+                    try {
+                        Bitmap bitmap = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), imageUri);
+                        // Chuyển đổi bitmap thành chuỗi Base64
+                        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                        bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
+                        // Upload ảnh lên S3 và gửi tin nhắn chứa URL ảnh đến WebSocket, sau đó lưu vào DynamoDB
+                        uploadImageToS3AndSocketAndDynamoDB(imageUri);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }else if(mimeType != null && mimeType.startsWith("video/")) {
+                Log.d("IsVideo", "YES");
+                Log.d("IsVideo", fileUri.toString());
+                uploadVideoToS3AndSocketAndDynamoDB(fileUri);
+            }
         }
     }
     private void uploadImageToS3AndSocketAndDynamoDB(Uri uri) {

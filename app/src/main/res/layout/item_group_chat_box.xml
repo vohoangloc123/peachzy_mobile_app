@@ -70,7 +70,7 @@
     <VideoView
         android:id="@+id/vvGroupMessage"
         android:layout_width="354dp"
-        android:layout_height="502dp"
+        android:layout_height="300dp"
         android:layout_below="@id/tvUserName"
         android:layout_gravity="end"
         android:layout_marginStart="30dp"
