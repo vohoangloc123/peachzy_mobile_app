@@ -67,6 +67,30 @@
         android:textSize="16sp"
         tools:text="This is a message" />
 
+    <VideoView
+        android:id="@+id/vvGroupMessage"
+        android:layout_width="354dp"
+        android:layout_height="502dp"
+        android:layout_below="@id/tvUserName"
+        android:layout_gravity="end"
+        android:layout_marginStart="30dp"
+        android:layout_marginTop="1dp"
+        android:maxWidth="240dp"
+        android:paddingLeft="12dp"
+        android:paddingTop="6dp"
+        android:paddingRight="12dp"
+        android:paddingBottom="6dp"
+        android:textColor="@android:color/black"
+        android:textSize="16sp"
+        tools:text="This is a message" />
+    <SeekBar
+        android:id="@+id/seekBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/vvGroupMessage"
+        android:layout_centerInParent="true"
+        android:padding="8dp" />
+
     <TextView
         android:id="@+id/tvGroupLink"
         android:layout_width="wrap_content"

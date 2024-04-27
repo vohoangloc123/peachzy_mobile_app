@@ -106,13 +106,13 @@
             android:textSize="19dp"/>
 
         <ImageButton
-            android:id="@+id/btnGroupIcon"
+            android:id="@+id/btnGroupVideo"
             android:layout_width="13dp"
             android:layout_height="50dp"
             android:layout_weight="1"
             android:background="@color/btnColor"
             android:backgroundTint="@color/white"
-            android:src="@drawable/happyicon"
+            android:src="@drawable/baseline_video_file_30"
 
             />
 

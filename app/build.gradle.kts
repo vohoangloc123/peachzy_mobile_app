@@ -33,14 +33,19 @@ android {
         targetCompatibility = JavaVersion.VERSION_1_8
     }
 }
+android {
+    packagingOptions {
+        exclude("META-INF/INDEX.LIST")
+    }
+    packagingOptions {
+        exclude("META-INF/DEPENDENCIES")
+    }
+    packagingOptions {
+        exclude("META-INF/io.netty.versions.properties")
+    }
+}
 
 dependencies {
-//    implementation("com.google.guava:guava:20.0") {
-//        exclude(group = "com.google.guava", module = "listenablefuture")
-//    }
-//        implementation("com.amazonaws:aws-android-sdk-core:2.75.0") {
-//        exclude(module = "aws-java-sdk-core")
-//    }
     implementation("com.google.guava:guava:30.1-jre")
     //Firebase Core SDK cung cấp các công cụ cần thiết để khởi tạo và
     // quản lý kết nối giữa ứng dụng của bạn và các dịch vụ Firebase khác.
@@ -63,11 +68,11 @@ dependencies {
     implementation("com.amazonaws:aws-android-sdk-s3:2.75.0")
     //socket.io
     implementation("io.socket:socket.io-client:1.0.0")
-
-    //
     //crop avatar
     implementation ("com.github.bumptech.glide:glide:4.12.0")
     annotationProcessor ("com.github.bumptech.glide:compiler:4.12.0")
+    //chia nhỏ kích thước video
+    implementation("software.amazon.awssdk:s3-transfer-manager:2.25.38")
     
     implementation(libs.appcompat)
     implementation(libs.material)

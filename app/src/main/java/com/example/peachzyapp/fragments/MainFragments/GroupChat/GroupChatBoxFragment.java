@@ -6,6 +6,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -30,13 +32,23 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.amazonaws.AmazonClientException;
+import com.amazonaws.AmazonServiceException;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.AbortMultipartUploadRequest;
+import com.amazonaws.services.s3.model.CompleteMultipartUploadRequest;
+import com.amazonaws.services.s3.model.InitiateMultipartUploadRequest;
+import com.amazonaws.services.s3.model.InitiateMultipartUploadResult;
 import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.PartETag;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.amazonaws.services.s3.model.PutObjectResult;
+import com.amazonaws.services.s3.model.UploadPartRequest;
+import com.amazonaws.services.s3.model.UploadPartResult;
 import com.example.peachzyapp.LiveData.MyGroupViewModel;
 import com.example.peachzyapp.MainActivity;
 import com.example.peachzyapp.Other.Utils;
@@ -46,6 +58,7 @@ import com.example.peachzyapp.adapters.GroupChatBoxAdapter;
 import com.example.peachzyapp.dynamoDB.DynamoDBManager;
 import com.example.peachzyapp.entities.GroupChat;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -53,9 +66,15 @@ import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Random;
+
+import software.amazon.awssdk.transfer.s3.S3TransferManager;
+import software.amazon.awssdk.transfer.s3.model.Upload;
+
 
 public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSocketListener {
     public static final String TAG= GroupChatBoxFragment.class.getName();
@@ -81,6 +100,7 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
     private static final int PICK_DOCUMENT_REQUEST = 2;
     PutObjectRequest request;
     private static final String BUCKET_NAME = "chat-app-image-cnm";
+    private static final String BUCKET_NAME_FOR_VIDEO = "chat-app-video-cnm";
     private AmazonS3 s3Client;
     private ImageButton btnLink;
     private ImageButton btnBack;
@@ -198,18 +218,12 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
                 etGroupMessage.getText().clear();
             }
         });
-//        btnImage.setOnClickListener(v->{
-//            Intent intent = new Intent();
-//            intent.setType("image/*");
-//            intent.setAction(Intent.ACTION_GET_CONTENT);
-//            startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
-//        });
         btnImage.setOnClickListener(v -> {
             Intent intent = new Intent();
-            intent.setType("image/*");
+            intent.setType("*/*");
             intent.setAction(Intent.ACTION_GET_CONTENT);
-            intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true); // Cho phép chọn nhiều hình ảnh
-            startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
+            intent.putExtra(Intent.EXTRA_MIME_TYPES, new String[]{"image/*", "video/*"}); // Cho phép chọn cả video và ảnh
+            startActivityForResult(Intent.createChooser(intent, "Select Image or Video"), PICK_IMAGE_REQUEST);
         });
         btnLink=view.findViewById(R.id.btnGroupLink);
         btnLink.setOnClickListener(v->{
@@ -302,66 +316,48 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
         }
 
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK && data != null) {
-            if (data.getClipData() != null) {
-                // Người dùng chọn nhiều hình ảnh
-                int count = data.getClipData().getItemCount();
-                for (int i = 0; i < count; i++) {
-                    Uri imageUri = data.getClipData().getItemAt(i).getUri();
-                    try {
-                        Bitmap bitmap = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), imageUri);
-                        // Chuyển đổi bitmap thành chuỗi Base64
-                        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-                        bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
-                        // Upload ảnh lên S3 và gửi tin nhắn chứa URL ảnh đến WebSocket, sau đó lưu vào DynamoDB
-                        uploadImageToS3AndSocketAndDynamoDB(imageUri);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            } else if (data.getData() != null) {
-                // Người dùng chỉ chọn một hình ảnh
-                Uri imageUri = data.getData();
-                try {
-                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), imageUri);
-                    // Chuyển đổi bitmap thành chuỗi Base64
-                    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
-                    // Upload ảnh lên S3 và gửi tin nhắn chứa URL ảnh đến WebSocket, sau đó lưu vào DynamoDB
-                    uploadImageToS3AndSocketAndDynamoDB(imageUri);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
+            Uri fileUri=data.getData();
+            String mimeType = getActivity().getContentResolver().getType(fileUri);
+           if(mimeType != null && mimeType.startsWith("image/"))
+           {
+               Log.d("IsVideo", "NO");
+               if (data.getClipData() != null) {
+                   // Người dùng chọn nhiều hình ảnh
+                   int count = data.getClipData().getItemCount();
+                   for (int i = 0; i < count; i++) {
+                       Uri imageUri = data.getClipData().getItemAt(i).getUri();
+                       try {
+                           Bitmap bitmap = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), imageUri);
+                           // Chuyển đổi bitmap thành chuỗi Base64
+                           ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                           bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
+                           // Upload ảnh lên S3 và gửi tin nhắn chứa URL ảnh đến WebSocket, sau đó lưu vào DynamoDB
+                           uploadImageToS3AndSocketAndDynamoDB(imageUri);
+                       } catch (IOException e) {
+                           e.printStackTrace();
+                       }
+                   }
+               } else if (data.getData() != null) {
+                   // Người dùng chỉ chọn một hình ảnh
+                   Uri imageUri = data.getData();
+                   try {
+                       Bitmap bitmap = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), imageUri);
+                       // Chuyển đổi bitmap thành chuỗi Base64
+                       ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                       bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
+                       // Upload ảnh lên S3 và gửi tin nhắn chứa URL ảnh đến WebSocket, sau đó lưu vào DynamoDB
+                       uploadImageToS3AndSocketAndDynamoDB(imageUri);
+                   } catch (IOException e) {
+                       e.printStackTrace();
+                   }
+               }
+           }else if(mimeType != null && mimeType.startsWith("video/")) {
+               Log.d("IsVideo", "YES");
+               Log.d("IsVideo", fileUri.toString());
+               uploadVideoToS3AndSocketAndDynamoDB(fileUri);
+           }
         }
     }
-//    @Override
-//    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-//        super.onActivityResult(requestCode, resultCode, data);
-//        if (requestCode == PICK_DOCUMENT_REQUEST && resultCode == Activity.RESULT_OK && data != null && data.getData() != null) {
-//            Uri uri = data.getData();
-//            try {
-//                Log.d("CheckUri", uri.toString());
-//                uploadFile(uri);
-//            }catch (Exception e)
-//            {
-//                e.printStackTrace();
-//            }
-//        }
-//        if (requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK && data != null && data.getData() != null) {
-//            Uri uri = data.getData();
-//            try {
-//                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), uri);
-//                // Chuyển đổi bitmap thành chuỗi Base64
-//                ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-//                bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
-//                // Upload ảnh lên S3 và gửi tin nhắn chứa URL ảnh đến WebSocket, sau đó lưu vào DynamoDB
-//                uploadImageToS3AndSocketAndDynamoDB(uri);
-//
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//        }
-//    }
     private void uploadImageToS3AndSocketAndDynamoDB(Uri uri) {
         new Thread(() -> {
             try {
@@ -406,6 +402,119 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
             }
         }).start();
     }
+    private void uploadVideoToS3AndSocketAndDynamoDB(Uri uri) {
+        new Thread(() -> {
+            try {
+                Log.d("IsVideo", "OnUploadVideo");
+                // Mở InputStream từ Uri
+                InputStream inputStream = getActivity().getContentResolver().openInputStream(uri);
+
+                if (inputStream != null) {
+                    // Tạo tên file duy nhất
+                    String fileName = generateFileName();
+
+                    // Tạo đối tượng để lưu trữ ETags của các phần đã tải lên
+                    Map<Integer, String> partETags = new HashMap<>();
+
+                    // Khởi tạo UploadPartRequest với kích thước phần tối đa
+                    final int MB = 1024 * 1024; // 1 MB
+                    final long partSize = 5 * MB; // Kích thước tối đa của mỗi phần
+                    InitiateMultipartUploadRequest initiateRequest = new InitiateMultipartUploadRequest(BUCKET_NAME_FOR_VIDEO, fileName + ".mp4");
+                    InitiateMultipartUploadResult initResponse = s3Client.initiateMultipartUpload(initiateRequest);
+
+                    // Tính số lượng phần
+                    long fileSize = inputStream.available();
+                    int partCount = (int) Math.ceil((double) fileSize / partSize);
+
+                    try {
+                        // Tải lần lượt từng phần lên S3
+                        for (int i = 0; i < partCount; i++) {
+                            long offset = i * partSize;
+                            long remainingBytes = fileSize - offset;
+                            long bytesToRead = Math.min(partSize, remainingBytes);
+
+                            // Đọc phần dữ liệu từ InputStream
+                            byte[] partData = new byte[(int) bytesToRead];
+                            inputStream.read(partData);
+
+                            // Upload phần lên S3
+                            UploadPartRequest uploadRequest = new UploadPartRequest()
+                                    .withBucketName(BUCKET_NAME_FOR_VIDEO)
+                                    .withKey(fileName + ".mp4")
+                                    .withUploadId(initResponse.getUploadId())
+                                    .withPartNumber(i + 1)
+                                    .withPartSize(bytesToRead)
+                                    .withInputStream(new ByteArrayInputStream(partData));
+                            UploadPartResult uploadResult = s3Client.uploadPart(uploadRequest);
+
+                            // Lưu ETag của phần đã tải lên
+                            partETags.put(i + 1, uploadResult.getETag());
+                        }
+
+                        // Tạo danh sách PartETag từ Map<Integer, String>
+                        List<PartETag> partETagList = new ArrayList<>();
+                        for (Map.Entry<Integer, String> entry : partETags.entrySet()) {
+                            partETagList.add(new PartETag(entry.getKey(), entry.getValue()));
+                        }
+
+                        // Hoàn thành multipart upload
+                        CompleteMultipartUploadRequest completeRequest = new CompleteMultipartUploadRequest(BUCKET_NAME_FOR_VIDEO, fileName + ".mp4", initResponse.getUploadId(), partETagList);
+                        s3Client.completeMultipartUpload(completeRequest);
+
+                        // Đóng InputStream sau khi upload hoàn tất
+                        inputStream.close();
+
+                        // Nếu cần, bạn có thể thực hiện các thao tác khác sau khi upload hoàn tất ở đây
+
+                    } catch (Exception e) {
+                        // Xử lý lỗi
+                        e.printStackTrace();
+                        Log.e("UploadVideoToS3", "Error uploading video to S3: " + e.getMessage());
+
+                        // Hủy bỏ multipart upload nếu có lỗi xảy ra
+                        s3Client.abortMultipartUpload(new AbortMultipartUploadRequest(BUCKET_NAME_FOR_VIDEO, fileName + ".mp4", initResponse.getUploadId()));
+                    }
+
+                    // Lấy URL của video trên S3
+                    String urlVideo = s3Client.getUrl(BUCKET_NAME_FOR_VIDEO, fileName + ".mp4").toString();
+
+                    // Gửi tin nhắn chứa URL video đến WebSocket
+                    myWebSocket.sendMessage(urlVideo);
+
+                    // Lưu tin nhắn và cuộc trò chuyện vào DynamoDB
+                    saveMessageAndConversationToDB(urlVideo, "Video");
+
+                    // Cập nhật giao diện trên luồng UI
+                    getActivity().runOnUiThread(() -> {
+                        String currentTime = Utils.getCurrentTime();
+                        // Thêm tin nhắn mới vào danh sách
+                        listGroupMessage.add(new GroupChat(groupID, groupName, userAvatar, urlVideo, userName, currentTime, userID));
+                        adapter.notifyItemInserted(listGroupMessage.size() - 1); // Thông báo cho adapter về sự thay đổi
+
+                        // Cuộn xuống cuối RecyclerView
+                        scrollToBottom();
+                        changeData();
+                    });
+                } else {
+                    // Xử lý trường hợp inputStream là null
+                    Log.e("UploadVideoToS3", "InputStream is null");
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+                // Xử lý lỗi IOException
+                Log.e("UploadVideoToS3", "Error uploading video to S3: " + e.getMessage());
+            } catch (AmazonServiceException e) {
+                e.printStackTrace();
+                // Xử lý lỗi AmazonServiceException
+                Log.e("UploadVideoToS3", "Error uploading video to S3: " + e.getMessage());
+            } catch (AmazonClientException e) {
+                e.printStackTrace();
+                // Xử lý lỗi AmazonClientException
+                Log.e("UploadVideoToS3", "Error uploading video to S3: " + e.getMessage());
+            }
+        }).start();
+    }
+
     private void saveMessageAndConversationToDB(String urlImage, String message) {
         String currentTime = Utils.getCurrentTime();
         // Lưu tin nhắn và cuộc trò chuyện vào DynamoDB
@@ -523,10 +632,4 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
         viewModel.setData("New data");
     }
 
-//    @Override
-//    public void onDetach() {
-//        super.onDetach();
-//        viewModel.setData("Change");
-//        Log.d("Detach", "onDetach: ");
-//    }
 }
