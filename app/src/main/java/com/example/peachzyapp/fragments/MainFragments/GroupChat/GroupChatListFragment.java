@@ -41,7 +41,7 @@ import java.util.List;
 
 public class GroupChatListFragment extends Fragment {
     RecyclerView rcvGroupChatList;
-    private ArrayList<GroupChat> listGroupChats;
+    private ArrayList<GroupConversation> listGroupChats;
     private View view;
     private MainActivity mainActivity;
     private GroupChatListAdapter groupChatListAdapter;
@@ -97,8 +97,8 @@ public class GroupChatListFragment extends Fragment {
         dynamoDBManager.loadGroupList(uid, new DynamoDBManager.LoadGroupListListener() {
             @Override
             public void onGroupListFound(String id, String groupName, String avatar, String message, String name, String time) {
-                GroupChat groupChat = new GroupChat(id,  groupName,  avatar,  message,  name,  time);
-                listGroupChats.add(groupChat);
+                GroupConversation groupConversation=new GroupConversation(id, groupName,name, avatar, message, time);
+                listGroupChats.add(groupConversation);
                 groupChatListAdapter.notifyDataSetChanged();
             }
         });
@@ -132,8 +132,8 @@ private void resetRecycleView() {
             dynamoDBManager.loadGroupList(uid, new DynamoDBManager.LoadGroupListListener() {
                 @Override
                 public void onGroupListFound(String id, String groupName, String avatar, String message, String name, String time) {
-                    GroupChat groupChat = new GroupChat(id, groupName, avatar, message, name, time);
-                    listGroupChats.add(groupChat);
+                    GroupConversation groupConversation=new GroupConversation(id, groupName,name, avatar, message, time);
+                    listGroupChats.add(groupConversation);
                     groupChatListAdapter.notifyDataSetChanged();
 
                 }

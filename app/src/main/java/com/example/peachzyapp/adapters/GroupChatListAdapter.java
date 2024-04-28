@@ -15,11 +15,12 @@ import com.bumptech.glide.load.MultiTransformation;
 import com.bumptech.glide.load.resource.bitmap.CircleCrop;
 import com.example.peachzyapp.R;
 import com.example.peachzyapp.entities.GroupChat;
+import com.example.peachzyapp.entities.GroupConversation;
 
 import java.util.List;
 
 public class GroupChatListAdapter extends RecyclerView.Adapter<GroupChatListAdapter.GroupChatListViewHolder>{
-    private List<GroupChat> listGroupChats;
+    private List<GroupConversation> listGroupChats;
     public ImageView ivAvatarGroup;
     private GroupChatListAdapter.OnItemClickListener mListener;
 
@@ -31,7 +32,7 @@ public class GroupChatListAdapter extends RecyclerView.Adapter<GroupChatListAdap
         mListener = listener;
     }
 
-    public GroupChatListAdapter(List<GroupChat> mListGroupChats) {
+    public GroupChatListAdapter(List<GroupConversation> mListGroupChats) {
         this.listGroupChats = mListGroupChats;
     }
 
@@ -52,7 +53,7 @@ public class GroupChatListAdapter extends RecyclerView.Adapter<GroupChatListAdap
     }
     @Override
     public void onBindViewHolder(@NonNull GroupChatListAdapter.GroupChatListViewHolder holder, int position) {
-        GroupChat groupChat =listGroupChats.get(position);
+        GroupConversation groupChat =listGroupChats.get(position);
         if(groupChat==null){
             return;
         }
@@ -70,7 +71,7 @@ public class GroupChatListAdapter extends RecyclerView.Adapter<GroupChatListAdap
             @Override
             public void onClick(View v) {
                 if (mListener != null) {
-                    mListener.onItemClick(groupChat.getId(), groupChat.getGroupName(), groupChat.getAvatar());
+                    mListener.onItemClick(groupChat.getGroupConversationID(), groupChat.getGroupName(), groupChat.getAvatar());
                 }
             }
         });

@@ -8,12 +8,13 @@ public class GroupConversation {
     private String avatar;
     private String name;
 
-    public GroupConversation(String groupConversationID, String groupName, String message, String time, String avatar, String name) {
+
+    public GroupConversation(String groupConversationID, String groupName, String name, String avatar, String message, String time) {
         this.groupConversationID = groupConversationID;
         this.groupName = groupName;
-        this.message = message;
-        this.time = time;
         this.avatar = avatar;
+        this.time = time;
+        this.message = message;
         this.name = name;
     }
 

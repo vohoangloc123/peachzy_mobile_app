@@ -9,6 +9,7 @@ public class GroupChat {
     private String name;
     private String time;
     private String userID;
+    private String type;
 
     public GroupChat(String avatar, String message, String name, String time, String userID) {
         this.avatar = avatar;
@@ -18,15 +19,15 @@ public class GroupChat {
         this.userID = userID;
     }
 
-    public GroupChat(String id, String groupName, String avatar, String message, String name, String time) {
-        this.id = id;
-        this.groupName=groupName;
+    public GroupChat(String avatar, String message, String name, String time, String userID, String type) {
         this.avatar = avatar;
         this.message = message;
         this.name = name;
         this.time = time;
-
+        this.userID = userID;
+        this.type = type;
     }
+
     public GroupChat(String id, String groupName, String avatar, String message, String name, String time, String userID) {
         this.id = id;
         this.groupName=groupName;
@@ -37,6 +38,26 @@ public class GroupChat {
         this.userID=userID;
 
     }
+
+    public GroupChat(String id, String groupName, String avatar, String message, String name, String time, String userID, String type) {
+        this.id = id;
+        this.groupName = groupName;
+        this.avatar = avatar;
+        this.message = message;
+        this.name = name;
+        this.time = time;
+        this.userID = userID;
+        this.type = type;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
     public String getUserID() {
         return userID;
     }

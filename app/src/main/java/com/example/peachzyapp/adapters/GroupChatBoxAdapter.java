@@ -7,6 +7,7 @@ import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.MediaController;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
@@ -70,24 +71,24 @@ public class GroupChatBoxAdapter extends RecyclerView.Adapter<GroupChatViewHolde
             holder.tvGroupLink.setVisibility(View.GONE);
             holder.tvUserName.setVisibility(View.GONE);
             // Nếu tin nhắn chứa đường dẫn của hình ảnh từ S3
-            if (isS3ImageUrl(currentItem.getMessage())) {
+            if (isS3ImageUrl(currentItem.getType())) {
                 holder.tvGroupMessage.setVisibility(View.GONE);
                 holder.tvGroupLink.setVisibility(View.GONE);
                 holder.vvGroupMessage.setVisibility(View.GONE);
                 holder.seekBar.setVisibility(View.GONE);
                 holder.ivGroupMessage.setVisibility(View.VISIBLE); // Hiển thị ivMessage
                 Picasso.get().load(currentItem.getMessage()).into(holder.ivGroupMessage);
-            } else if(isS3Document(currentItem.getMessage())){
+            } else if(isS3Document(currentItem.getType())){
                 // Hiển thị văn bản tin nhắn
                 holder.tvGroupMessage.setVisibility(View.GONE);
                 holder.vvGroupMessage.setVisibility(View.GONE);
                 holder.tvGroupLink.setVisibility(View.VISIBLE);
                 holder.seekBar.setVisibility(View.GONE);
                 holder.ivGroupMessage.setVisibility(View.VISIBLE); // Hiển thị ivMessage
-                Picasso.get().load(R.drawable.filepicture).into(holder.ivGroupMessage);
+                checkFileTypeAndDisplay(holder.ivGroupMessage, currentItem.getMessage());
                 holder.tvGroupLink.setText(currentItem.getMessage());
             }
-            else if(isS3Video(currentItem.getMessage())) {
+            else if(isS3Video(currentItem.getType())) {
                 holder.tvGroupMessage.setVisibility(View.GONE);
                 holder.tvGroupLink.setVisibility(View.GONE);
                 holder.ivGroupMessage.setVisibility(View.GONE); // Hiển thị ivMessage
@@ -156,22 +157,22 @@ public class GroupChatBoxAdapter extends RecyclerView.Adapter<GroupChatViewHolde
             paramsOfImage.addRule(RelativeLayout.ALIGN_PARENT_START);
             paramsOfFile.addRule(RelativeLayout.ALIGN_PARENT_START);
             // Nếu tin nhắn chứa đường dẫn của hình ảnh từ S3
-            if (isS3ImageUrl(currentItem.getMessage())) {
+            if (isS3ImageUrl(currentItem.getType())) {
                 Picasso.get().load(currentItem.getMessage()).into(holder.ivGroupMessage);
                 holder.ivGroupMessage.setVisibility(View.VISIBLE); // Hiển thị ivMessage
                 holder.tvGroupMessage.setVisibility(View.GONE);
                 holder.vvGroupMessage.setVisibility(View.GONE);
                 holder.seekBar.setVisibility(View.GONE);
                 holder.tvGroupLink.setVisibility(View.GONE);
-            } else if (isS3Document(currentItem.getMessage())) {
+            } else if (isS3Document(currentItem.getType())) {
                 holder.tvGroupMessage.setVisibility(View.GONE);
                 holder.vvGroupMessage.setVisibility(View.GONE);
                 holder.tvGroupLink.setVisibility(View.VISIBLE);
                 holder.seekBar.setVisibility(View.GONE);
                 holder.ivGroupMessage.setVisibility(View.VISIBLE); // Hiển thị ivMessage
-                Picasso.get().load(R.drawable.filepicture).into(holder.ivGroupMessage);
+                checkFileTypeAndDisplay(holder.ivGroupMessage, currentItem.getMessage());
                 holder.tvGroupLink.setText(currentItem.getMessage());
-            } else if (isS3Video(currentItem.getMessage())) {
+            } else if (isS3Video(currentItem.getType())) {
                 holder.tvGroupMessage.setVisibility(View.GONE);
                 holder.tvGroupLink.setVisibility(View.GONE);
                 holder.ivGroupMessage.setVisibility(View.GONE); // Hiển thị ivMessage
@@ -246,17 +247,33 @@ public class GroupChatBoxAdapter extends RecyclerView.Adapter<GroupChatViewHolde
 
     }
 
+    private void checkFileTypeAndDisplay(ImageView holder, String url) {
+        if(url != null) {
+            if (url.endsWith("pdf")) {
+                Picasso.get().load(R.drawable.pdf).into(holder);
+            } else if(url.endsWith("txt")) {
+                Picasso.get().load(R.drawable.txt).into(holder);
+            }else if(url.endsWith("docx"))
+            {
+                Picasso.get().load(R.drawable.docx).into(holder);
+            }else
+            {
+                Picasso.get().load(R.drawable.filepicture).into(holder);
+            }
+        }
+    }
+
     @Override
     public int getItemCount() {
         return groupChatItems.size();
     }
     private boolean isS3ImageUrl(String url) {
-        return url != null && url.startsWith("https://chat-app-image-cnm.s3.ap-southeast-1.amazonaws.com/");
+        return url != null && url.equals("image");
     }
     private boolean isS3Document(String url) {
-        return url != null && url.startsWith("https://chat-app-document-cnm.s3.ap-southeast-1.amazonaws.com/");
+        return url != null && url.equals("document");
     }
     private boolean isS3Video(String url) {
-        return url != null && url.startsWith("https://chat-app-video-cnm.s3.ap-southeast-1.amazonaws.com/");
+        return url != null && url.equals("video");
     }
 }

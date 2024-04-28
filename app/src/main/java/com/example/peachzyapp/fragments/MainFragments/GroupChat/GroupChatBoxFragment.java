@@ -208,7 +208,7 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
                     //B2 gửi lên socket
                     myWebSocket.sendMessage(message);
                     //B3 đẩy lên dynamoDB để load lại tin nhắn khi out ra khung chat
-                    dynamoDBManager.saveGroupMessage(groupID, message, currentTime, userID, userAvatar, userName);
+                    dynamoDBManager.saveGroupMessage(groupID, message, currentTime, userID, userAvatar, userName, "text");
                     dynamoDBManager.saveGroupConversation(groupID, message, groupName, currentTime,userAvatar, userName);
                     scrollToBottom();
                     changeData();
@@ -251,10 +251,7 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
     private void uploadFile (Uri uri){
         new Thread(()->{
             try {
-                InputStream inputStream = getActivity().getContentResolver().openInputStream(uri);
                 File file = new File(uri.getPath());
-                String random=generateFileName();
-                String fileName = file.getName()+random;
                 ContentResolver contentResolver = getActivity().getContentResolver();
                 String mimeType = contentResolver.getType(uri);
                 String fileExtension =getFileExtension(mimeType);
@@ -267,13 +264,13 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
     private String getFileExtension(String mimetype){
 
         if(mimetype.equals("text/plain"))
-            return ".txt";
+            return "txt";
         if(mimetype.equals("application/vnd.openxmlformats-officedocument.wordprocessingml.document"))
-            return ".docx";
+            return "docx";
         if(mimetype.equals("application/pdf"))
-            return ".pdf";
+            return "pdf";
         if(mimetype.equals("image/png"))
-            return ".png";
+            return "png";
         else
             return null;
     }
@@ -415,7 +412,7 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
                     myWebSocket.sendMessage(urlImage);
 
                     // Lưu tin nhắn và cuộc trò chuyện vào DynamoDB
-                    saveMessageAndConversationToDB(urlImage, "Image");
+                    saveMessageAndConversationToDB(urlImage, "Image", "image");
 
                     // Cập nhật giao diện trên luồng UI
                     getActivity().runOnUiThread(() -> {
@@ -527,7 +524,7 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
                     myWebSocket.sendMessage(urlVideo);
 
                     // Lưu tin nhắn và cuộc trò chuyện vào DynamoDB
-                    saveMessageAndConversationToDB(urlVideo, "Video");
+                    saveMessageAndConversationToDB(urlVideo, "Video", "video");
 
                     // Cập nhật giao diện trên luồng UI
                     getActivity().runOnUiThread(() -> {
@@ -640,7 +637,7 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
                     myWebSocket.sendMessage(urlDocument);
 
                     // Lưu tin nhắn và cuộc trò chuyện vào DynamoDB
-                    saveMessageAndConversationToDB(urlDocument, "Document");
+                    saveMessageAndConversationToDB(urlDocument, "Document", "document");
                     // Cập nhật giao diện trên luồng UI
                     getActivity().runOnUiThread(() -> {
                         String currentTime = Utils.getCurrentTime();
@@ -672,13 +669,13 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
         }).start();
     }
 
-    private void saveMessageAndConversationToDB(String urlImage, String message) {
+    private void saveMessageAndConversationToDB(String urlImage, String message, String type) {
         String currentTime = Utils.getCurrentTime();
         // Lưu tin nhắn và cuộc trò chuyện vào DynamoDB
         new AsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground(Void... voids) {
-                dynamoDBManager.saveGroupMessage(groupID, urlImage, currentTime, userID, userAvatar, userName);
+                dynamoDBManager.saveGroupMessage(groupID, urlImage, currentTime, userID, userAvatar, userName, type);
                 dynamoDBManager.saveGroupConversation(groupID, message, groupName, currentTime,userAvatar, userName);
                 return null;
             }
@@ -690,10 +687,10 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
 
         // Tạo dãy số random
-        int randomNumber = new Random().nextInt(10000);
+        int randomNumber = new Random().nextInt(1000000);
 
         // Kết hợp ngày giờ và dãy số random để tạo tên file
-        return "image_" + timeStamp + "_" + randomNumber;
+        return timeStamp + "_" + randomNumber;
     }
 
     public void updateRecyclerView() {
@@ -703,8 +700,8 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
         List<GroupChat> newMessages = dynamoDBManager.loadGroupMessages(groupID);
         for (GroupChat message : newMessages) {
             // Tạo một đối tượng Message mới với thông tin từ tin nhắn và avatar
-            GroupChat newMessage=new GroupChat(message.getAvatar(), message.getMessage(), message.getName(), message.getTime(), message.getUserID());
-            Log.d("CheckNewMessage", newMessage.toString());
+            GroupChat newMessage=new GroupChat(message.getAvatar(), message.getMessage(), message.getName(), message.getTime(), message.getUserID(), message.getType());
+            Log.d("CheckCheck905", newMessage.toString());
             listGroupMessage.add(newMessage);
         }
 
