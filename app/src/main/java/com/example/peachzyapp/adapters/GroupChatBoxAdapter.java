@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Handler;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -58,6 +59,7 @@ public class GroupChatBoxAdapter extends RecyclerView.Adapter<GroupChatViewHolde
         RelativeLayout.LayoutParams paramsOfImage = (RelativeLayout.LayoutParams) holder.ivGroupMessage.getLayoutParams();
         RelativeLayout.LayoutParams paramsOfVideo = (RelativeLayout.LayoutParams) holder.vvGroupMessage.getLayoutParams();
         RelativeLayout.LayoutParams paramsOfFile = (RelativeLayout.LayoutParams) holder.tvGroupLink.getLayoutParams();
+        RelativeLayout.LayoutParams paramsOfDownLoad = (RelativeLayout.LayoutParams) holder.btnDownload.getLayoutParams();
         RelativeLayout.LayoutParams paramsOfSeeker = (RelativeLayout.LayoutParams) holder.seekBar.getLayoutParams();
         if (currentItem.getUserID().equals(userID)) {
             params.addRule(RelativeLayout.ALIGN_PARENT_END);
@@ -65,6 +67,7 @@ public class GroupChatBoxAdapter extends RecyclerView.Adapter<GroupChatViewHolde
             paramsOfFile.addRule(RelativeLayout.ALIGN_PARENT_END);
             paramsOfVideo.addRule(RelativeLayout.ALIGN_PARENT_END);
             paramsOfSeeker.addRule(RelativeLayout.ALIGN_PARENT_END);
+            paramsOfDownLoad.addRule(RelativeLayout.ALIGN_PARENT_END);
             holder.tvGroupMessage.setTextColor(context.getColor(R.color.white));
             holder.tvGroupMessage.setBackground(ContextCompat.getDrawable(context, R.drawable.bg_message));
             holder.ivGroupAvatar.setVisibility(View.GONE);
@@ -149,6 +152,7 @@ public class GroupChatBoxAdapter extends RecyclerView.Adapter<GroupChatViewHolde
                 holder.tvGroupLink.setVisibility(View.GONE);
                 holder.seekBar.setVisibility(View.GONE);
                 holder.tvGroupMessage.setVisibility(View.VISIBLE);
+                holder.btnDownload.setVisibility(View.GONE);
             }
         } else if(!currentItem.getUserID().equals(userID)) { // Nếu tin nhắn là của người nhận
             holder.tvGroupMessage.setTextColor(context.getColor(R.color.black));
@@ -179,7 +183,6 @@ public class GroupChatBoxAdapter extends RecyclerView.Adapter<GroupChatViewHolde
                 holder.vvGroupMessage.setVisibility(View.VISIBLE);
                 String videoUrl = currentItem.getMessage();
                 // Tải video từ URL và đặt nó vào VideoView
-
                 try {
                     Uri videoUri = Uri.parse(videoUrl);
                     holder.vvGroupMessage.setVideoURI(videoUri);
@@ -233,6 +236,7 @@ public class GroupChatBoxAdapter extends RecyclerView.Adapter<GroupChatViewHolde
                 holder.tvGroupLink.setVisibility(View.GONE);
                 holder.seekBar.setVisibility(View.GONE);
                 holder.tvGroupMessage.setVisibility(View.VISIBLE);
+                holder.btnDownload.setVisibility(View.GONE);
             }
         }
         holder.vvGroupMessage.setOnClickListener(new View.OnClickListener() {
@@ -248,6 +252,7 @@ public class GroupChatBoxAdapter extends RecyclerView.Adapter<GroupChatViewHolde
     }
 
     private void checkFileTypeAndDisplay(ImageView holder, String url) {
+        Log.d("CheckTypeOfPicture", url);
         if(url != null) {
             if (url.endsWith("pdf")) {
                 Picasso.get().load(R.drawable.pdf).into(holder);

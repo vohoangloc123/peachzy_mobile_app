@@ -58,6 +58,9 @@ import com.example.peachzyapp.adapters.GroupChatBoxAdapter;
 import com.example.peachzyapp.dynamoDB.DynamoDBManager;
 import com.example.peachzyapp.entities.GroupChat;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -202,11 +205,23 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
                     // Add the new message to the list and notify adapter
                     String currentTime = Utils.getCurrentTime();
                     //B1 hiển thị lên giao diện chat
-                    listGroupMessage.add(new GroupChat(groupID, groupName, userAvatar, message, userName, currentTime, userID));
+                    listGroupMessage.add(new GroupChat(groupID, groupName, userAvatar, message, userName, currentTime, userID, "text"));
                     adapter.notifyItemInserted(listGroupMessage.size() - 1);
                     recyclerView.scrollToPosition(listGroupMessage.size() - 1);
                     //B2 gửi lên socket
-                    myWebSocket.sendMessage(message);
+                    JSONObject messageToSend = new JSONObject();
+                    try{
+
+                        messageToSend.put("memberID", userID);
+                        messageToSend.put("memberName", userName);
+                        messageToSend.put("memberAvatar", userAvatar);
+                        messageToSend.put("message", message);
+                        messageToSend.put("time", currentTime);
+                        messageToSend.put("type", "text");
+                    }catch (JSONException e) {
+                        throw new RuntimeException(e);
+                    }
+                    myWebSocket.sendMessage(String.valueOf(messageToSend));
                     //B3 đẩy lên dynamoDB để load lại tin nhắn khi out ra khung chat
                     dynamoDBManager.saveGroupMessage(groupID, message, currentTime, userID, userAvatar, userName, "text");
                     dynamoDBManager.saveGroupConversation(groupID, message, groupName, currentTime,userAvatar, userName);
@@ -407,9 +422,20 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
 
                     // Lấy URL của video trên S3
                     String urlImage = s3Client.getUrl(BUCKET_NAME, fileName + ".jpg").toString();
-
                     // Gửi tin nhắn chứa URL video đến WebSocket
-                    myWebSocket.sendMessage(urlImage);
+                    JSONObject messageToSend = new JSONObject();
+                    try{
+
+                        messageToSend.put("memberID", userID);
+                        messageToSend.put("memberName", userName);
+                        messageToSend.put("memberAvatar", userAvatar);
+                        messageToSend.put("message", urlImage);
+                        messageToSend.put("time", generateFileName());
+                        messageToSend.put("type", "image");
+                    }catch (JSONException e) {
+                        throw new RuntimeException(e);
+                    }
+                    myWebSocket.sendMessage(String.valueOf(messageToSend));
 
                     // Lưu tin nhắn và cuộc trò chuyện vào DynamoDB
                     saveMessageAndConversationToDB(urlImage, "Image", "image");
@@ -418,7 +444,7 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
                     getActivity().runOnUiThread(() -> {
                         String currentTime = Utils.getCurrentTime();
                         // Thêm tin nhắn mới vào danh sách
-                        listGroupMessage.add(new GroupChat(groupID, groupName, userAvatar, urlImage, userName, currentTime, userID));
+                        listGroupMessage.add(new GroupChat(groupID, groupName, userAvatar, urlImage, userName, currentTime, userID, "image"));
                         adapter.notifyItemInserted(listGroupMessage.size() - 1); // Thông báo cho adapter về sự thay đổi
 
                         // Cuộn xuống cuối RecyclerView
@@ -521,8 +547,19 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
                     String urlVideo = s3Client.getUrl(BUCKET_NAME_FOR_VIDEO, fileName + ".mp4").toString();
 
                     // Gửi tin nhắn chứa URL video đến WebSocket
-                    myWebSocket.sendMessage(urlVideo);
+                    JSONObject messageToSend = new JSONObject();
+                    try{
 
+                        messageToSend.put("memberID", userID);
+                        messageToSend.put("memberName", userName);
+                        messageToSend.put("memberAvatar", userAvatar);
+                        messageToSend.put("message", urlVideo);
+                        messageToSend.put("time", generateFileName());
+                        messageToSend.put("type", "video");
+                    }catch (JSONException e) {
+                        throw new RuntimeException(e);
+                    }
+                    myWebSocket.sendMessage(String.valueOf(messageToSend));
                     // Lưu tin nhắn và cuộc trò chuyện vào DynamoDB
                     saveMessageAndConversationToDB(urlVideo, "Video", "video");
 
@@ -530,7 +567,7 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
                     getActivity().runOnUiThread(() -> {
                         String currentTime = Utils.getCurrentTime();
                         // Thêm tin nhắn mới vào danh sách
-                        listGroupMessage.add(new GroupChat(groupID, groupName, userAvatar, urlVideo, userName, currentTime, userID));
+                        listGroupMessage.add(new GroupChat(groupID, groupName, userAvatar, urlVideo, userName, currentTime, userID, "video"));
                         adapter.notifyItemInserted(listGroupMessage.size() - 1); // Thông báo cho adapter về sự thay đổi
 
                         // Cuộn xuống cuối RecyclerView
@@ -634,15 +671,26 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
                     String urlDocument = s3Client.getUrl(BUCKET_NAME_FOR_DOCUMENT, fileName + "."+fileType).toString();
 
                     // Gửi tin nhắn chứa URL video đến WebSocket
-                    myWebSocket.sendMessage(urlDocument);
+                    JSONObject messageToSend = new JSONObject();
+                    try{
 
+                        messageToSend.put("memberID", userID);
+                        messageToSend.put("memberName", userName);
+                        messageToSend.put("memberAvatar", userAvatar);
+                        messageToSend.put("message", urlDocument);
+                        messageToSend.put("time", generateFileName());
+                        messageToSend.put("type", "document");
+                    }catch (JSONException e) {
+                        throw new RuntimeException(e);
+                    }
+                    myWebSocket.sendMessage(String.valueOf(messageToSend));
                     // Lưu tin nhắn và cuộc trò chuyện vào DynamoDB
                     saveMessageAndConversationToDB(urlDocument, "Document", "document");
                     // Cập nhật giao diện trên luồng UI
                     getActivity().runOnUiThread(() -> {
                         String currentTime = Utils.getCurrentTime();
                         // Thêm tin nhắn mới vào danh sách
-                        listGroupMessage.add(new GroupChat(groupID, groupName, userAvatar, urlDocument, userName, currentTime, userID));
+                        listGroupMessage.add(new GroupChat(groupID, groupName, userAvatar, urlDocument, userName, currentTime, userID, "document"));
                         adapter.notifyItemInserted(listGroupMessage.size() - 1); // Thông báo cho adapter về sự thay đổi
 
                         // Cuộn xuống cuối RecyclerView
@@ -723,44 +771,48 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
     }
     @Override
     public void onMessageReceived(String receivedMessage) {
-        Log.d("MessageReceived", receivedMessage);
-
-        // Kiểm tra xem tin nhắn nhận được có trùng với tin nhắn đã gửi không
-        boolean isDuplicate = false;
-        for (GroupChat groupChatItem : listGroupMessage) {
-            if (groupChatItem.getMessage().equals(receivedMessage)) {
-                isDuplicate = true;
-                break;
-            }
-        }
-        scrollToBottom();
-        if (!isDuplicate) {
-            // Tin nhắn không trùng, thêm nó vào danh sách và cập nhật giao diện
-            String currentTime = Utils.getCurrentTime();
-            listGroupMessage.add(new GroupChat(groupID, groupName,"https://chat-app-image-cnm.s3.ap-southeast-1.amazonaws.com/avatar.jpg", receivedMessage, "Loc", currentTime, "111"));
-            Log.d("CheckingListMessage",  listGroupMessage.toString());
-            //B2.1 load dữ liệu
-            newPosition = listGroupMessage.size() - 1; // Vị trí mới của tin nhắn
-            adapter.notifyItemInserted(newPosition);
-            scrollToBottom();
-            // Kiểm tra nếu RecyclerView đã được attach vào layout
-            if (recyclerView.getLayoutManager() != null) {
-                // Cuộn xuống vị trí mới
-                recyclerView.post(() -> recyclerView.smoothScrollToPosition(newPosition));
-
-            } else {
-                // Nếu RecyclerView chưa được attach, thì cuộn xuống khi RecyclerView được attach vào layout
-                recyclerView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-                    @Override
-                    public void onGlobalLayout() {
-                        recyclerView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                        recyclerView.smoothScrollToPosition(newPosition);
+            try {
+                JSONObject messageJson = new JSONObject(receivedMessage);
+                String avatar = messageJson.getString("memberAvatar"); // Đường dẫn ảnh đại diện mặc định
+                String userName = messageJson.getString("memberName");
+                String userID = messageJson.getString("memberID");
+                String message = messageJson.getString("message");
+                String currentTime = messageJson.getString("time");
+                String type=messageJson.getString("type");
+                // Kiểm tra xem tin nhắn nhận được có trùng với tin nhắn đã gửi không
+                boolean isDuplicate = false;
+                for (GroupChat groupChatItem : listGroupMessage) {
+                    if (groupChatItem.getMessage().equals(message)) {
+                        isDuplicate = true;
+                        break;
                     }
-                });
-            }
+                }
 
+                scrollToBottom();
+                if (!isDuplicate) {
+                    listGroupMessage.add(new GroupChat(groupID, groupName, avatar, message, userName, currentTime, userID, type));
+                    Log.d("TypeIs1218", type);
+                    int newPosition = listGroupMessage.size() - 1; // Vị trí mới của tin nhắn
+                    adapter.notifyItemInserted(newPosition);
+                    scrollToBottom();
+                    if (recyclerView.getLayoutManager() != null) {
+                        // Cuộn xuống vị trí mới
+                        recyclerView.post(() -> recyclerView.smoothScrollToPosition(newPosition));
+                    } else {
+                        recyclerView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                            @Override
+                            public void onGlobalLayout() {
+                                recyclerView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                                recyclerView.smoothScrollToPosition(newPosition);
+                            }
+                        });
+                    }
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
         }
-    }
+
 
     @Override
     public void onConnectionStateChanged(boolean isConnected) {

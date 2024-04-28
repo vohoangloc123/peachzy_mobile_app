@@ -1,6 +1,7 @@
 package com.example.peachzyapp.adapters;
 
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -17,6 +18,7 @@ public class GroupChatViewHolder  extends RecyclerView.ViewHolder{
     ImageView ivGroupMessage; // Thêm ImageView mới để hiển thị ảnh trong tin nhắn (nếu có)
     VideoView vvGroupMessage;
     SeekBar seekBar;
+    ImageButton btnDownload;
     public GroupChatViewHolder(@NonNull View itemView) {
         super(itemView);
         tvGroupTime = itemView.findViewById(R.id.tvGroupTime);
@@ -27,5 +29,6 @@ public class GroupChatViewHolder  extends RecyclerView.ViewHolder{
         vvGroupMessage = itemView.findViewById(R.id.vvGroupMessage);
         tvUserName=itemView.findViewById(R.id.tvUserName);
         seekBar = itemView.findViewById(R.id.seekBar);
+        btnDownload=itemView.findViewById(R.id.btnDownload);
     }
 }
