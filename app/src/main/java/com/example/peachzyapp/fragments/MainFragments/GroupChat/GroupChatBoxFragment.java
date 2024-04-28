@@ -100,6 +100,7 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
     private static final int PICK_DOCUMENT_REQUEST = 2;
     PutObjectRequest request;
     private static final String BUCKET_NAME = "chat-app-image-cnm";
+    private static final String BUCKET_NAME_FOR_DOCUMENT = "chat-app-document-cnm";
     private static final String BUCKET_NAME_FOR_VIDEO = "chat-app-video-cnm";
     private AmazonS3 s3Client;
     private ImageButton btnLink;
@@ -250,7 +251,6 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
     private void uploadFile (Uri uri){
         new Thread(()->{
             try {
-
                 InputStream inputStream = getActivity().getContentResolver().openInputStream(uri);
                 File file = new File(uri.getPath());
                 String random=generateFileName();
@@ -258,31 +258,7 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
                 ContentResolver contentResolver = getActivity().getContentResolver();
                 String mimeType = contentResolver.getType(uri);
                 String fileExtension =getFileExtension(mimeType);
-
-
-                request = new PutObjectRequest("chat-app-document-cnm", fileName+fileExtension, inputStream, new ObjectMetadata());
-                String urlFile = "https://chat-app-document-cnm.s3.ap-southeast-1.amazonaws.com/" + fileName +fileExtension;
-                Log.d("uploadFile: ",urlFile);
-                //đẩy lên s3
-                s3Client.putObject(request);
-                myWebSocket.sendMessage(urlFile);
-                String currentTime = Utils.getCurrentTime();
-                listGroupMessage.add(new GroupChat(groupID, groupName, userAvatar, urlFile, userName, currentTime, userID));
-                adapter.notifyItemInserted(listGroupMessage.size() - 1);
-                recyclerView.scrollToPosition(listGroupMessage.size() - 1);
-
-                new AsyncTask<Void, Void, Void>() {
-                    @Override
-                    protected Void doInBackground(Void... voids) {
-                        String currentTime = Utils.getCurrentTime();
-                        dynamoDBManager.saveGroupMessage(groupID, urlFile, currentTime, userID, userAvatar, userName);
-                        dynamoDBManager.saveGroupConversation(groupID, urlFile, groupName, currentTime,userAvatar, userName);
-                        return null;
-                    }
-                }.execute();
-                // Đóng InputStream sau khi tải lên thành công
-                inputStream.close();
-
+                uploadDocumentToS3AndSocketAndDynamoDB(uri, fileExtension);
             }catch (Exception e){
 
             }
@@ -362,43 +338,112 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
         new Thread(() -> {
             try {
                 // Mở InputStream từ Uri
+                Log.d("IsImage", "OnUploadImage");
+                // Mở InputStream từ Uri
                 InputStream inputStream = getActivity().getContentResolver().openInputStream(uri);
 
-                // Tạo tên file duy nhất
-                String fileName = generateFileName();
+                if (inputStream != null) {
+                    // Tạo tên file duy nhất
+                    String fileName = generateFileName();
 
-                // Tạo đối tượng PutObjectRequest và đặt tên bucket và key
-                request = new PutObjectRequest(BUCKET_NAME, fileName + ".jpg", inputStream, new ObjectMetadata());
+                    // Tạo đối tượng để lưu trữ ETags của các phần đã tải lên
+                    Map<Integer, String> partETags = new HashMap<>();
 
-                // Upload ảnh lên S3
-                s3Client.putObject(request);
+                    // Khởi tạo UploadPartRequest với kích thước phần tối đa
+                    final int MB = 1024 * 1024; // 1 MB
+                    final long partSize = 5 * MB; // Kích thước tối đa của mỗi phần
+                    InitiateMultipartUploadRequest initiateRequest = new InitiateMultipartUploadRequest(BUCKET_NAME, fileName + ".jpg");
+                    InitiateMultipartUploadResult initResponse = s3Client.initiateMultipartUpload(initiateRequest);
 
-                // Lưu URL của ảnh vào biến để sử dụng sau này
-                String urlImage = "https://chat-app-image-cnm.s3.ap-southeast-1.amazonaws.com/" + fileName + ".jpg";
+                    // Tính số lượng phần
+                    long fileSize = inputStream.available();
+                    int partCount = (int) Math.ceil((double) fileSize / partSize);
 
-                // Đóng InputStream sau khi tải lên thành công
-                inputStream.close();
+                    try {
+                        // Tải lần lượt từng phần lên S3
+                        for (int i = 0; i < partCount; i++) {
+                            long offset = i * partSize;
+                            long remainingBytes = fileSize - offset;
+                            long bytesToRead = Math.min(partSize, remainingBytes);
 
-                // Gửi tin nhắn chứa URL ảnh đến WebSocket
-                myWebSocket.sendMessage(urlImage);
+                            // Đọc phần dữ liệu từ InputStream
+                            byte[] partData = new byte[(int) bytesToRead];
+                            inputStream.read(partData);
 
-                // Lưu tin nhắn và cuộc trò chuyện vào DynamoDB
-                saveMessageAndConversationToDB(urlImage, "Hình ảnh");
+                            // Upload phần lên S3
+                            UploadPartRequest uploadRequest = new UploadPartRequest()
+                                    .withBucketName(BUCKET_NAME)
+                                    .withKey(fileName + ".jpg")
+                                    .withUploadId(initResponse.getUploadId())
+                                    .withPartNumber(i + 1)
+                                    .withPartSize(bytesToRead)
+                                    .withInputStream(new ByteArrayInputStream(partData));
+                            UploadPartResult uploadResult = s3Client.uploadPart(uploadRequest);
 
-                // Sau khi tất cả các thao tác hoàn tất, cập nhật giao diện
-                getActivity().runOnUiThread(() -> {
-                    String currentTime = Utils.getCurrentTime();
-                    // Thêm tin nhắn mới vào danh sách
-                    listGroupMessage.add(new GroupChat(groupID, groupName, userAvatar,urlImage, userName, currentTime, userID));
-                    adapter.notifyItemInserted(listGroupMessage.size() - 1); // Thông báo cho adapter về sự thay đổi
+                            // Lưu ETag của phần đã tải lên
+                            partETags.put(i + 1, uploadResult.getETag());
+                        }
 
-                    // Cuộn xuống cuối RecyclerView
-                    scrollToBottom();
-                    changeData();
-                });
+                        // Tạo danh sách PartETag từ Map<Integer, String>
+                        List<PartETag> partETagList = new ArrayList<>();
+                        for (Map.Entry<Integer, String> entry : partETags.entrySet()) {
+                            partETagList.add(new PartETag(entry.getKey(), entry.getValue()));
+                        }
 
+                        // Hoàn thành multipart upload
+                        CompleteMultipartUploadRequest completeRequest = new CompleteMultipartUploadRequest(BUCKET_NAME, fileName + ".jpg", initResponse.getUploadId(), partETagList);
+                        s3Client.completeMultipartUpload(completeRequest);
+
+                        // Đóng InputStream sau khi upload hoàn tất
+                        inputStream.close();
+
+                        // Nếu cần, bạn có thể thực hiện các thao tác khác sau khi upload hoàn tất ở đây
+
+                    } catch (Exception e) {
+                        // Xử lý lỗi
+                        e.printStackTrace();
+                        Log.e("UploaImageToS3", "Error uploading video to S3: " + e.getMessage());
+
+                        // Hủy bỏ multipart upload nếu có lỗi xảy ra
+                        s3Client.abortMultipartUpload(new AbortMultipartUploadRequest(BUCKET_NAME, fileName + ".jpg", initResponse.getUploadId()));
+                    }
+
+                    // Lấy URL của video trên S3
+                    String urlImage = s3Client.getUrl(BUCKET_NAME, fileName + ".jpg").toString();
+
+                    // Gửi tin nhắn chứa URL video đến WebSocket
+                    myWebSocket.sendMessage(urlImage);
+
+                    // Lưu tin nhắn và cuộc trò chuyện vào DynamoDB
+                    saveMessageAndConversationToDB(urlImage, "Image");
+
+                    // Cập nhật giao diện trên luồng UI
+                    getActivity().runOnUiThread(() -> {
+                        String currentTime = Utils.getCurrentTime();
+                        // Thêm tin nhắn mới vào danh sách
+                        listGroupMessage.add(new GroupChat(groupID, groupName, userAvatar, urlImage, userName, currentTime, userID));
+                        adapter.notifyItemInserted(listGroupMessage.size() - 1); // Thông báo cho adapter về sự thay đổi
+
+                        // Cuộn xuống cuối RecyclerView
+                        scrollToBottom();
+                        changeData();
+                    });
+                } else {
+                    // Xử lý trường hợp inputStream là null
+                    Log.e("UploadImageToS3", "InputStream is null");
+                }
             } catch (IOException e) {
                 e.printStackTrace();
+                // Xử lý lỗi IOException
+                Log.e("UploadImageToS3", "Error uploading image to S3: " + e.getMessage());
+            } catch (AmazonServiceException e) {
+                e.printStackTrace();
+                // Xử lý lỗi AmazonServiceException
+                Log.e("UploadImageToS3", "Error uploading image to S3: " + e.getMessage());
+            } catch (AmazonClientException e) {
+                e.printStackTrace();
+                // Xử lý lỗi AmazonClientException
+                Log.e("UploadImageToS3", "Error uploading image to S3: " + e.getMessage());
             }
         }).start();
     }
@@ -511,6 +556,118 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
                 e.printStackTrace();
                 // Xử lý lỗi AmazonClientException
                 Log.e("UploadVideoToS3", "Error uploading video to S3: " + e.getMessage());
+            }
+        }).start();
+    }
+    private void uploadDocumentToS3AndSocketAndDynamoDB(Uri uri, String fileType) {
+        new Thread(() -> {
+            try {
+                // Mở InputStream từ Uri
+                Log.d("IsImage", "OnUploadImage");
+                // Mở InputStream từ Uri
+                InputStream inputStream = getActivity().getContentResolver().openInputStream(uri);
+
+                if (inputStream != null) {
+                    // Tạo tên file duy nhất
+                    String fileName = generateFileName();
+
+                    // Tạo đối tượng để lưu trữ ETags của các phần đã tải lên
+                    Map<Integer, String> partETags = new HashMap<>();
+
+                    // Khởi tạo UploadPartRequest với kích thước phần tối đa
+                    final int MB = 1024 * 1024; // 1 MB
+                    final long partSize = 5 * MB; // Kích thước tối đa của mỗi phần
+                    InitiateMultipartUploadRequest initiateRequest = new InitiateMultipartUploadRequest(BUCKET_NAME_FOR_DOCUMENT, fileName + "."+fileType);
+                    InitiateMultipartUploadResult initResponse = s3Client.initiateMultipartUpload(initiateRequest);
+
+                    // Tính số lượng phần
+                    long fileSize = inputStream.available();
+                    int partCount = (int) Math.ceil((double) fileSize / partSize);
+
+                    try {
+                        // Tải lần lượt từng phần lên S3
+                        for (int i = 0; i < partCount; i++) {
+                            long offset = i * partSize;
+                            long remainingBytes = fileSize - offset;
+                            long bytesToRead = Math.min(partSize, remainingBytes);
+
+                            // Đọc phần dữ liệu từ InputStream
+                            byte[] partData = new byte[(int) bytesToRead];
+                            inputStream.read(partData);
+
+                            // Upload phần lên S3
+                            UploadPartRequest uploadRequest = new UploadPartRequest()
+                                    .withBucketName(BUCKET_NAME_FOR_DOCUMENT)
+                                    .withKey(fileName + "."+fileType)
+                                    .withUploadId(initResponse.getUploadId())
+                                    .withPartNumber(i + 1)
+                                    .withPartSize(bytesToRead)
+                                    .withInputStream(new ByteArrayInputStream(partData));
+                            UploadPartResult uploadResult = s3Client.uploadPart(uploadRequest);
+
+                            // Lưu ETag của phần đã tải lên
+                            partETags.put(i + 1, uploadResult.getETag());
+                        }
+
+                        // Tạo danh sách PartETag từ Map<Integer, String>
+                        List<PartETag> partETagList = new ArrayList<>();
+                        for (Map.Entry<Integer, String> entry : partETags.entrySet()) {
+                            partETagList.add(new PartETag(entry.getKey(), entry.getValue()));
+                        }
+
+                        // Hoàn thành multipart upload
+                        CompleteMultipartUploadRequest completeRequest = new CompleteMultipartUploadRequest(BUCKET_NAME_FOR_DOCUMENT, fileName + "."+fileType, initResponse.getUploadId(), partETagList);
+                        s3Client.completeMultipartUpload(completeRequest);
+
+                        // Đóng InputStream sau khi upload hoàn tất
+                        inputStream.close();
+
+                        // Nếu cần, bạn có thể thực hiện các thao tác khác sau khi upload hoàn tất ở đây
+
+                    } catch (Exception e) {
+                        // Xử lý lỗi
+                        e.printStackTrace();
+                        Log.e("UploadDocumentToS3", "Error uploading document to S3: " + e.getMessage());
+
+                        // Hủy bỏ multipart upload nếu có lỗi xảy ra
+                        s3Client.abortMultipartUpload(new AbortMultipartUploadRequest(BUCKET_NAME, fileName + "."+fileType, initResponse.getUploadId()));
+                    }
+
+                    // Lấy URL của video trên S3
+                    String urlDocument = s3Client.getUrl(BUCKET_NAME_FOR_DOCUMENT, fileName + "."+fileType).toString();
+
+                    // Gửi tin nhắn chứa URL video đến WebSocket
+                    myWebSocket.sendMessage(urlDocument);
+
+                    // Lưu tin nhắn và cuộc trò chuyện vào DynamoDB
+                    saveMessageAndConversationToDB(urlDocument, "Document");
+                    // Cập nhật giao diện trên luồng UI
+                    getActivity().runOnUiThread(() -> {
+                        String currentTime = Utils.getCurrentTime();
+                        // Thêm tin nhắn mới vào danh sách
+                        listGroupMessage.add(new GroupChat(groupID, groupName, userAvatar, urlDocument, userName, currentTime, userID));
+                        adapter.notifyItemInserted(listGroupMessage.size() - 1); // Thông báo cho adapter về sự thay đổi
+
+                        // Cuộn xuống cuối RecyclerView
+                        scrollToBottom();
+                        changeData();
+                    });
+                } else {
+                    // Xử lý trường hợp inputStream là null
+                    Log.e("UploadDocumentToS3", "InputStream is null");
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+                // Xử lý lỗi IOException
+                Log.e("UploadDocumentToS3", "Error uploading Document to S3: " + e.getMessage());
+            } catch (AmazonServiceException e) {
+                e.printStackTrace();
+                // Xử lý lỗi AmazonServiceException
+                Log.e("UploadDocumentToS3", "Error uploading Document to S3: " + e.getMessage());
+            } catch (AmazonClientException e) {
+                e.printStackTrace();
+                // Xử lý lỗi AmazonClientException
+                Log.e("UploadDocumentToS3", "Error uploading Document to S3: " + e.getMessage());
             }
         }).start();
     }
