@@ -25,7 +25,7 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
     private ConversationAdapter.OnItemClickListener mListener;
     public interface OnItemClickListener {
         void onItemClick(String id, String avatar, String friendName);
-    }
+    }//
     public void setOnItemClickListener(ConversationAdapter.OnItemClickListener listener) {
         mListener = listener;
     }

@@ -93,6 +93,7 @@ public class ChatBoxAdapter extends RecyclerView.Adapter<ChatViewHolder> {
             }
         } else if(!isSentByMe) { // Nếu tin nhắn là của người nhận
             holder.tvMessage.setTextColor(context.getColor(R.color.black));
+            holder.tvMessage.setBackground(ContextCompat.getDrawable(context, R.drawable.rounded_rectangle_secondary));
             params.addRule(RelativeLayout.ALIGN_PARENT_START);
             paramsOfImage.addRule(RelativeLayout.ALIGN_PARENT_START);
             paramsOfFile.addRule(RelativeLayout.ALIGN_PARENT_START);

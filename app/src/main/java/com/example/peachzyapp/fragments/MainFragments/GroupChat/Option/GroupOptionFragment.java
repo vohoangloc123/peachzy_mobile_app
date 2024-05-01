@@ -124,7 +124,7 @@ public class GroupOptionFragment extends Fragment {
             if (chatBoxFragment != null) {
                 chatBoxFragment.setGroupName(groupName);
             }
-            changeData();
+          //  changeData();
             getActivity().getSupportFragmentManager().popBackStack();
 
         });

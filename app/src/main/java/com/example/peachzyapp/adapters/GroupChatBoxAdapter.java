@@ -156,6 +156,7 @@ public class GroupChatBoxAdapter extends RecyclerView.Adapter<GroupChatViewHolde
             }
         } else if(!currentItem.getUserID().equals(userID)) { // Nếu tin nhắn là của người nhận
             holder.tvGroupMessage.setTextColor(context.getColor(R.color.black));
+            holder.tvGroupMessage.setBackground(ContextCompat.getDrawable(context, R.drawable.rounded_rectangle_secondary));
 
             params.addRule(RelativeLayout.ALIGN_PARENT_START);
             paramsOfImage.addRule(RelativeLayout.ALIGN_PARENT_START);

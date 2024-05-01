@@ -92,7 +92,7 @@ public class GroupChatListFragment extends Fragment {
                 // newData chứa dữ liệu mới từ Fragment con
                 resetRecycleView();
             }
-        });
+        });//
         listGroupChats.clear();
         dynamoDBManager.loadGroupList(uid, new DynamoDBManager.LoadGroupListListener() {
             @Override
