@@ -97,10 +97,11 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
     int newPosition;
     private String userName;
     private String userAvatar;
-    ImageButton btnImage;
+    ImageButton btnImage, btnVideo;
     ImageButton btnOption;
     private static final int PICK_IMAGE_REQUEST = 1;
     private static final int PICK_DOCUMENT_REQUEST = 2;
+    private static final int PICK_VIDEO_REQUEST = 3;
     PutObjectRequest request;
     private static final String BUCKET_NAME = "chat-app-image-cnm";
     private static final String BUCKET_NAME_FOR_DOCUMENT = "chat-app-document-cnm";
@@ -128,6 +129,7 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
         recyclerView=view.findViewById(R.id.rcvGroupChat);
         btnSend = view.findViewById(R.id.btnGroupSend);
         btnImage=view.findViewById(R.id.btnGroupImage);
+        btnVideo=view.findViewById(R.id.btnGroupVideo);
         btnBack=view.findViewById(R.id.btnBack);
         btnOption=view.findViewById(R.id.btnOption);
         etGroupMessage=view.findViewById(R.id.etGroupMessage);
@@ -153,9 +155,6 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
         } else {
             Log.e("FriendcheckUID", "UID is null");
         }
-        //
-
-
         //set to UI from bundle
         tvGroupName.setText(groupName);
         //initial
@@ -217,25 +216,15 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
                         messageToSend.put("memberID", userID);
                         messageToSend.put("memberName", userName);
                         messageToSend.put("memberAvatar", userAvatar);
-
                         messageToSend.put("message", message);
                         messageToSend.put("time", currentTime);
                         messageToSend.put("type", "text");
-
-
                         json.put("type", "send-group-message");
                         json.put("message", messageToSend);
 
                     }catch (JSONException e) {
                         throw new RuntimeException(e);
                     }
-
-
-
-//// Chuyển đối tượng JSON thành chuỗi JSON
-//                    String jsonString = new Gson().toJson(json);
-
-//                    myWebSocket.sendMessage(String.valueOf(messageToSend));
                     myWebSocket.sendMessage(String.valueOf(json));
                     //B3 đẩy lên dynamoDB để load lại tin nhắn khi out ra khung chat
                     dynamoDBManager.saveGroupMessage(groupID, message, currentTime, userID, userAvatar, userName, "text");
@@ -251,10 +240,17 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
         });
         btnImage.setOnClickListener(v -> {
             Intent intent = new Intent();
-            intent.setType("*/*");
+            intent.setType("image/*"); // Chỉ lấy video
             intent.setAction(Intent.ACTION_GET_CONTENT);
-            intent.putExtra(Intent.EXTRA_MIME_TYPES, new String[]{"image/*", "video/*"}); // Cho phép chọn cả video và ảnh
-            startActivityForResult(Intent.createChooser(intent, "Select Image or Video"), PICK_IMAGE_REQUEST);
+            intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true); // Cho phép chọn nhiều video
+            startActivityForResult(Intent.createChooser(intent, "Select Image"), PICK_IMAGE_REQUEST);
+        });
+        btnVideo.setOnClickListener(v -> {
+            Intent intent = new Intent();
+            intent.setType("video/*"); // Chỉ lấy video
+            intent.setAction(Intent.ACTION_GET_CONTENT);
+            intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true); // Cho phép chọn nhiều video
+            startActivityForResult(Intent.createChooser(intent, "Select Video"), PICK_VIDEO_REQUEST);
         });
         btnLink=view.findViewById(R.id.btnGroupLink);
         btnLink.setOnClickListener(v->{
@@ -307,42 +303,22 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
         if (requestCode == PICK_DOCUMENT_REQUEST && resultCode == Activity.RESULT_OK && data != null && data.getData() != null) {
-            Uri documentUri = data.getData();
+            Uri uri = data.getData();
             try {
-                Log.d("CheckDocumentUri", documentUri.toString());
-                uploadFile(documentUri);
-            } catch (Exception e) {
+                Log.d("CheckUri", uri.toString());
+                uploadFile(uri);
+            }catch (Exception e)
+            {
                 e.printStackTrace();
             }
         }
-
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK && data != null) {
-            Uri fileUri=data.getData();
-            String mimeType = getActivity().getContentResolver().getType(fileUri);
-            if(mimeType != null && mimeType.startsWith("image/"))
-            {
-                Log.d("IsVideo", "NO");
-                if (data.getClipData() != null) {
-                    // Người dùng chọn nhiều hình ảnh
-                    int count = data.getClipData().getItemCount();
-                    for (int i = 0; i < count; i++) {
-                        Uri imageUri = data.getClipData().getItemAt(i).getUri();
-                        try {
-                            Bitmap bitmap = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), imageUri);
-                            // Chuyển đổi bitmap thành chuỗi Base64
-                            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-                            bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
-                            // Upload ảnh lên S3 và gửi tin nhắn chứa URL ảnh đến WebSocket, sau đó lưu vào DynamoDB
-                            uploadImageToS3AndSocketAndDynamoDB(imageUri);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                } else if (data.getData() != null) {
-                    // Người dùng chỉ chọn một hình ảnh
-                    Uri imageUri = data.getData();
+            if (data.getClipData() != null) {
+                // Người dùng chọn nhiều hình ảnh
+                int count = data.getClipData().getItemCount();
+                for (int i = 0; i < count; i++) {
+                    Uri imageUri = data.getClipData().getItemAt(i).getUri();
                     try {
                         Bitmap bitmap = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), imageUri);
                         // Chuyển đổi bitmap thành chuỗi Base64
@@ -354,10 +330,33 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
                         e.printStackTrace();
                     }
                 }
-            }else if(mimeType != null && mimeType.startsWith("video/")) {
-                Log.d("IsVideo", "YES");
-                Log.d("IsVideo", fileUri.toString());
-                uploadVideoToS3AndSocketAndDynamoDB(fileUri);
+            } else if (data.getData() != null) {
+                // Người dùng chỉ chọn một hình ảnh
+                Uri imageUri = data.getData();
+                try {
+                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), imageUri);
+                    // Chuyển đổi bitmap thành chuỗi Base64
+                    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
+                    // Upload ảnh lên S3 và gửi tin nhắn chứa URL ảnh đến WebSocket, sau đó lưu vào DynamoDB
+                    uploadImageToS3AndSocketAndDynamoDB(imageUri);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        if (requestCode == PICK_VIDEO_REQUEST && resultCode == Activity.RESULT_OK && data != null){
+            if (data.getClipData() != null) {
+                // Người dùng chọn nhiều hình ảnh
+                int count = data.getClipData().getItemCount();
+                for (int i = 0; i < count; i++) {
+                    Uri videoUri = data.getClipData().getItemAt(i).getUri();
+                    Log.d("CheckVideoUri", videoUri.toString());
+                    String mimeType = getActivity().getContentResolver().getType(videoUri);
+                    if(mimeType != null && mimeType.startsWith("video/")){
+                        uploadVideoToS3AndSocketAndDynamoDB(videoUri);
+                    }
+                }
             }
         }
     }
@@ -438,37 +437,6 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
                     // Lấy URL của video trên S3
                     String urlImage = s3Client.getUrl(BUCKET_NAME, fileName + ".jpg").toString();
                     // Gửi tin nhắn chứa URL video đến WebSocket
-
-// //B2 gửi lên socket
-//                    JSONObject messageToSend = new JSONObject();
-//                    // Tạo đối tượng JSON chứa trường type và message
-//                    JSONObject json = new JSONObject();
-//                    try{
-//
-//                        messageToSend.put("memberID", userID);
-//                        messageToSend.put("memberName", userName);
-//                        messageToSend.put("memberAvatar", userAvatar);
-//
-//                        messageToSend.put("message", message);
-//                        messageToSend.put("time", currentTime);
-//                        messageToSend.put("type", "text");
-//
-//
-//                        json.put("type", "send-group-message");
-//                        json.put("message", messageToSend);
-//
-//                    }catch (JSONException e) {
-//                        throw new RuntimeException(e);
-//                    }
-//
-//
-//
-////// Chuyển đối tượng JSON thành chuỗi JSON
-////                    String jsonString = new Gson().toJson(json);
-//
-////                    myWebSocket.sendMessage(String.valueOf(messageToSend));
-//                    myWebSocket.sendMessage(String.valueOf(json));
-
                     JSONObject messageToSend = new JSONObject();
                     JSONObject json = new JSONObject();
                     try{
@@ -600,20 +568,6 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
                     String urlVideo = s3Client.getUrl(BUCKET_NAME_FOR_VIDEO, fileName + ".mp4").toString();
 
                     // Gửi tin nhắn chứa URL video đến WebSocket
-//                    JSONObject messageToSend = new JSONObject();
-//                    try{
-//
-//                        messageToSend.put("memberID", userID);
-//                        messageToSend.put("memberName", userName);
-//                        messageToSend.put("memberAvatar", userAvatar);
-//                        messageToSend.put("message", urlVideo);
-//                        messageToSend.put("time", generateFileName());
-//                        messageToSend.put("type", "video");
-//                    }catch (JSONException e) {
-//                        throw new RuntimeException(e);
-//                    }
-//                    myWebSocket.sendMessage(String.valueOf(messageToSend));
-
                     JSONObject messageToSend = new JSONObject();
                     JSONObject json = new JSONObject();
                     try{
@@ -625,7 +579,7 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
                         //messageToSend.put("avatar", userAvatar);
                         messageToSend.put("message", urlVideo);//
                         messageToSend.put("time", generateFileName());
-                        messageToSend.put("type", "image");
+                        messageToSend.put("type", "video");
 
                         json.put("type", "send-group-message");
                         json.put("message", messageToSend);
@@ -744,38 +698,17 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
 
                     // Lấy URL của video trên S3
                     String urlDocument = s3Client.getUrl(BUCKET_NAME_FOR_DOCUMENT, fileName + "."+fileType).toString();
-
                     // Gửi tin nhắn chứa URL video đến WebSocket
-//                    JSONObject messageToSend = new JSONObject();
-//                    try{
-//
-//                        messageToSend.put("memberID", userID);
-//                        messageToSend.put("memberName", userName);
-//                        messageToSend.put("memberAvatar", userAvatar);
-//                        messageToSend.put("message", urlDocument);
-//                        messageToSend.put("time", generateFileName());
-//                        messageToSend.put("type", "document");
-//                    }catch (JSONException e) {
-//                        throw new RuntimeException(e);
-//                    }
-////                    JSONObject json = new JSONObject();
-////                    json .addProperty("type", "send-group-message");
-////                    json.add("message", messageObject);
-//                    myWebSocket.sendMessage(String.valueOf(messageToSend));
-
                     JSONObject messageToSend = new JSONObject();
                     JSONObject json = new JSONObject();
                     try{
 
                         messageToSend.put("memberID", userID);
                         messageToSend.put("memberName", userName);
-
                         messageToSend.put("memberAvatar", userAvatar);
-                        //messageToSend.put("avatar", userAvatar);
-                        messageToSend.put("message", urlDocument);//
+                        messageToSend.put("message", urlDocument);
                         messageToSend.put("time", generateFileName());
-                        messageToSend.put("type", "image");
-
+                        messageToSend.put("type", "document");
                         json.put("type", "send-group-message");
                         json.put("message", messageToSend);
                     }catch (JSONException e) {

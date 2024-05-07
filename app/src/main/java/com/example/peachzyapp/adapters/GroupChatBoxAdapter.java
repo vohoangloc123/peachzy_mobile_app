@@ -75,18 +75,23 @@ public class GroupChatBoxAdapter extends RecyclerView.Adapter<GroupChatViewHolde
             holder.tvUserName.setVisibility(View.GONE);
             // Nếu tin nhắn chứa đường dẫn của hình ảnh từ S3
             if (isS3ImageUrl(currentItem.getType())) {
-                holder.tvGroupMessage.setVisibility(View.GONE);
-                holder.tvGroupLink.setVisibility(View.GONE);
-                holder.vvGroupMessage.setVisibility(View.GONE);
-                holder.seekBar.setVisibility(View.GONE);
-                holder.ivGroupMessage.setVisibility(View.VISIBLE); // Hiển thị ivMessage
                 Picasso.get().load(currentItem.getMessage()).into(holder.ivGroupMessage);
-            } else if(isS3Document(currentItem.getType())){
-                // Hiển thị văn bản tin nhắn
+                holder.ivGroupMessage.setVisibility(View.VISIBLE); // Hiển thị ivMessage
+                //text
                 holder.tvGroupMessage.setVisibility(View.GONE);
-                holder.vvGroupMessage.setVisibility(View.GONE);
-                holder.tvGroupLink.setVisibility(View.VISIBLE);
+                //file
+                holder.tvGroupLink.setVisibility(View.GONE);
+                //video
                 holder.seekBar.setVisibility(View.GONE);
+                holder.vvGroupMessage.setVisibility(View.GONE);
+            } else if(isS3Document(currentItem.getType())){
+                //text
+                holder.tvGroupMessage.setVisibility(View.GONE);
+                //video
+                holder.seekBar.setVisibility(View.GONE);
+                holder.vvGroupMessage.setVisibility(View.GONE);
+                //file
+                holder.tvGroupLink.setVisibility(View.VISIBLE);
                 holder.ivGroupMessage.setVisibility(View.VISIBLE); // Hiển thị ivMessage
                 checkFileTypeAndDisplay(holder.ivGroupMessage, currentItem.getMessage());
                 holder.tvGroupLink.setText(currentItem.getMessage());
@@ -146,13 +151,18 @@ public class GroupChatBoxAdapter extends RecyclerView.Adapter<GroupChatViewHolde
                 }
             }
             else {
+                //text
                 holder.tvGroupMessage.setText(currentItem.getMessage());
-                holder.ivGroupMessage.setVisibility(View.GONE);
-                holder.vvGroupMessage.setVisibility(View.GONE);
-                holder.tvGroupLink.setVisibility(View.GONE);
-                holder.seekBar.setVisibility(View.GONE);
                 holder.tvGroupMessage.setVisibility(View.VISIBLE);
+                //image, file
+                holder.ivGroupMessage.setVisibility(View.GONE);
+                //file
+                holder.tvGroupLink.setVisibility(View.GONE);
+                //video, image
                 holder.btnDownload.setVisibility(View.GONE);
+                //video
+                holder.seekBar.setVisibility(View.GONE);
+                holder.vvGroupMessage.setVisibility(View.GONE);
             }
         } else if(!currentItem.getUserID().equals(userID)) { // Nếu tin nhắn là của người nhận
             holder.tvGroupMessage.setTextColor(context.getColor(R.color.black));
@@ -165,15 +175,21 @@ public class GroupChatBoxAdapter extends RecyclerView.Adapter<GroupChatViewHolde
             if (isS3ImageUrl(currentItem.getType())) {
                 Picasso.get().load(currentItem.getMessage()).into(holder.ivGroupMessage);
                 holder.ivGroupMessage.setVisibility(View.VISIBLE); // Hiển thị ivMessage
+                //text
                 holder.tvGroupMessage.setVisibility(View.GONE);
-                holder.vvGroupMessage.setVisibility(View.GONE);
-                holder.seekBar.setVisibility(View.GONE);
+                //file
                 holder.tvGroupLink.setVisibility(View.GONE);
-            } else if (isS3Document(currentItem.getType())) {
-                holder.tvGroupMessage.setVisibility(View.GONE);
-                holder.vvGroupMessage.setVisibility(View.GONE);
-                holder.tvGroupLink.setVisibility(View.VISIBLE);
+                //video
                 holder.seekBar.setVisibility(View.GONE);
+                holder.vvGroupMessage.setVisibility(View.GONE);
+            } else if (isS3Document(currentItem.getType())) {
+                //text
+                holder.tvGroupMessage.setVisibility(View.GONE);
+                //video
+                holder.seekBar.setVisibility(View.GONE);
+                holder.vvGroupMessage.setVisibility(View.GONE);
+                //file
+                holder.tvGroupLink.setVisibility(View.VISIBLE);
                 holder.ivGroupMessage.setVisibility(View.VISIBLE); // Hiển thị ivMessage
                 checkFileTypeAndDisplay(holder.ivGroupMessage, currentItem.getMessage());
                 holder.tvGroupLink.setText(currentItem.getMessage());
@@ -231,13 +247,18 @@ public class GroupChatBoxAdapter extends RecyclerView.Adapter<GroupChatViewHolde
                     }
 
             } else {
+                //text
                 holder.tvGroupMessage.setText(currentItem.getMessage());
-                holder.ivGroupMessage.setVisibility(View.GONE);
-                holder.vvGroupMessage.setVisibility(View.GONE);
-                holder.tvGroupLink.setVisibility(View.GONE);
-                holder.seekBar.setVisibility(View.GONE);
                 holder.tvGroupMessage.setVisibility(View.VISIBLE);
+                //image, file
+                holder.ivGroupMessage.setVisibility(View.GONE);
+                //file
+                holder.tvGroupLink.setVisibility(View.GONE);
+                //video, image
                 holder.btnDownload.setVisibility(View.GONE);
+                //video
+                holder.seekBar.setVisibility(View.GONE);
+                holder.vvGroupMessage.setVisibility(View.GONE);
             }
         }
         holder.vvGroupMessage.setOnClickListener(new View.OnClickListener() {

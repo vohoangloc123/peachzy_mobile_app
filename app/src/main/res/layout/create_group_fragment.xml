@@ -71,7 +71,6 @@
                 android:layout_marginTop="30dp"
                 android:background="@drawable/edittext_search"
                 android:orientation="horizontal">
-
                 <ImageButton
                     android:id="@+id/btnFindFriend"
                     android:layout_width="72dp"
@@ -79,7 +78,6 @@
                     android:layout_weight="1"
                     android:background="@drawable/edittext_search"
                     android:src="@drawable/search" />
-
                 <EditText
                     android:id="@+id/etNameOrEmail"
                     android:layout_width="320dp"
@@ -95,23 +93,18 @@
                     tools:layout_editor_absoluteX="28dp"
                     tools:layout_editor_absoluteY="60dp" />
             </LinearLayout>
-
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rcvFriendListForGroup"
                 android:layout_width="match_parent"
                 android:layout_height="466dp"
                 android:padding="15dp" />
         </LinearLayout>
-
-
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="horizontal"
             android:paddingLeft="70dp"
-            android:layout_marginTop="25dp"
-            >
-
+            android:layout_marginTop="25dp">
             <Button
                 android:id="@+id/btnCancel"
                 android:layout_width="wrap_content"
@@ -122,7 +115,6 @@
                 android:textColor="@color/black"
                 android:textSize="20dp"
                 app:cornerRadius="5dp" />
-
             <Button
                 android:id="@+id/btnCreateGroup"
                 android:layout_width="180dp"
@@ -133,7 +125,6 @@
                 app:cornerRadius="5dp"
                 android:textColor="@color/white"
                 />
-
         </LinearLayout>
 
     </LinearLayout>

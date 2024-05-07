@@ -62,7 +62,10 @@
             android:layout_marginTop="5dp"/>
 
     </LinearLayout>
-
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="611dp"
+        android:layout_above="@+id/layout_input">
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycleview"
         android:layout_width="match_parent"
@@ -70,6 +73,8 @@
         android:layout_above="@+id/layout_input"
         android:layout_marginBottom="2dp"
         android:background="@color/bgWhiteBlue" />
+
+    </ScrollView>
 
     <LinearLayout
         android:id="@+id/layout_input"
@@ -106,14 +111,13 @@
             android:textSize="19dp"/>
 
         <ImageButton
-            android:id="@+id/btnIcon"
+            android:id="@+id/btnVideo"
             android:layout_width="13dp"
             android:layout_height="50dp"
             android:layout_weight="1"
             android:background="@color/btnColor"
             android:backgroundTint="@color/white"
-            android:src="@drawable/happyicon"
-
+            android:src="@drawable/baseline_video_file_30"
             />
 
         <ImageButton

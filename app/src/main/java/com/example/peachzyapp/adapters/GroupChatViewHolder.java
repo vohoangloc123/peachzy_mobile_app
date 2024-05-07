@@ -26,8 +26,8 @@ public class GroupChatViewHolder  extends RecyclerView.ViewHolder{
         tvGroupLink = itemView.findViewById(R.id.tvGroupLink);
         ivGroupAvatar= itemView.findViewById(R.id.ivGroupAvatar);
         ivGroupMessage = itemView.findViewById(R.id.ivGroupMessage); // Ánh xạ ImageView mới
-        vvGroupMessage = itemView.findViewById(R.id.vvGroupMessage);
         tvUserName=itemView.findViewById(R.id.tvUserName);
+        vvGroupMessage = itemView.findViewById(R.id.vvGroupMessage);
         seekBar = itemView.findViewById(R.id.seekBar);
         btnDownload=itemView.findViewById(R.id.btnDownload);
     }
