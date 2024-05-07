@@ -9,6 +9,9 @@ public class Item {
     private boolean isSentByMe;
     private String imageUrl;
     private String bitmapString;
+    private String type;
+
+
 
     public Item(String time, String message, String avatar, boolean isSentByMe) {
         this.time = time;
@@ -22,6 +25,21 @@ public class Item {
         this.time = time;
         this.message = message;
         this.isSentByMe = isSentByMe;
+    }
+
+    public Item(String time, String message, boolean isSentByMe, String type) {
+        this.time = time;
+        this.message = message;
+        this.isSentByMe = isSentByMe;
+        this.type = type;
+    }
+
+    public Item(String time, String message, String avatar, boolean isSentByMe, String type) {
+        this.time = time;
+        this.message = message;
+        this.avatar = avatar;
+        this.isSentByMe = isSentByMe;
+        this.type = type;
     }
 
     public Item(String time, String message) {
@@ -68,6 +86,15 @@ public class Item {
 
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
+    }
+
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 
     public void setAvatar(String avatar) {
