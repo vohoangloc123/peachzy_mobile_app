@@ -19,6 +19,8 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.os.Handler;
+import android.os.Looper;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -46,7 +48,11 @@ import com.example.peachzyapp.R;
 import com.example.peachzyapp.SocketIO.MyWebSocket;
 import com.example.peachzyapp.adapters.ChatBoxAdapter;
 import com.example.peachzyapp.dynamoDB.DynamoDBManager;
+import com.example.peachzyapp.entities.GroupChat;
 import com.example.peachzyapp.entities.Item;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -144,6 +150,8 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
                 initWebSocket();
             }
         });
+
+
         Log.d("RequestUIDchannel2", "onCreateView: "+channel_id);
         //xử lý resize giao diện và đẩy edit text và button lên khi chat ngoài ra còn load tin nhắn mói từ dưới lên
         InputMethodManager inputManager = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -177,7 +185,9 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
             }
         });
         //Log.d("CheckUserName", userName);
-        updateRecyclerView();
+        //updateRecyclerView();
+        Log.d(TAG, "onCreateView: ");
+        updateRecyclerViewOneToOne();
         ((LinearLayoutManager)recyclerView.getLayoutManager()).setStackFromEnd(true);
         LiveData<List<Item>> messageLiveData = new MutableLiveData<>();
         getActivity().getWindow().setSoftInputMode(
@@ -201,13 +211,45 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
                     listMessage.add(new Item(currentTime, message,urlAvatar ,true));
                     adapter.notifyItemInserted(listMessage.size() - 1);
                     recyclerView.scrollToPosition(listMessage.size() - 1);
-                    myWebSocket.sendMessage(message);
+
+                    //B2 gửi lên socket
+                    JSONObject messageToSend = new JSONObject();
+                    // Tạo đối tượng JSON chứa trường type và message
+                    JSONObject json = new JSONObject();
+
+                    try{
+
+                        messageToSend.put("conversation_id", channel_id);
+                        messageToSend.put("from", uid);
+                        messageToSend.put("to", friend_id);
+
+                        messageToSend.put("memberName", userName);
+                        messageToSend.put("avatar", userAvatar);
+
+                        messageToSend.put("text", message);
+                        messageToSend.put("time", currentTime);
+                        messageToSend.put("type", "text");
+
+
+                        json.put("type", "send-message");
+                        json.put("message", messageToSend);
+
+                    }catch (JSONException e) {
+                        throw new RuntimeException(e);
+                    }
+
+
+                    //myWebSocket.sendMessage(message);
+                    myWebSocket.sendMessage(String.valueOf(json));
                     Log.d("CheckFriendName", friendName);
                     new AsyncTask<Void, Void, Void>() {
                         @Override
                         protected Void doInBackground(Void... voids) {
-                            dynamoDBManager.saveMessage(uid + friend_id, message, currentTime, true);
-                            dynamoDBManager.saveMessage(friend_id + uid, message, currentTime, false);
+                            Log.d("RequestUIDchannel811", "onCreateView: " + channel_id);
+                            dynamoDBManager.saveMessageOneToOne(channel_id,message,currentTime,"text",uid,friend_id);
+
+//                            dynamoDBManager.saveMessage(uid + friend_id, message, currentTime, true);
+//                            dynamoDBManager.saveMessage(friend_id + uid, message, currentTime, false);
                             dynamoDBManager.saveConversation(uid,  friend_id, message, currentTime, urlAvatar, friendName);
                             dynamoDBManager.saveConversation(friend_id, uid,message, currentTime, userAvatar, userName);
                             return null;
@@ -315,15 +357,42 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
                 // Đóng InputStream sau khi tải lên thành công
                 inputStream.close();
 
-                // Gửi tin nhắn chứa URL ảnh đến WebSocket
-                myWebSocket.sendMessage(urlImage);
+                String currentTime = Utils.getCurrentTime();
+                JSONObject messageToSend = new JSONObject();
+                // Tạo đối tượng JSON chứa trường type và message
+                JSONObject json = new JSONObject();
+
+                try{
+
+                    messageToSend.put("conversation_id", channel_id);
+                    messageToSend.put("from", uid);
+                    messageToSend.put("to", friend_id);
+
+                    messageToSend.put("memberName", userName);
+                    messageToSend.put("avatar", userAvatar);
+
+                    messageToSend.put("text", urlImage);
+                    messageToSend.put("time", currentTime);
+                    messageToSend.put("type", "image");
+
+
+                    json.put("type", "send-message");
+                    json.put("message", messageToSend);
+
+                }catch (JSONException e) {
+                    throw new RuntimeException(e);
+                }
+
+
+                //myWebSocket.sendMessage(message);
+                myWebSocket.sendMessage(String.valueOf(json));
 
                 // Lưu tin nhắn và cuộc trò chuyện vào DynamoDB
                 saveMessageAndConversationToDB(urlImage, "Hình ảnh");
 
                 // Sau khi tất cả các thao tác hoàn tất, cập nhật giao diện
                 getActivity().runOnUiThread(() -> {
-                    String currentTime = Utils.getCurrentTime();
+                   // String currentTime = Utils.getCurrentTime();
                     // Thêm tin nhắn mới vào danh sách
                     listMessage.add(new Item(currentTime, urlImage, urlAvatar, true));
                     adapter.notifyItemInserted(listMessage.size() - 1); // Thông báo cho adapter về sự thay đổi
@@ -344,8 +413,9 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
         new AsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground(Void... voids) {
-                dynamoDBManager.saveMessage(uid + friend_id, urlImage, currentTime, true);
-                dynamoDBManager.saveMessage(friend_id + uid, urlImage, currentTime, false);
+                dynamoDBManager.saveMessageOneToOne(channel_id,urlImage,currentTime,"image",uid,friend_id);
+//                dynamoDBManager.saveMessage(uid + friend_id, urlImage, currentTime, true);
+//                dynamoDBManager.saveMessage(friend_id + uid, urlImage, currentTime, false);
                 dynamoDBManager.saveConversation(uid,  friend_id, message, currentTime, urlAvatar, friendName);
                 dynamoDBManager.saveConversation(friend_id, uid, message, currentTime, urlAvatar, userName);
                 return null;
@@ -385,6 +455,37 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
 
                     inputStream.close();
 
+                    String urlFile = "https://chat-app-document-cnm.s3.ap-southeast-1.amazonaws.com/" + fileName + fileExtension;
+                    String currentTime = Utils.getCurrentTime();
+                    JSONObject messageToSend = new JSONObject();
+                    // Tạo đối tượng JSON chứa trường type và message
+                    JSONObject json = new JSONObject();
+
+                    try{
+
+                        messageToSend.put("conversation_id", channel_id);
+                        messageToSend.put("from", uid);
+                        messageToSend.put("to", friend_id);
+
+                        messageToSend.put("memberName", userName);
+                        messageToSend.put("avatar", userAvatar);
+
+                        messageToSend.put("text", urlFile);
+                        messageToSend.put("time", currentTime);
+                        messageToSend.put("type", "document");
+
+
+                        json.put("type", "send-message");
+                        json.put("message", messageToSend);
+
+                    }catch (JSONException e) {
+                        throw new RuntimeException(e);
+                    }
+
+
+                    //myWebSocket.sendMessage(message);
+                    myWebSocket.sendMessage(String.valueOf(json));
+
                     return "https://chat-app-document-cnm.s3.ap-southeast-1.amazonaws.com/" + fileName + fileExtension;
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -414,8 +515,9 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
         new AsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground(Void... voids) {
-                dynamoDBManager.saveMessage(uid + friend_id, urlFile, currentTime, true);
-                dynamoDBManager.saveMessage(friend_id + uid, urlFile, currentTime, false);
+                dynamoDBManager.saveMessageOneToOne(channel_id,urlFile,currentTime,"image",uid,friend_id);
+//                dynamoDBManager.saveMessage(uid + friend_id, urlFile, currentTime, true);
+//                dynamoDBManager.saveMessage(friend_id + uid, urlFile, currentTime, false);
                 dynamoDBManager.saveConversation(uid, friend_id, "Tập tin", currentTime, urlAvatar, friendName);
                 dynamoDBManager.saveConversation(friend_id, uid, "Tập tin", currentTime, urlAvatar, userName);
                 return null;
@@ -439,52 +541,104 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
         // Kiểm tra xem channel_id đã được thiết lập chưa
         if (channel_id != null) {
             // Nếu đã có channel_id, thì khởi tạo myWebSocket
-            myWebSocket = new MyWebSocket("wss://s12275.nyc1.piesocket.com/v3/"+channel_id+"?api_key=CIL9dbE6489dDCZhDUngwMm43Btfp4J9bdnxEK4m&notify_self=1", this);
+            //myWebSocket = new MyWebSocket("wss://s12275.nyc1.piesocket.com/v3/"+channel_id+"?api_key=CIL9dbE6489dDCZhDUngwMm43Btfp4J9bdnxEK4m&notify_self=1", this);
+            myWebSocket = new MyWebSocket("wss://free.blr2.piesocket.com/v3/"+channel_id+"?api_key=ujXx32mn0joYXVcT2j7Gp18c0JcbKTy3G6DE9FMB&notify_self=0", this);
         } else {
             // Nếu channel_id vẫn chưa được thiết lập, hiển thị thông báo hoặc xử lý lỗi tương ứng
             Log.e("WebSocket", "Error: Channel ID is null");
         }
     }
-
     @Override
     public void onMessageReceived(String receivedMessage) {
-        Log.d("MessageReceived", receivedMessage);
+        try {
 
-        // Kiểm tra xem tin nhắn nhận được có trùng với tin nhắn đã gửi không
-        boolean isDuplicate = false;
-        for (Item item : listMessage) {
-            if (item.getMessage().equals(receivedMessage)) {
-                isDuplicate = true;
-                break;
+            JSONObject jsonObject  = new JSONObject(receivedMessage);
+            JSONObject messageJson = jsonObject.getJSONObject("message");
+
+            // String avatar = messageJson.getString("avatar");
+            String avatar = messageJson.getString("avatar"); // Đường dẫn ảnh đại diện mặc định
+//            String userName = messageJson.getString("memberName");
+//            String userID = messageJson.getString("memberID");
+            String from = messageJson.getString("from");
+            String to = messageJson.getString("to");
+            String message = messageJson.getString("text");
+            String currentTime = messageJson.getString("time");
+            String type=messageJson.getString("type");
+            Log.d("onMessageReceived1", receivedMessage);
+
+            // Kiểm tra xem tin nhắn nhận được có trùng với tin nhắn đã gửi không
+            boolean isDuplicate = false;
+            for (Item item : listMessage) {
+                if (item.getMessage().equals(receivedMessage)) {
+                    isDuplicate = true;
+                    break;
+                }
             }
-        }
-        scrollToBottom();
-        if (!isDuplicate) {
-            // Tin nhắn không trùng, thêm nó vào danh sách và cập nhật giao diện
-            String currentTime = Utils.getCurrentTime();
-            listMessage.add(new Item(currentTime, receivedMessage, urlAvatar,false));
-            Log.d("CheckingListMessage", listMessage.toString());
-            newPosition = listMessage.size() - 1; // Vị trí mới của tin nhắn
-            adapter.notifyItemInserted(newPosition);
+
             scrollToBottom();
-            // Kiểm tra nếu RecyclerView đã được attach vào layout
-            if (recyclerView.getLayoutManager() != null) {
-                // Cuộn xuống vị trí mới
-                recyclerView.post(() -> recyclerView.smoothScrollToPosition(newPosition));
-
-            } else {
-                // Nếu RecyclerView chưa được attach, thì cuộn xuống khi RecyclerView được attach vào layout
-                recyclerView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-                    @Override
-                    public void onGlobalLayout() {
-                        recyclerView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                        recyclerView.smoothScrollToPosition(newPosition);
-                    }
-                });
+            if (!isDuplicate) {
+                listMessage.add(new Item(currentTime, message, urlAvatar,false,type));
+                Log.d("TypeIs1218", type);
+                newPosition = listMessage.size() - 1; // Vị trí mới của tin nhắn
+                adapter.notifyItemInserted(newPosition);
+                scrollToBottom();
+                if (recyclerView.getLayoutManager() != null) {
+                    // Cuộn xuống vị trí mới
+                    recyclerView.post(() -> recyclerView.smoothScrollToPosition(newPosition));
+                } else {
+                    recyclerView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                        @Override
+                        public void onGlobalLayout() {
+                            recyclerView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                            recyclerView.smoothScrollToPosition(newPosition);
+                        }
+                    });
+                }
             }
-
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
     }
+
+//    @Override
+//    public void onMessageReceived(String receivedMessage) {
+//        Log.d("MessageReceived", receivedMessage);
+//
+//        // Kiểm tra xem tin nhắn nhận được có trùng với tin nhắn đã gửi không
+//        boolean isDuplicate = false;
+//        for (Item item : listMessage) {
+//            if (item.getMessage().equals(receivedMessage)) {
+//                isDuplicate = true;
+//                break;
+//            }
+//        }
+//        scrollToBottom();
+//        if (!isDuplicate) {
+//            // Tin nhắn không trùng, thêm nó vào danh sách và cập nhật giao diện
+//            String currentTime = Utils.getCurrentTime();
+//            listMessage.add(new Item(currentTime, receivedMessage, urlAvatar,false));
+//            Log.d("CheckingListMessage", listMessage.toString());
+//            newPosition = listMessage.size() - 1; // Vị trí mới của tin nhắn
+//            adapter.notifyItemInserted(newPosition);
+//            scrollToBottom();
+//            // Kiểm tra nếu RecyclerView đã được attach vào layout
+//            if (recyclerView.getLayoutManager() != null) {
+//                // Cuộn xuống vị trí mới
+//                recyclerView.post(() -> recyclerView.smoothScrollToPosition(newPosition));
+//
+//            } else {
+//                // Nếu RecyclerView chưa được attach, thì cuộn xuống khi RecyclerView được attach vào layout
+//                recyclerView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+//                    @Override
+//                    public void onGlobalLayout() {
+//                        recyclerView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+//                        recyclerView.smoothScrollToPosition(newPosition);
+//                    }
+//                });
+//            }
+//
+//        }
+//    }
 
     @Override
     public void onConnectionStateChanged(boolean isConnected) {
@@ -523,6 +677,35 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
 
         // Cuộn đến vị trí cuối cùng
         recyclerView.scrollToPosition(listMessage.size() - 1);
+    }
+    public void updateRecyclerViewOneToOne() {
+        // Xóa bỏ các tin nhắn cũ từ listMessage
+        listMessage.clear();
+
+        dynamoDBManager.getChannelID(uid, friend_id, new DynamoDBManager.ChannelIDinterface() {
+            @Override
+            public void GetChannelId(String channelID) {
+                Log.d("RequestUIDchannel328", "onCreateView: " + channelID);
+
+                // Thêm các tin nhắn mới từ DynamoDB vào danh sách hiện tại
+                List<Item> newMessages = dynamoDBManager.loadMessagesOneToOne(channelID, uid);
+                for (Item message : newMessages) {
+                    Log.d("message332", message.getMessage()+" "+ message.getType());
+                    // Tạo một đối tượng Message mới với thông tin từ tin nhắn và avatar
+                    Item newMessage = new Item(message.getTime(), message.getMessage(),urlAvatar, message.isSentByMe(),message.getType());
+                    listMessage.add(newMessage);
+                }
+
+                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        // Cập nhật RecyclerView và cuộn đến vị trí cuối cùng
+                        adapter.notifyDataSetChanged();
+                        recyclerView.scrollToPosition(listMessage.size() - 1);
+                    }
+                });
+            }
+        });
     }
     private void changeData() {
         viewModel.setData("New data");
