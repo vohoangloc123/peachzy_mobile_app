@@ -2,6 +2,7 @@ package com.example.peachzyapp.adapters;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Paint;
 import android.net.Uri;
 import android.os.Handler;
 import android.util.Log;
@@ -65,6 +66,19 @@ public class ChatBoxAdapter extends RecyclerView.Adapter<ChatViewHolder> {
         RelativeLayout.LayoutParams paramsOfImage = (RelativeLayout.LayoutParams) holder.ivMessage.getLayoutParams();
         RelativeLayout.LayoutParams paramsOfFile = (RelativeLayout.LayoutParams) holder.tvLink.getLayoutParams();
         RelativeLayout.LayoutParams paramsOfSeeker = (RelativeLayout.LayoutParams) holder.seekBar.getLayoutParams();
+
+        //Chỉnh kích thước textview
+//        String message=currentItem.getMessage();
+//        int legnth= message.length();
+//        Log.d("legnth: ", legnth+"");
+//        float textSize = holder.tvMessage.getTextSize(); // Kích thước chữ của TextView
+//        Paint paint = new Paint();
+//        paint.setTextSize(textSize);
+//        float charWidth = paint.measureText("X");
+//        int desiredWidth = (int) (charWidth* legnth);
+//        //holder.tvMessage.setWidth(desiredWidth+50);
+//        holder.tvMessage.setMaxWidth(desiredWidth+50);
+
         // Nếu tin nhắn là của người gửi
         if (isSentByMe) {
             params.addRule(RelativeLayout.ALIGN_PARENT_END);
@@ -164,6 +178,7 @@ public class ChatBoxAdapter extends RecyclerView.Adapter<ChatViewHolder> {
                 holder.vvMessage.setVisibility(View.GONE);
             }
         } else if(!isSentByMe) { // Nếu tin nhắn là của người nhận
+            holder.ivAvatar.setVisibility(View.VISIBLE);
             holder.tvMessage.setTextColor(context.getColor(R.color.black));
             holder.tvMessage.setBackground(ContextCompat.getDrawable(context, R.drawable.rounded_rectangle_secondary));
             params.addRule(RelativeLayout.ALIGN_PARENT_START);
