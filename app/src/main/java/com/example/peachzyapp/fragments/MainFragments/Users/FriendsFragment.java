@@ -38,9 +38,9 @@ public class FriendsFragment extends Fragment {
     private FriendAlreadyAdapter friendAdapter;
 
     private ArrayList<FriendItem> friendList;
-    FriendItem friendItem;
+    private FriendItem friendItem;
     private View view;
-    String uid;
+    private String uid;
     private MyViewModel viewModel;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -118,7 +118,9 @@ public class FriendsFragment extends Fragment {
         btnRequestSent.setOnClickListener(v->{
             mainActivity.goToRequestSentFragment();
         });
-        friendAdapter= new FriendAlreadyAdapter(friendList);
+        friendAdapter= new FriendAlreadyAdapter(friendList,
+                getContext(), dynamoDBManager, mainActivity,
+                getActivity().getSupportFragmentManager(), uid);
         rcvFriendList.setAdapter(friendAdapter);
 
         friendAdapter.setOnItemClickListener(new FriendAlreadyAdapter.OnItemClickListener() {
@@ -132,9 +134,6 @@ public class FriendsFragment extends Fragment {
                 mainActivity.goToChatBoxFragment(bundle);
             }
         });
-
-//        RecyclerView.ItemDecoration itemDecoration=new DividerItemDecoration(mainActivity, DividerItemDecoration.VERTICAL);
-//        rcvFriendList.addItemDecoration(itemDecoration);
         return view;
     }
 
