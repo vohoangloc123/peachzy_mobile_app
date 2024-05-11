@@ -30,6 +30,7 @@ import com.example.peachzyapp.fragments.MainFragments.GroupChat.Option.GroupOpti
 import com.example.peachzyapp.fragments.MainFragments.Profiles.ChangePasswordFragment;
 import com.example.peachzyapp.fragments.MainFragments.Profiles.EditProfileFragment;
 import com.example.peachzyapp.fragments.MainFragments.Profiles.ProfileFragment;
+import com.example.peachzyapp.fragments.MainFragments.Profiles.ViewProfileFragment;
 import com.example.peachzyapp.fragments.MainFragments.Users.AddFriendFragment;
 import com.example.peachzyapp.fragments.MainFragments.Chats.ChatListsFragment;
 import com.example.peachzyapp.fragments.MainFragments.Users.RequestReceivedFragment;
@@ -621,6 +622,43 @@ public void goToDetailFragment(ChatBox chatBox) {
         fragmentTransaction.commit();
         // Hiển thị bottomNavigationView
         showBottomNavigation(true);
+    }
+
+    public void goToViewProfileFragment(Bundle bundle) {
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+
+        ViewProfileFragment viewProfileFragment = new ViewProfileFragment();
+        // Thêm ProfileFragment
+        fragmentTransaction.add(R.id.etFind, viewProfileFragment, viewProfileFragment.TAG);
+
+        // Ẩn tất cả các Fragment khác
+        Fragment chatListsFragment = (Fragment) viewPager.getAdapter().instantiateItem(viewPager, 0);
+        Fragment notificationFragment = (Fragment) viewPager.getAdapter().instantiateItem(viewPager, 1);
+        Fragment usersFragment = (Fragment) viewPager.getAdapter().instantiateItem(viewPager, 2);
+        Fragment editProfileFragment = (Fragment) viewPager.getAdapter().instantiateItem(viewPager, 3);
+
+        if (chatListsFragment != null) {
+            fragmentTransaction.hide(chatListsFragment);
+        }
+        if (notificationFragment != null) {
+            fragmentTransaction.hide(notificationFragment);
+        }
+        if (usersFragment != null) {
+            fragmentTransaction.hide(usersFragment);
+        }
+        if (editProfileFragment != null) {
+
+        }
+
+        // Ẩn bottomNavigationView
+        showBottomNavigation(false);
+        viewProfileFragment.setArguments(bundle);
+        fragmentTransaction.addToBackStack(viewProfileFragment.TAG);
+        fragmentTransaction.commit();
+
+
+
+
     }
 
     public void showBottomNavigation(boolean show) {

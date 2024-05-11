@@ -14,11 +14,13 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.FragmentManager;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.MultiTransformation;
 import com.bumptech.glide.load.resource.bitmap.CircleCrop;
+import com.example.peachzyapp.LiveData.MyViewModel;
 import com.example.peachzyapp.MainActivity;
 import com.example.peachzyapp.R;
 import com.example.peachzyapp.dynamoDB.DynamoDBManager;
@@ -37,6 +39,9 @@ public class FriendAlreadyAdapter extends RecyclerView.Adapter<FriendAlreadyAdap
     private DynamoDBManager dynamoDBManager;
     private MainActivity mainActivity;
     private FragmentManager fragmentManager;
+
+
+
     public interface OnItemClickListener {
         void onItemClick(String id , String urlAvatar, String friendName);
     }
@@ -80,7 +85,7 @@ public class FriendAlreadyAdapter extends RecyclerView.Adapter<FriendAlreadyAdap
                 .load(friends.getAvatar())
                 .placeholder(R.drawable.logo)
                 .transform(new MultiTransformation<Bitmap>(new CircleCrop()))
-                .into(avatarImageView);
+                .into(holder.avatarImageView);
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -95,6 +100,7 @@ public class FriendAlreadyAdapter extends RecyclerView.Adapter<FriendAlreadyAdap
     }
 
     public class FriendViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
+        public ImageView avatarImageView;
         public TextView tvFriend;
         public ImageButton btnMore;
         private int position;
@@ -102,6 +108,8 @@ public class FriendAlreadyAdapter extends RecyclerView.Adapter<FriendAlreadyAdap
         private MainActivity mainActivity;
         private Context context;
         private String friendID; // Thêm trường uid
+      
+
         public void setFriendUid(String friendID) {
             this.friendID= friendID;
         }
@@ -121,6 +129,9 @@ public class FriendAlreadyAdapter extends RecyclerView.Adapter<FriendAlreadyAdap
                 // Xử lý sự kiện khi chọn một item trên popup menu
                 int itemId = item.getItemId();
                 if (itemId == R.id.action_popup_unfriend) {
+
+
+
                     // Xử lý khi chọn Delete item ở đây
                     Log.d(TAG, "ProfileUnfriend: "+"my uid: "+uid+" friendID: "+friendID);
                     dynamoDBManager.deleteAFriendFromUser(uid, friendID);
@@ -129,7 +140,8 @@ public class FriendAlreadyAdapter extends RecyclerView.Adapter<FriendAlreadyAdap
                     Log.d(TAG, "ViewProfile: "+uid);
                     //gọi hàm dynamoDB lấy dữ liệu ng dùng friendID
                     Bundle bundle=new Bundle();
-//                    mainActivity.goToEditGroupNameFragment(bundle);
+                    bundle.putString("friendID",friendID);
+                    mainActivity.goToViewProfileFragment(bundle);
                 }
                 return true;
             });

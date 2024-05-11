@@ -207,21 +207,21 @@ public class GroupChatBoxAdapter extends RecyclerView.Adapter<GroupChatViewHolde
                     mediaController.setMediaPlayer(holder.vvGroupMessage);
                     holder.vvGroupMessage.setMediaController(mediaController);
                     holder.vvGroupMessage.setOnClickListener(v -> {holder.vvGroupMessage.setOnPreparedListener(mp -> {
-                            // Bắt đầu phát video khi đã chuẩn bị sẵn
+                        // Bắt đầu phát video khi đã chuẩn bị sẵn
                         mp.start();
-                            // Set up SeekBar for tracking progress
+                        // Set up SeekBar for tracking progress
                         holder.seekBar.setMax(mp.getDuration());
                         new Handler().postDelayed(new Runnable() {
-                                @Override
-                                public void run() {
-                                    if (holder.vvGroupMessage.isPlaying()) {
-                                        int currentPosition = holder.vvGroupMessage.getCurrentPosition();
-                                        holder.seekBar.setProgress(currentPosition);
-                                        new Handler().postDelayed(this, 1000); // Update seekbar every second
-                                    }
+                            @Override
+                            public void run() {
+                                if (holder.vvGroupMessage.isPlaying()) {
+                                    int currentPosition = holder.vvGroupMessage.getCurrentPosition();
+                                    holder.seekBar.setProgress(currentPosition);
+                                    new Handler().postDelayed(this, 1000); // Update seekbar every second
                                 }
-                            }, 1000);
-                        });
+                            }
+                        }, 1000);
+                    });
                         holder.vvGroupMessage.setOnCompletionListener(mp -> {
                             // Tắt VideoView khi video phát xong
                             mp.stop();
@@ -241,10 +241,10 @@ public class GroupChatBoxAdapter extends RecyclerView.Adapter<GroupChatViewHolde
                             @Override
                             public void onStopTrackingTouch(SeekBar seekBar) {}
                         });
-                        });
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
+                    });
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
 
             } else {
                 //text

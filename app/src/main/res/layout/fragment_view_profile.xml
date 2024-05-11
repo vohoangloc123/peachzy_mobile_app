@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/fragment_profile_container">
+
+    <!-- TODO: Update blank fragment layout -->
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/bgWhiteBlue"
+        android:orientation="vertical"
+        tools:layout_editor_absoluteX="0dp"
+        tools:layout_editor_absoluteY="-37dp">
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:background="@color/btnColor"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/textView"
+                android:layout_width="match_parent"
+                android:layout_height="70dp"
+                android:layout_marginLeft="20dp"
+                android:layout_marginTop="5dp"
+                android:layout_weight="1"
+                android:padding="15dp"
+                android:text="@string/user_information"
+                android:textColor="@color/white"
+                android:textAlignment="center"
+                android:textSize="20dp" />
+        </LinearLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="180dp"
+            android:layout_marginLeft="0dp"
+            android:layout_marginTop="5dp">
+
+            <!-- ImageView đầu tiên với hình ảnh làm nền -->
+            <ImageView
+                android:id="@+id/ivBackGround"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:src="@drawable/ic_launcher_background"
+                android:scaleType="fitXY" />
+
+            <!-- ImageView thứ hai làm avatar, được căn giữa -->
+            <ImageView
+                android:id="@+id/ivAvatar"
+                android:layout_width="176dp"
+                android:layout_height="131dp"
+                android:layout_centerInParent="true"
+
+                android:src="@drawable/user_avatar" />
+
+        </RelativeLayout>
+
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="69dp"
+            android:layout_marginTop="20dp"
+            android:background="@drawable/edittext_profile_inf"
+            android:orientation="horizontal"
+            android:paddingTop="5dp">
+
+
+            <TextView
+                android:id="@+id/textView2"
+                android:layout_width="142dp"
+                android:layout_height="37dp"
+                android:layout_marginTop="10dp"
+                android:layout_weight="1"
+                android:paddingLeft="20dp"
+                android:text="@string/name"
+                android:textColor="@color/borderColor"
+                android:textSize="18dp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvName"
+                android:layout_width="240dp"
+                android:layout_height="40dp"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/edittext_profile_no_border"
+                android:ems="10"
+                android:hint="@string/name"
+                android:inputType="text"
+                android:textColor="@color/black"
+                android:textSize="15dp"
+                android:textStyle="bold"
+
+                />
+
+
+        </LinearLayout>
+
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+
+            android:background="@drawable/edittext_profile_inf"
+            android:orientation="horizontal"
+            android:paddingTop="5dp">
+
+
+            <TextView
+                android:id="@+id/textView1"
+                android:layout_width="129dp"
+                android:layout_height="37dp"
+                android:layout_marginTop="10dp"
+                android:layout_weight="1"
+                android:paddingLeft="20dp"
+                android:text="@string/gender"
+                android:textColor="@color/borderColor"
+                android:textSize="18dp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvGender"
+                android:layout_width="240dp"
+                android:layout_height="40dp"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/edittext_profile_no_border"
+                android:ems="10"
+                android:hint="@string/gender"
+                android:inputType=""
+                android:textColor="@color/black"
+                android:textSize="15dp"
+                android:textStyle="bold"
+
+                />
+
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="58dp"
+            android:background="@drawable/edittext_profile_inf"
+            android:orientation="horizontal">
+
+
+            <TextView
+                android:id="@+id/textView8"
+                android:layout_width="131dp"
+                android:layout_height="37dp"
+                android:layout_weight="1"
+                android:paddingLeft="20dp"
+                android:text="@string/day_of_birth"
+                android:textColor="@color/borderColor"
+                android:textSize="18dp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvDateOfBirth"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:ems="10"
+                android:hint="yyy-mm-dd"
+                android:inputType="text"
+                android:paddingTop="15dp"
+                android:textColor="@color/black"
+                android:textSize="18dp"
+                android:textStyle="bold" />
+
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="90dp"
+            android:orientation="horizontal"
+            android:paddingTop="15dp">
+
+
+            <TextView
+                android:id="@+id/textView6"
+                android:layout_width="wrap_content"
+                android:layout_height="42dp"
+                android:layout_weight="1"
+                android:paddingLeft="20dp"
+                android:text="@string/email_"
+                android:textColor="@color/borderColor"
+                android:textSize="18dp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvEmail"
+                android:layout_width="150dp"
+                android:layout_height="37dp"
+                android:layout_weight="1"
+                android:text="trang02@gmail.com"
+                android:textColor="@color/borderColor"
+                android:textSize="15dp"
+                android:textStyle="bold" />
+
+
+        </LinearLayout>
+
+
+
+
+
+
+
+
+
+    </LinearLayout>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
