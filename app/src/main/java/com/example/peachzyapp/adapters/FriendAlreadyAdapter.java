@@ -40,6 +40,12 @@ public class FriendAlreadyAdapter extends RecyclerView.Adapter<FriendAlreadyAdap
     private MainActivity mainActivity;
     private FragmentManager fragmentManager;
 
+    private MyViewModel viewModel;
+
+    public void setViewModel(MyViewModel viewModel) {
+        this.viewModel = viewModel;
+    }
+
 
 
     public interface OnItemClickListener {
@@ -130,12 +136,15 @@ public class FriendAlreadyAdapter extends RecyclerView.Adapter<FriendAlreadyAdap
                 int itemId = item.getItemId();
                 if (itemId == R.id.action_popup_unfriend) {
 
-
-
                     // Xử lý khi chọn Delete item ở đây
                     Log.d(TAG, "ProfileUnfriend: "+"my uid: "+uid+" friendID: "+friendID);
                     dynamoDBManager.deleteAFriendFromUser(uid, friendID);
                     dynamoDBManager.deleteAFriendFromUser(friendID, uid);
+
+                    // Xóa mục khỏi danh sách và thông báo cho Adapter biết
+                    listFriend.remove(position);
+                    notifyItemRemoved(position);
+                    //changeData();
                 } else if (itemId == R.id.action_popup_view_profile) {
                     Log.d(TAG, "ViewProfile: "+uid);
                     //gọi hàm dynamoDB lấy dữ liệu ng dùng friendID
@@ -163,5 +172,9 @@ public class FriendAlreadyAdapter extends RecyclerView.Adapter<FriendAlreadyAdap
         public void setMainActivity(MainActivity mainActivity) {
             this.mainActivity=mainActivity;
         }
+    }
+
+    private void changeData() {
+        viewModel.setData("New data");
     }
 }

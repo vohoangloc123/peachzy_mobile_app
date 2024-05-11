@@ -118,10 +118,15 @@ public class FriendsFragment extends Fragment {
         btnRequestSent.setOnClickListener(v->{
             mainActivity.goToRequestSentFragment();
         });
+
+
+
         friendAdapter= new FriendAlreadyAdapter(friendList,
                 getContext(), dynamoDBManager, mainActivity,
                 getActivity().getSupportFragmentManager(), uid);
         rcvFriendList.setAdapter(friendAdapter);
+
+        friendAdapter.setViewModel(viewModel);
 
         friendAdapter.setOnItemClickListener(new FriendAlreadyAdapter.OnItemClickListener() {
             @Override
