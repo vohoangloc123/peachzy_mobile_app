@@ -150,6 +150,7 @@ public class FriendAlreadyAdapter extends RecyclerView.Adapter<FriendAlreadyAdap
                     //gọi hàm dynamoDB lấy dữ liệu ng dùng friendID
                     Bundle bundle=new Bundle();
                     bundle.putString("friendID",friendID);
+                    bundle.putString("parent", "this is parent fragment");
                     mainActivity.goToViewProfileFragment(bundle);
                 }
                 return true;

@@ -30,7 +30,6 @@ public class ViewPagerAdapter extends FragmentPagerAdapter {
             default:
                 return new ChatListsFragment();
         }
-
     }
 
     @Override

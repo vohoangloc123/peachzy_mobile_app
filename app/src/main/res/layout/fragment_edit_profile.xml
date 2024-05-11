@@ -12,12 +12,10 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/bgWhiteBlue"
+        android:background="@color/white"
         android:orientation="vertical"
         tools:layout_editor_absoluteX="0dp"
         tools:layout_editor_absoluteY="0dp">
-
-
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="75dp"
@@ -56,7 +54,7 @@
                 android:layout_width="176dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:background="@color/bgWhiteBlue"
+                android:background="@color/white"
                 android:src="@drawable/user_avatar" />
 
         </LinearLayout>
@@ -68,14 +66,12 @@
             android:paddingLeft="100dp">
 
             <ImageButton
-
                 android:id="@+id/btnChangeAvatar"
-
                 android:layout_width="194dp"
                 android:layout_height="40dp"
                 android:background="@drawable/border_button_profile"
                 android:paddingRight="130dp"
-                android:src="@drawable/replace" />
+                android:src="@drawable/baseline_image_30" />
 
             <TextView
                 android:id="@+id/tv2"
@@ -86,35 +82,31 @@
                 android:layout_marginBottom="4dp"
                 android:paddingLeft="60dp"
                 android:text="@string/change_image"
-                android:textColor="@color/btnColor"
+                android:textColor="@color/black"
                 android:textSize="18dp"
                 android:textStyle="bold" />
         </RelativeLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="69dp"
-            android:layout_marginTop="20dp"
-            android:background="@drawable/edittext_profile_inf"
+            android:layout_height="58dp"
+
+            android:background="@drawable/border_top"
             android:orientation="horizontal"
             android:paddingTop="5dp">
-
-
             <TextView
                 android:id="@+id/textView2"
-                android:layout_width="142dp"
+                android:layout_width="130dp"
                 android:layout_height="37dp"
                 android:layout_marginTop="10dp"
-                android:layout_weight="1"
                 android:paddingLeft="20dp"
                 android:text="@string/name"
                 android:textColor="@color/borderColor"
                 android:textSize="18dp"
                 android:textStyle="bold" />
-
             <EditText
                 android:id="@+id/etName"
-                android:layout_width="240dp"
+                android:layout_width="match_parent"
                 android:layout_height="40dp"
                 android:layout_marginTop="10dp"
                 android:background="@drawable/edittext_profile_no_border"
@@ -124,28 +116,18 @@
                 android:textColor="@color/black"
                 android:textSize="15dp"
                 android:textStyle="bold"
-
                 />
-
-
         </LinearLayout>
-
-
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="60dp"
-
-            android:background="@drawable/edittext_profile_inf"
+            android:layout_height="58dp"
             android:orientation="horizontal"
             android:paddingTop="5dp">
-
-
             <TextView
                 android:id="@+id/textView1"
-                android:layout_width="129dp"
+                android:layout_width="130dp"
                 android:layout_height="37dp"
                 android:layout_marginTop="10dp"
-                android:layout_weight="1"
                 android:paddingLeft="20dp"
                 android:text="@string/gender"
                 android:textColor="@color/borderColor"
@@ -162,9 +144,9 @@
                     android:id="@+id/rMale"
                     android:layout_width="109dp"
                     android:layout_height="wrap_content"
+                    android:paddingLeft="20dp"
                     android:text="@string/male"
                     android:textColor="@color/black" />
-
                 <RadioButton
                     android:id="@+id/rFemale"
                     android:layout_width="100dp"
@@ -179,49 +161,41 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="58dp"
-            android:background="@drawable/edittext_profile_inf"
             android:orientation="horizontal">
-
-
             <TextView
                 android:id="@+id/textView8"
-                android:layout_width="131dp"
+                android:layout_width="130dp"
                 android:layout_height="37dp"
-                android:layout_weight="1"
                 android:paddingLeft="20dp"
+                android:layout_marginTop="10dp"
                 android:text="@string/day_of_birth"
                 android:textColor="@color/borderColor"
                 android:textSize="18dp"
                 android:textStyle="bold" />
-
             <TextView
                 android:id="@+id/etDateOfBirth"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
                 android:ems="10"
                 android:hint="yyy-mm-dd"
                 android:inputType="text"
-                android:paddingTop="15dp"
+                android:layout_marginTop="10dp"
                 android:textColor="@color/black"
                 android:textSize="18dp"
                 android:textStyle="bold" />
-
 
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="90dp"
+            android:layout_height="58dp"
             android:orientation="horizontal"
-            android:paddingTop="15dp">
-
-
+            android:paddingTop="15dp"
+            android:background="@drawable/border_bottom">
             <TextView
                 android:id="@+id/textView6"
-                android:layout_width="wrap_content"
-                android:layout_height="42dp"
-                android:layout_weight="1"
+                android:layout_width="130dp"
+                android:layout_height="37dp"
                 android:paddingLeft="20dp"
                 android:text="@string/email_"
                 android:textColor="@color/borderColor"
@@ -230,43 +204,38 @@
 
             <TextView
                 android:id="@+id/etEmail"
-                android:layout_width="150dp"
+                android:layout_width="match_parent"
                 android:layout_height="37dp"
-                android:layout_weight="1"
-                android:text="trang02@gmail.com"
-                android:textColor="@color/borderColor"
+                android:text="email@gmail.com"
+                android:textColor="@color/black"
                 android:textSize="15dp"
                 android:textStyle="bold" />
-
-
         </LinearLayout>
 
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="10dp"
-            android:background="@color/btnEdit"
-
+            android:background="@drawable/border_bottom"
             >
-
             <ImageButton
 
                 android:id="@+id/btnSave"
                 android:layout_width="match_parent"
                 android:layout_height="55dp"
-                android:backgroundTint="@color/btnEdit"
+                android:paddingLeft="-330dp"
+                android:backgroundTint="@color/white"
                 android:outlineAmbientShadowColor="@color/black"
-                android:paddingRight="80dp"
                 android:src="@drawable/save_30_black" />
 
             <TextView
                 android:id="@+id/text_view"
-                android:layout_width="318dp"
-                android:layout_height="38dp"
+                android:layout_width="359dp"
+                android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
                 android:layout_marginEnd="-59dp"
                 android:layout_marginBottom="4dp"
-                android:paddingLeft="200dp"
+                android:paddingLeft="55dp"
                 android:text="@string/save"
                 android:textColor="@color/black"
                 android:textSize="19dp"

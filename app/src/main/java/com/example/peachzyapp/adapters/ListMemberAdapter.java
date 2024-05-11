@@ -1,19 +1,16 @@
 package com.example.peachzyapp.adapters;
 
 import android.content.Context;
-import android.os.Handler;
+import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -24,21 +21,22 @@ import com.example.peachzyapp.R;
 import com.example.peachzyapp.dynamoDB.DynamoDBManager;
 import com.example.peachzyapp.entities.FriendItem;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class ListMemberAdapter extends RecyclerView.Adapter<ListMemberAdapter.ListMemberViewHolder> {
     private List<FriendItem> listMember;
     private static final String TAG = "ListMemberAdapter";
-    private ImageButton btnAddFriend;
+    private ImageButton btnViewProfile;
     private String groupID;
     private String uid;
     private DynamoDBManager dynamoDBManager;
-    public ListMemberAdapter(List<FriendItem> listMember, String groupID, String uid, DynamoDBManager dynamoDBManager) {
+    private MainActivity mainActivity;
+    public ListMemberAdapter(List<FriendItem> listMember, String groupID, String uid, DynamoDBManager dynamoDBManager, MainActivity mainActivity) {
         this.listMember = listMember;
         this.groupID = groupID;
         this.uid = uid;
         this.dynamoDBManager = dynamoDBManager;
+        this.mainActivity=mainActivity;
     }
 
     @NonNull
@@ -53,6 +51,8 @@ public class ListMemberAdapter extends RecyclerView.Adapter<ListMemberAdapter.Li
         FriendItem member = listMember.get(position);
         holder.bind(member, position);
         holder.setDynamoDBManager(dynamoDBManager);
+        holder.setFriendUid(member.getId());
+        holder.setMainActivity(mainActivity);
     }
 
     @Override
@@ -69,13 +69,17 @@ public class ListMemberAdapter extends RecyclerView.Adapter<ListMemberAdapter.Li
         private DynamoDBManager dynamoDBManager;
         private MainActivity mainActivity;
         private Context context;
+        private String friendID;
+        public void setFriendUid(String friendID) {
+            this.friendID= friendID;
+        }
         public ListMemberViewHolder(@NonNull View itemView) {
             super(itemView);
             tvMemberName = itemView.findViewById(R.id.tvMemberName);
             tvRole = itemView.findViewById(R.id.tvRole);
             ivMemberAvatar = itemView.findViewById(R.id.ivMemberAvatar);
-            btnAddFriend = itemView.findViewById(R.id.btnAddfriend);
-            btnAddFriend.setOnClickListener(this);
+            btnViewProfile = itemView.findViewById(R.id.btnViewProfile);
+            btnViewProfile.setOnClickListener(this);
         }
 
         public void bind(FriendItem member, int position) {
@@ -89,10 +93,12 @@ public class ListMemberAdapter extends RecyclerView.Adapter<ListMemberAdapter.Li
                     .into(ivMemberAvatar);
         }
 
-
         @Override
         public void onClick(View v) {
-            Log.d(TAG, "onClick: " + position);
+            Log.d(TAG, "onClick: " + position+friendID);
+            Bundle bundle=new Bundle();
+            bundle.putString("friendID", friendID);
+            mainActivity.goToViewProfileFragment(bundle);
         }
         public void setDynamoDBManager(DynamoDBManager dynamoDBManager) {
             this.dynamoDBManager = dynamoDBManager;

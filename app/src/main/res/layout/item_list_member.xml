@@ -21,9 +21,6 @@
             android:background="@color/white"
             android:orientation="horizontal"
             android:padding="5dp">
-
-
-
             <ImageView
                 android:id="@+id/ivMemberAvatar"
                 android:layout_width="50dp"
@@ -55,12 +52,12 @@
                 android:textStyle="bold"
                 android:textColor="@color/black"/>
             <ImageButton
-                android:id="@+id/btnAddfriend"
+                android:id="@+id/btnViewProfile"
                 android:layout_width="50dp"
                 android:layout_height="60dp"
                 android:layout_weight="1"
                 android:background="@color/white"
-                android:src="@drawable/baseline_person_add_24" />
+                android:src="@drawable/ic_more_vert_black_24dp" />
 
         </LinearLayout>
     </LinearLayout>

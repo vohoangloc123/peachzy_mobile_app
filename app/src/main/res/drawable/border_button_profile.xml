@@ -6,7 +6,7 @@
     <corners android:radius="25dp" />
     <stroke
         android:width="2dp"
-        android:color="@color/btnColor"
+        android:color="@color/black"
         />
 
 

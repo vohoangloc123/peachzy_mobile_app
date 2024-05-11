@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -29,25 +30,24 @@ import java.util.Random;
 
 public class ViewProfileFragment extends Fragment {
     public static final String TAG= ViewProfileFragment.class.getName();
-    ImageView ivAvatar;
-    ImageView ivBackGround;
-    TextView tvName;
-    TextView tvDateOfBirth;
-    TextView tvGender;
-    TextView tvEmail;
-    String urlAvatar;
-    String friendID;
-    MainActivity mainActivity;
-    DynamoDBManager dynamoDBManager;
-
+    private ImageView ivAvatar;
+    private ImageView ivBackGround;
+    private TextView tvName;
+    private TextView tvDateOfBirth;
+    private TextView tvGender;
+    private TextView tvEmail;
+    private String urlAvatar;
+    private String friendID;
+    private MainActivity mainActivity;
+    private DynamoDBManager dynamoDBManager;
+    private ImageButton btnBack;
+    private Boolean isParent;
     public static void loadCircularImageUrl(Context context, String url, ImageView imageView) {
-
         Glide.with(context)
                 .load(url)
                 .transform(new MultiTransformation<Bitmap>(new CircleCrop()))
                 .into(imageView);
     }
-
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -58,10 +58,17 @@ public class ViewProfileFragment extends Fragment {
         tvDateOfBirth = view.findViewById(R.id.tvDateOfBirth);
         tvGender=view.findViewById(R.id.tvGender);
         tvEmail = view.findViewById(R.id.tvEmail);
+        btnBack=view.findViewById(R.id.btnBack);
 
         dynamoDBManager = new DynamoDBManager(getActivity());
         mainActivity= (MainActivity) getActivity();
+        btnBack.setOnClickListener(v->{
+            getFragmentManager().popBackStack();
+            if(isParent){
+                mainActivity.showBottomNavigation(true);
+            }
 
+        });
 
         randomBackGround();
         //get data
@@ -76,6 +83,15 @@ public class ViewProfileFragment extends Fragment {
         Bundle bundle = getArguments();
         if (bundle != null) {
             friendID = bundle.getString("friendID");
+            String parent=bundle.getString("parent");
+            if(parent!=null)
+            {
+                isParent=true;
+            }else
+            {
+                isParent=false;
+                Log.e("checkUID1900", String.valueOf(isParent));
+            }
         }
 
         loadProfile(friendID);
@@ -86,16 +102,8 @@ public class ViewProfileFragment extends Fragment {
                 .resize(200, 200) // Điều chỉnh kích thước theo yêu cầu
                 .centerCrop()
                 .into(ivAvatar);
-
-
-
-
-
         return view;
     }
-
-
-
     public void randomBackGround() {
         Random random = new Random();
 
@@ -127,20 +135,12 @@ public class ViewProfileFragment extends Fragment {
                     .load("https://chat-app-image-cnm.s3.ap-southeast-1.amazonaws.com/background5.jpg")
                     .into(ivBackGround);
         }
-
-
     }
-
-
-
-
     public void loadProfile(String friendID){
         dynamoDBManager.getProfileByUID(friendID, new DynamoDBManager.FriendFoundForGetUIDByEmailListener() {
             @Override
             public void onFriendFound(String uid, String name, String email, String avatar, Boolean sex, String dateOfBirth) {
-
             }
-
             @Override
             public void onFriendFound(String id, String name, String email, String avatar, Boolean sex, String dateOfBirth, String role) {
                 getActivity().runOnUiThread(new Runnable() {

@@ -82,7 +82,6 @@ public class ListMemberFragment extends Fragment {
             public void onFriendFound(String id, String name, String email, String avatar, Boolean sex, String dateOfBirth, String role) {
                 // Tạo FriendItem từ thông tin đã nhận được
                 FriendItem friend = new FriendItem(id, avatar, name, role);
-                Log.d("FoundSSSS", "UID nhận: "+friend.getId()+" và "+"UID truyền"+uid);
                 memberList.add(friend);
                 Iterator<FriendItem> iterator = memberList.iterator();
                 while (iterator.hasNext()) {
@@ -91,9 +90,6 @@ public class ListMemberFragment extends Fragment {
                     if (currentFriend.getId().equals(String.valueOf(uid))) {
                         iterator.remove(); // Xóa đối tượng khỏi danh sách
                         break; // Đã xóa, không cần lặp tiếp
-                    }else
-                    {
-                        Log.d("FoundSSSS", "NO");
                     }
                 }
                 getActivity().runOnUiThread(new Runnable() {
@@ -112,7 +108,7 @@ public class ListMemberFragment extends Fragment {
                 // Xử lý trường hợp lỗi
             }
         }));
-        listMemberAdapter = new ListMemberAdapter(memberList, groupID, uid, dynamoDBManager);
+        listMemberAdapter = new ListMemberAdapter(memberList, groupID, uid, dynamoDBManager, mainActivity);
         rcvDeleteMember.setAdapter(listMemberAdapter);
         btnBack.setOnClickListener(v->{
             getActivity().getSupportFragmentManager().popBackStack();
