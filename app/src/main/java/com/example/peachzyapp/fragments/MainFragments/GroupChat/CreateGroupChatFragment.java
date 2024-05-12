@@ -42,10 +42,15 @@ import com.example.peachzyapp.LiveData.MyViewModel;
 import com.example.peachzyapp.MainActivity;
 import com.example.peachzyapp.Other.Utils;
 import com.example.peachzyapp.R;
+import com.example.peachzyapp.SocketIO.MyWebSocket;
 import com.example.peachzyapp.adapters.CreateGroupChatAdapter;
 import com.example.peachzyapp.adapters.RequestSentAdapter;
 import com.example.peachzyapp.dynamoDB.DynamoDBManager;
 import com.example.peachzyapp.entities.FriendItem;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -55,9 +60,11 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Random;
+import java.util.concurrent.CountDownLatch;
 
-public class CreateGroupChatFragment extends Fragment {
+public class CreateGroupChatFragment extends Fragment implements MyWebSocket.WebSocketListener{
     public static final String TAG= CreateGroupChatFragment.class.getName();
+    MyWebSocket myWebSocket;
     private View view;
     private ImageButton btnFindFriend;
     private Button btnCreateGroup;
@@ -88,6 +95,7 @@ public class CreateGroupChatFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        initWebSocket();
         friendList = new ArrayList<>();
         view = inflater.inflate(R.layout.create_group_fragment, container, false);
         viewModel = new ViewModelProvider(requireActivity()).get(MyGroupViewModel.class);
@@ -181,6 +189,9 @@ public class CreateGroupChatFragment extends Fragment {
                     }
                     dynamoDBManager.createGroup(groupID,  selectedFriendIDsToCreateGroup);
                     dynamoDBManager.saveGroupConversation(groupID, "Vừa tạo group", groupName, currentTime, urlAvatar, "");
+
+
+
                     getActivity().getSupportFragmentManager().popBackStack();
                     mainActivity.showBottomNavigation(true);
                 } else {
@@ -197,6 +208,80 @@ public class CreateGroupChatFragment extends Fragment {
                     }
                     dynamoDBManager.createGroup(groupID,  selectedFriendIDsToCreateGroup);
                     dynamoDBManager.saveGroupConversation(groupID, "Vừa tạo group", groupName, currentTime, "https://chat-app-image-cnm.s3.ap-southeast-1.amazonaws.com/avatar.jpg", "");
+                    ///*
+                    ArrayList<FriendItem> listMember = new ArrayList<>();
+                    CountDownLatch latch = new CountDownLatch(selectedFriendIds.size());
+                    for (String friendId : selectedFriendIds) {
+                        dynamoDBManager.getProfileByUID(friendId, new DynamoDBManager.FriendFoundForGetUIDByEmailListener() {
+                            @Override
+                            public void onFriendFound(String uid, String name, String email, String avatar, Boolean sex, String dateOfBirth) {
+
+                            }
+
+                            @Override
+                            public void onFriendFound(String id, String name, String email, String avatar, Boolean sex, String dateOfBirth, String role) {
+                                if(uid.equals(id)){
+                                    listMember.add(new FriendItem(id,name,avatar,"leader"));
+                                }else{
+                                    listMember.add(new FriendItem(id,name,avatar,"member"));
+                                }
+
+                                latch.countDown(); // Giảm giá trị của CountDownLatch
+                            }
+
+                            @Override
+                            public void onFriendNotFound() {
+
+                            }
+
+                            @Override
+                            public void onError(Exception e) {
+
+                            }
+                        });
+                    }
+                    try {
+                        latch.await(); // Đợi cho đến khi tất cả các cuộc gọi đã hoàn thành
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+
+                    JSONArray membersArray = new JSONArray();
+                    for (FriendItem member : listMember) {
+                        JSONObject memberObject = new JSONObject();
+                        try {
+                            memberObject.put("name", member.getName());
+                            memberObject.put("memberID", member.getId());
+                            memberObject.put("avatar", member.getAvatar());
+                            memberObject.put("role", member.getRole());
+                            // Thêm các trường khác nếu cần thiết
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        membersArray.put(memberObject);
+                    }
+
+                    JSONObject messageToSend = new JSONObject();
+                    JSONObject json = new JSONObject();
+
+                    try{
+
+                        messageToSend.put("_id", groupID);
+                        messageToSend.put("avatar", "https://chat-app-image-cnm.s3.ap-southeast-1.amazonaws.com/avatar.jpg");
+                        messageToSend.put("groupName", groupName);
+                        messageToSend.put("time", currentTime);
+                        messageToSend.put("name", "");
+
+                        json.put("type", "create-group");
+                        json.put("members",membersArray);
+                        json.put("message", messageToSend);
+
+                    }catch (JSONException e) {
+                        throw new RuntimeException(e);
+                    }
+
+                    myWebSocket.sendMessage(String.valueOf(json));
+                    ///*
                     getActivity().getSupportFragmentManager().popBackStack();
                     mainActivity.showBottomNavigation(true);
                 }else {
@@ -320,5 +405,24 @@ public class CreateGroupChatFragment extends Fragment {
         super.onDetach();
         viewModel.setData("Change");
         Log.d("Detach", "onDetach: ");
+    }
+
+    @Override
+    public void onMessageReceived(String message) {
+
+    }
+
+    @Override
+    public void onConnectionStateChanged(boolean isConnected) {
+
+    }
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        // Ngắt kết nối khi Fragment bị hủy
+        myWebSocket.closeWebSocket();
+    }
+    private void initWebSocket() {
+        myWebSocket = new MyWebSocket("wss://free.blr2.piesocket.com/v3/1?api_key=ujXx32mn0joYXVcT2j7Gp18c0JcbKTy3G6DE9FMB&notify_self=0", this);
     }
 }

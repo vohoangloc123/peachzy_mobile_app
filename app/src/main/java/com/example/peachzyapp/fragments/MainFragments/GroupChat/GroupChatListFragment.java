@@ -25,6 +25,7 @@ import com.example.peachzyapp.LiveData.MyGroupViewModel;
 import com.example.peachzyapp.LiveData.MyViewModel;
 import com.example.peachzyapp.MainActivity;
 import com.example.peachzyapp.R;
+import com.example.peachzyapp.SocketIO.MyWebSocket;
 import com.example.peachzyapp.adapters.FriendAlreadyAdapter;
 import com.example.peachzyapp.adapters.GroupChatListAdapter;
 import com.example.peachzyapp.adapters.RequestSentAdapter;
@@ -39,7 +40,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class GroupChatListFragment extends Fragment {
+public class GroupChatListFragment extends Fragment implements MyWebSocket.WebSocketListener{
+    MyWebSocket myWebSocket;
     RecyclerView rcvGroupChatList;
     private ArrayList<GroupConversation> listGroupChats;
     private View view;
@@ -53,6 +55,7 @@ public class GroupChatListFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        initWebSocket();
         listGroupChats = new ArrayList<>();
         view = inflater.inflate(R.layout.fragment_group_chat_list, container, false);
         dynamoDBManager = new DynamoDBManager(getActivity());
@@ -145,4 +148,18 @@ private void resetRecycleView() {
 }
 
 
+    @Override
+    public void onMessageReceived(String message) {
+        Log.d("onMessageReceived: ",message);
+
+    }
+
+    @Override
+    public void onConnectionStateChanged(boolean isConnected) {
+
+    }
+    private void initWebSocket() {
+            myWebSocket = new MyWebSocket("wss://free.blr2.piesocket.com/v3/1?api_key=ujXx32mn0joYXVcT2j7Gp18c0JcbKTy3G6DE9FMB&notify_self=0", this);
+        // myWebSocket.sendMessage("ok");
+    }
 }

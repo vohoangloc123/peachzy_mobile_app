@@ -81,6 +81,7 @@ public class FriendAlreadyAdapter extends RecyclerView.Adapter<FriendAlreadyAdap
 
     @Override
     public void onBindViewHolder(@NonNull FriendViewHolder holder, int position) {
+
         FriendItem friends= listFriend.get(position);
         if(friends==null){
             return;
@@ -109,7 +110,7 @@ public class FriendAlreadyAdapter extends RecyclerView.Adapter<FriendAlreadyAdap
         public ImageView avatarImageView;
         public TextView tvFriend;
         public ImageButton btnMore;
-        private int position;
+        public int position;
         private DynamoDBManager dynamoDBManager;
         private MainActivity mainActivity;
         private Context context;
@@ -128,7 +129,7 @@ public class FriendAlreadyAdapter extends RecyclerView.Adapter<FriendAlreadyAdap
             btnMore = itemView.findViewById(R.id.btnMore);
             btnMore.setOnClickListener(this);
         }
-        private void showPopupMenu(View view) {
+        private void showPopupMenu(View view, int position) {
             PopupMenu popupMenu = new PopupMenu(view.getContext(), view);
             popupMenu.inflate(R.menu.popup_listfriend_menu);
             popupMenu.setOnMenuItemClickListener(item -> {
@@ -140,6 +141,9 @@ public class FriendAlreadyAdapter extends RecyclerView.Adapter<FriendAlreadyAdap
                     Log.d(TAG, "ProfileUnfriend: "+"my uid: "+uid+" friendID: "+friendID);
                     dynamoDBManager.deleteAFriendFromUser(uid, friendID);
                     dynamoDBManager.deleteAFriendFromUser(friendID, uid);
+                    //Xóa Conversation
+                    dynamoDBManager.deleteConversation(uid,friendID);
+                    dynamoDBManager.deleteConversation(friendID,uid);
 
                     // Xóa mục khỏi danh sách và thông báo cho Adapter biết
                     listFriend.remove(position);
@@ -158,11 +162,19 @@ public class FriendAlreadyAdapter extends RecyclerView.Adapter<FriendAlreadyAdap
             popupMenu.show();
         }
 
-        @Override
-        public void onClick(View v) {
-            Log.d(TAG, "onClick: " + position);
-            showPopupMenu(v);
-        }
+//        @Override
+//        public void onClick(View v) {
+//            Log.d(TAG, "onClick: " + position);
+//            showPopupMenu(v);
+//        }
+@Override
+public void onClick(View v) {
+    int clickedPosition = getAdapterPosition(); // Lấy vị trí của item được click
+    if (clickedPosition != RecyclerView.NO_POSITION) { // Kiểm tra vị trí có hợp lệ không
+        Log.d(TAG, "onClick: " + clickedPosition);
+        showPopupMenu(v, clickedPosition); // Chuyển vị trí đã click vào phương thức showPopupMenu
+    }
+}
         public void setDynamoDBManager(DynamoDBManager dynamoDBManager) {
             this.dynamoDBManager = dynamoDBManager;
         }
