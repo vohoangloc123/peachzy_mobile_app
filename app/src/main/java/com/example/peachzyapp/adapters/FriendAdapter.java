@@ -47,12 +47,10 @@ public class FriendAdapter extends ArrayAdapter<FriendItem> {
         if (convertView == null) {
             convertView = LayoutInflater.from(mContext).inflate(mResource, parent, false);
         }
-
         ImageView avatarImageView = convertView.findViewById(R.id.ivFriendAvatar);
         TextView nameTextView = convertView.findViewById(R.id.tvFriendName);
         Button addFriendButton = convertView.findViewById(R.id.addFriendButton);
         FriendItem friendItem = getItem(position); // Lấy đối tượng FriendItem tương ứng với vị trí
-
         dynamoDBManager=new DynamoDBManager(getContext());
         if (friendItem != null) {
             String uid = this.uid; // Get uid from instance variable
@@ -63,7 +61,6 @@ public class FriendAdapter extends ArrayAdapter<FriendItem> {
                     .load(avatarUrl)
                     .transform(new MultiTransformation<Bitmap>(new CircleCrop()))
                     .into(avatarImageView);
-//            Picasso.get().load(avatarUrl).placeholder(R.drawable.logo).into(avatarImageView);
             nameTextView.setText(name);
 
             //Xử lý xem đã có trong danh sách hay chưa
@@ -111,11 +108,6 @@ public class FriendAdapter extends ArrayAdapter<FriendItem> {
 
         return convertView;
 
-        }
-        public void updateFriendList(ArrayList<FriendItem> newFriendList) {
-            clear(); // Xóa danh sách bạn bè hiện tại
-            addAll(newFriendList); // Thêm tất cả các bạn bè mới vào danh sách
-            notifyDataSetChanged(); // Thông báo cho RecyclerView về sự thay đổi
         }
 }
 

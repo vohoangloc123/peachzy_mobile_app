@@ -65,21 +65,17 @@ public class RequestSendFragment extends Fragment {
 
             @Override
             public void onFriendAcceptRequestFound(String id, String name, String avatar) {
-
             }
-
             @Override
             public void onFriendCreateGroupFound(FriendItem friendItem) {
 
             }
+            @Override
+            public void onFriendNotFound(String error) {
+            }
         });
-
-
         requestSentAdapter= new RequestSentAdapter(friendList);
         rcvRequestSent.setAdapter(requestSentAdapter);
-//        RecyclerView.ItemDecoration itemDecoration=new DividerItemDecoration(mainActivity, DividerItemDecoration.VERTICAL);
-//        rcvRequestSent.addItemDecoration(itemDecoration);
-
         return view;
     }
 

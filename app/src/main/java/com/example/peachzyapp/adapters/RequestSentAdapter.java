@@ -25,7 +25,6 @@ public class RequestSentAdapter extends RecyclerView.Adapter<RequestSentAdapter.
     public RequestSentAdapter(List<FriendItem> mListFriend) {
         this.listFriend = mListFriend;
     }
-
     @Override
     public int getItemCount() {
         if(listFriend!=null)
@@ -41,9 +40,6 @@ public class RequestSentAdapter extends RecyclerView.Adapter<RequestSentAdapter.
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_request_sent, parent, false);
         return new RequestSentAdapter.FriendViewHolder(view);
     }
-
-
-
     @Override
     public void onBindViewHolder(@NonNull RequestSentAdapter.FriendViewHolder holder, int position) {
         FriendItem friends= listFriend.get(position);
@@ -51,19 +47,13 @@ public class RequestSentAdapter extends RecyclerView.Adapter<RequestSentAdapter.
             return;
         }
         holder.tvFriend.setText(friends.getName());
-//        Picasso.get().load(friends.getAvatar()).into(avatarImageView);
         Glide.with(holder.itemView.getContext())
                 .load(friends.getAvatar())
                 .transform(new MultiTransformation<Bitmap>(new CircleCrop()))
                 .into(avatarImageView);
-
     }
-
-
     public class FriendViewHolder extends RecyclerView.ViewHolder{
         public TextView tvFriend;
-
-
         public FriendViewHolder(@NonNull View itemView) {
             super(itemView);
             tvFriend= itemView.findViewById(R.id.tv_friend);

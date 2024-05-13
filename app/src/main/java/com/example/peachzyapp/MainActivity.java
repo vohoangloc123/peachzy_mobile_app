@@ -13,6 +13,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentStatePagerAdapter;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.viewpager.widget.ViewPager;
@@ -626,11 +627,9 @@ public void goToDetailFragment(ChatBox chatBox) {
 
     public void goToViewProfileFragment(Bundle bundle) {
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-
         ViewProfileFragment viewProfileFragment = new ViewProfileFragment();
         // Thêm ProfileFragment
         fragmentTransaction.add(R.id.etFind, viewProfileFragment, viewProfileFragment.TAG);
-
         // Ẩn tất cả các Fragment khác
         Fragment chatListsFragment = (Fragment) viewPager.getAdapter().instantiateItem(viewPager, 0);
         Fragment notificationFragment = (Fragment) viewPager.getAdapter().instantiateItem(viewPager, 1);
@@ -649,18 +648,19 @@ public void goToDetailFragment(ChatBox chatBox) {
         if (editProfileFragment != null) {
 
         }
-
         // Ẩn bottomNavigationView
         showBottomNavigation(false);
         viewProfileFragment.setArguments(bundle);
         fragmentTransaction.addToBackStack(viewProfileFragment.TAG);
         fragmentTransaction.commit();
-
-
-
-
     }
-
+    public void replaceFragment(Fragment fragment) {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.replace(R.id.view_profile_fragment_container, fragment);
+        fragmentTransaction.addToBackStack(null);
+        fragmentTransaction.commit();
+    }
     public void showBottomNavigation(boolean show) {
         if (show) {
             bottomNavigationView.setVisibility(View.VISIBLE);

@@ -80,22 +80,6 @@ public class AddMemberFragment extends Fragment {
             Log.d("CheckFriendIDFor", selectedMemberIds.toString());
             dynamoDBManager.updateGroupForAccounts(selectedMemberIds, groupID, "member");
             dynamoDBManager.updateGroups(groupID, selectedMemberIds);
-//            String lastMemberId = null; // Biến để lưu trữ người cuối cùng còn sót lại
-//
-//            for (String memberId : selectedMemberIds) {
-//                dynamoDBManager.updateGroupForAccount(memberId, groupID, "member");
-//                dynamoDBManager.updateGroup(groupID, memberId);
-//
-//                lastMemberId = memberId; // Cập nhật biến lastMemberId với thành viên hiện tại trong vòng lặp
-//            }
-//
-//            // Kiểm tra xem lastMemberId có khác null hay không trước khi thực hiện cập nhật
-//            if (lastMemberId != null) {
-//                // Thực hiện cập nhật trên người cuối cùng còn sót lại
-//                dynamoDBManager.updateGroupForAccount(lastMemberId, groupID, "member");
-//                dynamoDBManager.updateGroup(groupID, lastMemberId);
-//            }
-
             Log.d("RemainingMembers", selectedMemberIds.toString());
             getActivity().getSupportFragmentManager().popBackStack();
         });
@@ -192,6 +176,11 @@ public class AddMemberFragment extends Fragment {
                         }
                     }
                 });
+            }
+
+            @Override
+            public void onFriendNotFound(String error) {
+
             }
 
         });

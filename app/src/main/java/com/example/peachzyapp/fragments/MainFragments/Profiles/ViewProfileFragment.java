@@ -1,6 +1,8 @@
 package com.example.peachzyapp.fragments.MainFragments.Profiles;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.os.Bundle;
@@ -10,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -22,26 +25,30 @@ import com.bumptech.glide.load.MultiTransformation;
 import com.bumptech.glide.load.resource.bitmap.CircleCrop;
 import com.example.peachzyapp.MainActivity;
 import com.example.peachzyapp.R;
+import com.example.peachzyapp.SignIn;
 import com.example.peachzyapp.dynamoDB.DynamoDBManager;
+import com.example.peachzyapp.entities.FriendItem;
 import com.example.peachzyapp.entities.Profile;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
 import java.util.Random;
 
 public class ViewProfileFragment extends Fragment {
     public static final String TAG= ViewProfileFragment.class.getName();
     private ImageView ivAvatar;
     private ImageView ivBackGround;
-    private TextView tvName;
-    private TextView tvDateOfBirth;
-    private TextView tvGender;
-    private TextView tvEmail;
+    private TextView tvEmail, tvAddfriend, tvGender, tvDateOfBirth, tvName, tvRefuseFriendRequest;
+    private ImageButton btnAddfriend, btnRefuseFriendRequest;
+    private RelativeLayout relativeLayout;
     private String urlAvatar;
     private String friendID;
     private MainActivity mainActivity;
     private DynamoDBManager dynamoDBManager;
     private ImageButton btnBack;
     private Boolean isParent;
+    private String uid;
+    private String status;
     public static void loadCircularImageUrl(Context context, String url, ImageView imageView) {
         Glide.with(context)
                 .load(url)
@@ -58,8 +65,11 @@ public class ViewProfileFragment extends Fragment {
         tvDateOfBirth = view.findViewById(R.id.tvDateOfBirth);
         tvGender=view.findViewById(R.id.tvGender);
         tvEmail = view.findViewById(R.id.tvEmail);
+        btnRefuseFriendRequest= view.findViewById(R.id.btnRefuseFriendRequest);
         btnBack=view.findViewById(R.id.btnBack);
-
+        btnAddfriend=view.findViewById(R.id.btnAddfriend);
+        tvAddfriend=view.findViewById(R.id.tvAddFriend);
+        tvRefuseFriendRequest=view.findViewById(R.id.tvRefuseFriendRequest);
         dynamoDBManager = new DynamoDBManager(getActivity());
         mainActivity= (MainActivity) getActivity();
         btnBack.setOnClickListener(v->{
@@ -67,18 +77,15 @@ public class ViewProfileFragment extends Fragment {
             if(isParent){
                 mainActivity.showBottomNavigation(true);
             }
-
         });
 
         randomBackGround();
         //get data
         SharedPreferences preferences = getActivity().getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
         friendID = preferences.getString("friendID", null);
-        if (friendID != null) {
-            Log.d("checkUID1900", friendID);
-            // Sử dụng "uid" ở đây cho các mục đích của bạn
+        uid=preferences.getString("uid", null);
+        if (friendID != null||uid!=null) {
         } else {
-            Log.e("checkUID1900", "UID is null");
         }
         Bundle bundle = getArguments();
         if (bundle != null) {
@@ -93,7 +100,6 @@ public class ViewProfileFragment extends Fragment {
                 Log.e("checkUID1900", String.valueOf(isParent));
             }
         }
-
         loadProfile(friendID);
 
         //resize
@@ -102,7 +108,168 @@ public class ViewProfileFragment extends Fragment {
                 .resize(200, 200) // Điều chỉnh kích thước theo yêu cầu
                 .centerCrop()
                 .into(ivAvatar);
+        dynamoDBManager.getStatusByFriendId(uid, friendID, new DynamoDBManager.StatusListener() {
+            @Override
+            public void onStatusFetched(String fetchedStatus) {
+                status=fetchedStatus;
+                if (status == null) {
+                    // Xử lý khi không có status được trả về
+                    tvAddfriend.setText("Add friend");
+                } else {
+                    // Xử lý khi có status được trả về
+                    switch (status) {
+                        case "1":
+                            getActivity().runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    tvAddfriend.setText("Unfriend");
+                                }
+                            });
+                            break;
+                        case "2":
+                            getActivity().runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    tvAddfriend.setText("Remove friend request");
+                                }
+                            });
+                            break;
+                        case "3":
+                            getActivity().runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    tvAddfriend.setText("Accept friend request");
+                                    tvRefuseFriendRequest.setVisibility(View.VISIBLE);
+                                    btnRefuseFriendRequest.setVisibility(View.VISIBLE);
+                                }
+                            });
+                            break;
+                        default:
+                            // Xử lý khi status không phù hợp với các trường hợp trên
+                            tvAddfriend.setText("Add friend");
+                            break;
+                    }
+                }
+
+            }
+        });
+        btnAddfriend.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (status == null) {
+                    // Chưa kết bạn, gửi lời mời kết bạn
+                    sendFriendRequest();
+                } else {
+                    switch (status) {
+                        case "1":
+                            //Xóa kết bạn
+                            unfriend();
+                            break;
+                        case "2":
+                            //Thu hồi lời mời
+                            removeFriendRequest();
+                            break;
+                        case "3":
+                            //Nhận đc lời mời chấp nhận kết bạn
+                            acceptFriendRequest();
+                            break;
+                        case "null":
+                            //Chưa là bạn nên k có trong mảng friends vì thế kết bạn
+                            sendFriendRequest();
+                        default:
+                            // Xử lý trường hợp không xác định
+                            break;
+                    }
+                }
+            }
+        });
+        //từ chối lời mời kết bạn khi nhận đc lời mời
+        btnRefuseFriendRequest.setOnClickListener(v->{
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    dynamoDBManager.deleteAFriendFromUser(uid, friendID);
+                    dynamoDBManager.deleteAFriendFromUser(friendID, uid);
+                    status="null";
+                    tvAddfriend.setText("Add friend");
+                    tvRefuseFriendRequest.setVisibility(View.GONE);
+                    btnRefuseFriendRequest.setVisibility(View.GONE);
+                }
+            });
+
+        });
         return view;
+    }
+    private void sendFriendRequest() {
+        Log.d(TAG, "gửi kết bạn");
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                dynamoDBManager.addFriend(uid, friendID, "2",uid+"-"+friendID);
+                dynamoDBManager.addFriend(friendID, uid, "3",uid+"-"+friendID);
+                status="2";
+                tvAddfriend.setText("Remove friend request");
+            }
+        });
+
+    }
+
+    private void unfriend() {
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Log.d(TAG, "hủy kết bạn");
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                builder.setTitle("Confirm unfriend");
+                builder.setMessage("Are you sure you want to unfriend?");
+                builder.setPositiveButton("Yes", (dialog, which) -> {
+                    // Nếu người dùng đồng ý, thực hiện chuyển đổi sang activity đăng nhập
+                    dynamoDBManager.deleteAFriendFromUser(uid, friendID);
+                    dynamoDBManager.deleteAFriendFromUser(friendID, uid);
+                    //Xóa Conversation
+                    dynamoDBManager.deleteConversation(uid,friendID);
+                    dynamoDBManager.deleteConversation(friendID,uid);
+                    status="null";
+                    tvAddfriend.setText("Add friend");
+                });
+                builder.setNegativeButton("Cancel", (dialog, which) -> {
+                    // Nếu người dùng hủy bỏ, đóng dialog và không thực hiện hành động gì
+                    dialog.dismiss();
+                });
+                builder.show();
+            }
+        });
+    }
+    private void acceptFriendRequest() {
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Log.d(TAG, "Chấp nhận kết bạn");
+                dynamoDBManager.addFriend(uid, friendID, "1",uid+"-"+friendID);
+                dynamoDBManager.addFriend(friendID, uid, "1",uid+"-"+friendID);
+                status="1";
+                tvAddfriend.setText("Unfriend");
+                if(tvRefuseFriendRequest.getVisibility() == View.VISIBLE || btnRefuseFriendRequest.getVisibility() == View.VISIBLE) {
+                    tvRefuseFriendRequest.setVisibility(View.GONE);
+                    btnRefuseFriendRequest.setVisibility(View.GONE);
+                }
+            }
+        });
+
+    }
+    private void removeFriendRequest() {
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Log.d(TAG, "Thu hồi kết bạn");
+                dynamoDBManager.deleteAFriendFromUser(uid, friendID);
+                dynamoDBManager.deleteAFriendFromUser(friendID, uid);
+                status="null";
+                tvAddfriend.setText("Add friend");
+            }
+        });
+
+
     }
     public void randomBackGround() {
         Random random = new Random();
@@ -166,7 +333,6 @@ public class ViewProfileFragment extends Fragment {
             @Override
             public void onFriendNotFound() {
             }
-
             @Override
             public void onError(Exception e) {
                 // Xử lý lỗi nếu có.

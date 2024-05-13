@@ -4,15 +4,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/fragment_profile_container">
-
+    android:id="@+id/view_profile_fragment_container">
     <!-- TODO: Update blank fragment layout -->
-
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/bgWhiteBlue"
+        android:background="@color/white"
         android:orientation="vertical"
         tools:layout_editor_absoluteX="0dp"
         tools:layout_editor_absoluteY="-37dp">
@@ -68,7 +65,7 @@
             android:layout_width="match_parent"
             android:layout_height="69dp"
             android:layout_marginTop="20dp"
-            android:background="@drawable/edittext_profile_inf"
+            android:background="@color/white"
             android:orientation="horizontal"
             android:paddingTop="5dp">
 
@@ -90,7 +87,6 @@
                 android:layout_width="240dp"
                 android:layout_height="40dp"
                 android:layout_marginTop="10dp"
-                android:background="@drawable/edittext_profile_no_border"
                 android:ems="10"
                 android:hint="@string/name"
                 android:inputType="text"
@@ -108,8 +104,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="60dp"
-
-            android:background="@drawable/edittext_profile_inf"
+            android:background="@color/white"
             android:orientation="horizontal"
             android:paddingTop="5dp">
 
@@ -131,7 +126,7 @@
                 android:layout_width="240dp"
                 android:layout_height="40dp"
                 android:layout_marginTop="10dp"
-                android:background="@drawable/edittext_profile_no_border"
+
                 android:ems="10"
                 android:hint="@string/gender"
                 android:inputType=""
@@ -145,10 +140,8 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="58dp"
-            android:background="@drawable/edittext_profile_inf"
+            android:background="@color/white"
             android:orientation="horizontal">
-
-
             <TextView
                 android:id="@+id/textView8"
                 android:layout_width="131dp"
@@ -178,11 +171,9 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="90dp"
+            android:layout_height="58dp"
             android:orientation="horizontal"
             android:paddingTop="15dp">
-
-
             <TextView
                 android:id="@+id/textView6"
                 android:layout_width="wrap_content"
@@ -200,14 +191,70 @@
                 android:layout_height="37dp"
                 android:layout_weight="1"
                 android:text=""
-                android:textColor="@color/borderColor"
+                android:textColor="@color/black"
                 android:textSize="15dp"
                 android:textStyle="bold" />
 
 
         </LinearLayout>
-
-
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:background="@drawable/border_top"
+            >
+            <ImageButton
+                android:id="@+id/btnAddfriend"
+                android:layout_width="match_parent"
+                android:layout_height="55dp"
+                android:paddingLeft="-330dp"
+                android:backgroundTint="@color/white"
+                android:outlineAmbientShadowColor="@color/black"
+                android:src="@drawable/baseline_person_add_24"
+              />
+            <TextView
+                android:id="@+id/tvAddFriend"
+                android:layout_width="359dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:layout_marginEnd="-59dp"
+                android:layout_marginBottom="4dp"
+                android:paddingLeft="55dp"
+                android:text="@string/add_friend"
+                android:textColor="@color/black"
+                android:textSize="19dp"
+                android:textStyle="bold" />
+        </RelativeLayout>
+        <RelativeLayout
+            android:id="@+id/relativeLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:background="@drawable/border_bottom">
+            <ImageButton
+                android:id="@+id/btnRefuseFriendRequest"
+                android:layout_width="match_parent"
+                android:layout_height="55dp"
+                android:paddingLeft="-330dp"
+                android:backgroundTint="@color/white"
+                android:outlineAmbientShadowColor="@color/black"
+                android:src="@drawable/baseline_person_add_24"
+                android:visibility="gone"
+                />
+            <TextView
+                android:id="@+id/tvRefuseFriendRequest"
+                android:layout_width="359dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:layout_marginEnd="-59dp"
+                android:layout_marginBottom="4dp"
+                android:paddingLeft="55dp"
+                android:text="@string/refuse_friend_request"
+                android:textColor="@color/black"
+                android:textSize="19dp"
+                android:textStyle="bold"
+                android:visibility="gone"/>
+        </RelativeLayout>
 
 
 

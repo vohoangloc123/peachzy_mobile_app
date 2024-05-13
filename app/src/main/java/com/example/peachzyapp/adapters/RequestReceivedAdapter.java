@@ -64,39 +64,6 @@ public class RequestReceivedAdapter extends RecyclerView.Adapter<RequestReceived
         requestReceivedFragment=new RequestReceivedFragment();
         return new FriendViewHolder(view);
     }
-
-
-
-//    @Override
-//    public void onBindViewHolder(@NonNull FriendViewHolder holder, int position) {
-//        FriendItem friendItem = listFriend.get(position); // Lấy đối tượng FriendItem tương ứng với vị trí
-//        if (friendItem != null) {
-//            String uid = this.uid; // Get uid from instance variable
-//            String friendId = friendItem.getId();
-//            String avatarUrl = friendItem.getAvatar();
-//            name = friendItem.getName();
-//            Log.d("TestFriendItem", friendId+ uid);
-//            // Load hình ảnh từ URL bằng thư viện Picasso
-////            Picasso.get().load(avatarUrl).placeholder(R.drawable.logo).into(ivAvatar);
-//            Glide.with(holder.itemView.getContext())
-//                    .load(friendItem.getAvatar())
-//                    .placeholder(R.drawable.logo)
-//                    .transform(new MultiTransformation<Bitmap>(new CircleCrop()))
-//                    .into(ivAvatar);
-//            btnAccept.setOnClickListener(v -> {
-//                Button btnAccept = (Button) holder.itemView.findViewById(R.id.btnAccept);
-//                btnAccept.setEnabled(false);
-//                btnAccept.setAlpha(0.5f);
-//                // Gửi yêu cầu chấp nhận lời mời kết bạn
-//                dynamoDBManager.addFriend(uid, friendId, "1",uid+"-"+friendId);
-//                dynamoDBManager.addFriend(friendId, uid, "1",uid+"-"+friendId);
-//
-//                Toast.makeText(v.getContext(), "Đã chấp nhận lời mời kết bạn từ " + name, Toast.LENGTH_SHORT).show();
-//            });
-//        }
-//        holder.tvFriend.setText(name);
-//    }
-
     @Override
     public void onBindViewHolder(@NonNull FriendViewHolder holder, int position) {
         FriendItem friendItem = listFriend.get(position); // Lấy đối tượng FriendItem tương ứng với vị trí
@@ -107,16 +74,12 @@ public class RequestReceivedAdapter extends RecyclerView.Adapter<RequestReceived
             name = friendItem.getName();
             Log.d("TestFriendItem", friendId+ uid);
             // Load hình ảnh từ URL bằng thư viện Picasso
-//            Picasso.get().load(avatarUrl).placeholder(R.drawable.logo).into(ivAvatar);
             Glide.with(holder.itemView.getContext())
                     .load(friendItem.getAvatar())
                     .placeholder(R.drawable.logo)
                     .transform(new MultiTransformation<Bitmap>(new CircleCrop()))
                     .into(holder.ivAvatar);
             btnAccept.setOnClickListener(v -> {
-                Button btnAccept = (Button) holder.itemView.findViewById(R.id.btnAccept);
-//                btnAccept.setEnabled(false);
-//                btnAccept.setAlpha(0.5f);
                 // Gửi yêu cầu chấp nhận lời mời kết bạn
                 dynamoDBManager.addFriend(uid, friendId, "1",uid+"-"+friendId);
                 dynamoDBManager.addFriend(friendId, uid, "1",uid+"-"+friendId);

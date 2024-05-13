@@ -394,6 +394,11 @@ public class CreateGroupChatFragment extends Fragment implements MyWebSocket.Web
                 });
             }
 
+            @Override
+            public void onFriendNotFound(String error) {
+
+            }
+
         });
     }
     private void changeData() {

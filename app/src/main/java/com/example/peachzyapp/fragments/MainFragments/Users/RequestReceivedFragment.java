@@ -23,15 +23,14 @@ import java.util.ArrayList;
 
 public class RequestReceivedFragment extends Fragment {
     public static final String TAG = RequestReceivedFragment.class.getName();
-    ImageButton btnBack;
-    String uid;
+    private ImageButton btnBack;
+    private String uid;
     private DynamoDBManager dynamoDBManager;
-    RecyclerView rcvRequestReceived;
+    private RecyclerView rcvRequestReceived;
     private RequestReceivedAdapter requestReceivedAdapter;
     private View view;
     private MainActivity mainActivity;
-    FriendItem friendItem;
-
+    private FriendItem friendItem;
     private ArrayList<FriendItem> friendList;
 
     private MyViewModel viewModel;
@@ -61,10 +60,6 @@ public class RequestReceivedFragment extends Fragment {
         rcvRequestReceived = view.findViewById(R.id.rcvRequestReceived);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(mainActivity);
         rcvRequestReceived.setLayoutManager(linearLayoutManager);
-
-//        RecyclerView.ItemDecoration itemDecoration = new DividerItemDecoration(mainActivity, DividerItemDecoration.VERTICAL);
-//        rcvRequestReceived.addItemDecoration(itemDecoration);
-
         requestReceivedAdapter = new RequestReceivedAdapter(friendList);
         requestReceivedAdapter.setUid(uid);
         rcvRequestReceived.setAdapter(requestReceivedAdapter);
@@ -74,7 +69,6 @@ public class RequestReceivedFragment extends Fragment {
             public void onFriendAlreadyFound(FriendItem data) {
                 // Handle case when friend is already found
             }
-
             @Override
             public void onFriendAcceptRequestFound(String id, String name, String avatar) {
                 getActivity().runOnUiThread(new Runnable() {
@@ -89,6 +83,11 @@ public class RequestReceivedFragment extends Fragment {
 
             @Override
             public void onFriendCreateGroupFound(FriendItem friendItem) {
+
+            }
+
+            @Override
+            public void onFriendNotFound(String error) {
 
             }
 

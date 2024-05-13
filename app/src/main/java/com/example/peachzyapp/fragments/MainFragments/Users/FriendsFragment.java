@@ -86,6 +86,11 @@ public class FriendsFragment extends Fragment {
             public void onFriendCreateGroupFound(FriendItem friendItem) {
 
             }
+
+            @Override
+            public void onFriendNotFound(String error) {
+
+            }
         });
 
         //Live data
@@ -165,6 +170,11 @@ public class FriendsFragment extends Fragment {
 
             @Override
             public void onFriendCreateGroupFound(FriendItem friendItem) {
+
+            }
+
+            @Override
+            public void onFriendNotFound(String error) {
 
             }
         });

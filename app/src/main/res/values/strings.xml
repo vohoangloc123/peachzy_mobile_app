@@ -21,6 +21,7 @@
     <string name="or">OR</string>
     <string name="login_to_your_account">Login to PeachZy</string>
     <string name="add_friend">Add Friend</string>
+    <string name="refuse_friend_request"> Refuse friend request</string>
     <string name="remove_friend">Remove Friend</string>
     <string name="accept_friend_request">Accept Friend Request</string>
     <string name="request_sent">Request sent</string>

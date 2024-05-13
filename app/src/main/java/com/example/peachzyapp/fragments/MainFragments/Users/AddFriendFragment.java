@@ -63,13 +63,11 @@ public class AddFriendFragment extends Fragment {
                             FriendItem friendItem = new FriendItem(id, avatar, name);
                             friendItems.clear();
                             friendItems.add(friendItem);
-
                             friendAdapter.notifyDataSetChanged();
                             Toast.makeText(getActivity(), "Friend found!", Toast.LENGTH_SHORT).show();
                         }
                     });
                 }
-
                 @Override
                 public void onFriendNotFound() {
                     getActivity().runOnUiThread(new Runnable() {
