@@ -18,6 +18,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.ImageButton;
 
@@ -36,6 +37,9 @@ import com.example.peachzyapp.entities.GroupChat;
 import com.example.peachzyapp.entities.GroupConversation;
 import com.example.peachzyapp.fragments.MainFragments.Users.AddFriendFragment;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,6 +56,13 @@ public class GroupChatListFragment extends Fragment implements MyWebSocket.WebSo
     private ArrayList<GroupConversation> groupConversationList;
     private String uid;
     private MyGroupViewModel viewModel;
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        viewModel = new ViewModelProvider(this).get(MyGroupViewModel.class);
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -149,8 +160,45 @@ private void resetRecycleView() {
 
 
     @Override
-    public void onMessageReceived(String message) {
-        Log.d("onMessageReceived: ",message);
+    public void onMessageReceived(String receivedMessage) {
+        Log.d("onMessageReceived2: ",receivedMessage);
+//        viewModel.setData(message);
+        try {
+
+            JSONObject jsonObject  = new JSONObject(receivedMessage);
+            String typeJson = jsonObject.getString("type");
+
+            if(typeJson.equals("create-group")){
+                JSONObject messageJson = jsonObject.getJSONObject("message");
+                String groupID = messageJson.getString("_id");
+                String avatar = messageJson.getString("avatar"); // Đường dẫn ảnh đại diện mặc định
+                String groupName = messageJson.getString("groupName");
+                String name = messageJson.getString("name");
+                String time = messageJson.getString("time");
+                String message=messageJson.getString("message");
+
+                Log.d("onMessageReceived3: ",groupID+":"+groupName+":"+name+":"+message);
+
+
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        changeData();
+                    }
+                });
+
+
+
+
+            }
+
+
+
+
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
 
     }
 
@@ -159,7 +207,18 @@ private void resetRecycleView() {
 
     }
     private void initWebSocket() {
-            myWebSocket = new MyWebSocket("wss://free.blr2.piesocket.com/v3/1?api_key=ujXx32mn0joYXVcT2j7Gp18c0JcbKTy3G6DE9FMB&notify_self=0", this);
+            myWebSocket = new MyWebSocket("wss://free.blr2.piesocket.com/v3/LtaToYtBYWRkgGt2Ol7SjZXSACQ2?api_key=ujXx32mn0joYXVcT2j7Gp18c0JcbKTy3G6DE9FMB&notify_self=0", this);
         // myWebSocket.sendMessage("ok");
     }
+    private void changeData() {
+        viewModel.setData("New data");
+        Log.d("changeData888: ","ok");
+    }
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        // Ngắt kết nối khi Fragment bị hủy
+        myWebSocket.closeWebSocket();
+    }
+
 }

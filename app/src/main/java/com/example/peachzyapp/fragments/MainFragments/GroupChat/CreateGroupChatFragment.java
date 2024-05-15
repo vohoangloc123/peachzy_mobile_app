@@ -221,9 +221,9 @@ public class CreateGroupChatFragment extends Fragment implements MyWebSocket.Web
                             @Override
                             public void onFriendFound(String id, String name, String email, String avatar, Boolean sex, String dateOfBirth, String role) {
                                 if(uid.equals(id)){
-                                    listMember.add(new FriendItem(id,name,avatar,"leader"));
+                                    listMember.add(new FriendItem(id,avatar,name,"leader"));
                                 }else{
-                                    listMember.add(new FriendItem(id,name,avatar,"member"));
+                                    listMember.add(new FriendItem(id,avatar,name,"member"));
                                 }
 
                                 latch.countDown(); // Giảm giá trị của CountDownLatch
@@ -271,10 +271,13 @@ public class CreateGroupChatFragment extends Fragment implements MyWebSocket.Web
                         messageToSend.put("groupName", groupName);
                         messageToSend.put("time", currentTime);
                         messageToSend.put("name", "");
+                        messageToSend.put("message", "Vừa tạo group");
 
                         json.put("type", "create-group");
-                        json.put("members",membersArray);
+
+                        messageToSend.put("members",membersArray);
                         json.put("message", messageToSend);
+
 
                     }catch (JSONException e) {
                         throw new RuntimeException(e);
@@ -405,12 +408,12 @@ public class CreateGroupChatFragment extends Fragment implements MyWebSocket.Web
         viewModel.setData("New data");
     }
 
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        viewModel.setData("Change");
-        Log.d("Detach", "onDetach: ");
-    }
+//    @Override
+//    public void onDetach() {
+//        super.onDetach();
+//        viewModel.setData("Change");
+//        Log.d("Detach", "onDetach: ");
+//    }
 
     @Override
     public void onMessageReceived(String message) {
@@ -428,6 +431,6 @@ public class CreateGroupChatFragment extends Fragment implements MyWebSocket.Web
         myWebSocket.closeWebSocket();
     }
     private void initWebSocket() {
-        myWebSocket = new MyWebSocket("wss://free.blr2.piesocket.com/v3/1?api_key=ujXx32mn0joYXVcT2j7Gp18c0JcbKTy3G6DE9FMB&notify_self=0", this);
+        myWebSocket = new MyWebSocket("wss://free.blr2.piesocket.com/v3/qVEaIZGKkfbR24bXbAg3Lw7z1Hd2?api_key=ujXx32mn0joYXVcT2j7Gp18c0JcbKTy3G6DE9FMB&notify_self=0", this);
     }
 }

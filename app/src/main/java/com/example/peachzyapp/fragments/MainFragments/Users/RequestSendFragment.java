@@ -74,7 +74,9 @@ public class RequestSendFragment extends Fragment {
             public void onFriendNotFound(String error) {
             }
         });
+
         requestSentAdapter= new RequestSentAdapter(friendList);
+        requestSentAdapter.setUid(uid);
         rcvRequestSent.setAdapter(requestSentAdapter);
         return view;
     }

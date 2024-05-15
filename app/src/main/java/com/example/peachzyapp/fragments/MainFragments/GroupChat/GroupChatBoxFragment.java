@@ -702,14 +702,13 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
                     JSONObject messageToSend = new JSONObject();
                     JSONObject json = new JSONObject();
                     try{
-
+                        json.put("type", "send-group-message");
                         messageToSend.put("memberID", userID);
                         messageToSend.put("memberName", userName);
                         messageToSend.put("memberAvatar", userAvatar);
                         messageToSend.put("message", urlDocument);
                         messageToSend.put("time", generateFileName());
                         messageToSend.put("type", "document");
-                        json.put("type", "send-group-message");
                         json.put("message", messageToSend);
                     }catch (JSONException e) {
                         throw new RuntimeException(e);
