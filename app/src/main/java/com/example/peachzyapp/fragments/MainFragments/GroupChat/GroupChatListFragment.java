@@ -207,7 +207,7 @@ private void resetRecycleView() {
 
     }
     private void initWebSocket() {
-            myWebSocket = new MyWebSocket("wss://free.blr2.piesocket.com/v3/LtaToYtBYWRkgGt2Ol7SjZXSACQ2?api_key=ujXx32mn0joYXVcT2j7Gp18c0JcbKTy3G6DE9FMB&notify_self=0", this);
+            myWebSocket = new MyWebSocket("wss://free.blr2.piesocket.com/v3/1?api_key=ujXx32mn0joYXVcT2j7Gp18c0JcbKTy3G6DE9FMB&notify_self=0", this);
         // myWebSocket.sendMessage("ok");
     }
     private void changeData() {

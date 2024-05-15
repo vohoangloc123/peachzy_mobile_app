@@ -431,6 +431,6 @@ public class CreateGroupChatFragment extends Fragment implements MyWebSocket.Web
         myWebSocket.closeWebSocket();
     }
     private void initWebSocket() {
-        myWebSocket = new MyWebSocket("wss://free.blr2.piesocket.com/v3/qVEaIZGKkfbR24bXbAg3Lw7z1Hd2?api_key=ujXx32mn0joYXVcT2j7Gp18c0JcbKTy3G6DE9FMB&notify_self=0", this);
+        myWebSocket = new MyWebSocket("wss://free.blr2.piesocket.com/v3/1?api_key=ujXx32mn0joYXVcT2j7Gp18c0JcbKTy3G6DE9FMB&notify_self=0", this);
     }
 }
