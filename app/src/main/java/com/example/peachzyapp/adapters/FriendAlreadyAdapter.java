@@ -1,6 +1,8 @@
 package com.example.peachzyapp.adapters;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.util.Log;
@@ -23,6 +25,7 @@ import com.bumptech.glide.load.resource.bitmap.CircleCrop;
 import com.example.peachzyapp.LiveData.MyViewModel;
 import com.example.peachzyapp.MainActivity;
 import com.example.peachzyapp.R;
+import com.example.peachzyapp.SignIn;
 import com.example.peachzyapp.dynamoDB.DynamoDBManager;
 import com.example.peachzyapp.entities.FriendItem;
 import com.example.peachzyapp.fragments.MainFragments.Users.FriendsFragment;
@@ -136,19 +139,26 @@ public class FriendAlreadyAdapter extends RecyclerView.Adapter<FriendAlreadyAdap
                 // Xử lý sự kiện khi chọn một item trên popup menu
                 int itemId = item.getItemId();
                 if (itemId == R.id.action_popup_unfriend) {
-
-                    // Xử lý khi chọn Delete item ở đây
-                    Log.d(TAG, "ProfileUnfriend: "+"my uid: "+uid+" friendID: "+friendID);
-                    dynamoDBManager.deleteAFriendFromUser(uid, friendID);
-                    dynamoDBManager.deleteAFriendFromUser(friendID, uid);
-                    //Xóa Conversation
-                    dynamoDBManager.deleteConversation(uid,friendID);
-                    dynamoDBManager.deleteConversation(friendID,uid);
-
-                    // Xóa mục khỏi danh sách và thông báo cho Adapter biết
-                    listFriend.remove(position);
-                    notifyItemRemoved(position);
-                    //changeData();
+                    AlertDialog.Builder builder = new AlertDialog.Builder(view.getContext());
+                    builder.setTitle("Confirm unfriend");
+                    builder.setMessage("Are you sure you want to unfriend?");
+                    builder.setPositiveButton("Yes", (dialog, which) -> {
+                        // Nếu người dùng đồng ý, thực hiện chuyển đổi sang activity đăng nhập
+                        Log.d(TAG, "ProfileUnfriend: "+"my uid: "+uid+" friendID: "+friendID);
+                        dynamoDBManager.deleteAFriendFromUser(uid, friendID);
+                        dynamoDBManager.deleteAFriendFromUser(friendID, uid);
+                        //Xóa Conversation
+                        dynamoDBManager.deleteConversation(uid,friendID);
+                        dynamoDBManager.deleteConversation(friendID,uid);
+                        // Xóa mục khỏi danh sách và thông báo cho Adapter biết
+                        listFriend.remove(position);
+                        notifyItemRemoved(position);
+                    });
+                    builder.setNegativeButton("Cancel", (dialog, which) -> {
+                        // Nếu người dùng hủy bỏ, đóng dialog và không thực hiện hành động gì
+                        dialog.dismiss();
+                    });
+                    builder.show();
                 } else if (itemId == R.id.action_popup_view_profile) {
                     Log.d(TAG, "ViewProfile: "+uid);
                     //gọi hàm dynamoDB lấy dữ liệu ng dùng friendID
@@ -161,12 +171,6 @@ public class FriendAlreadyAdapter extends RecyclerView.Adapter<FriendAlreadyAdap
             });
             popupMenu.show();
         }
-
-//        @Override
-//        public void onClick(View v) {
-//            Log.d(TAG, "onClick: " + position);
-//            showPopupMenu(v);
-//        }
 @Override
 public void onClick(View v) {
     int clickedPosition = getAdapterPosition(); // Lấy vị trí của item được click

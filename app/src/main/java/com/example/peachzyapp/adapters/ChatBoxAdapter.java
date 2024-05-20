@@ -59,25 +59,13 @@ public class ChatBoxAdapter extends RecyclerView.Adapter<ChatViewHolder> {
                 .placeholder(R.drawable.logo)
                 .transform(new MultiTransformation<Bitmap>(new CircleCrop()))
                 .into(holder.ivAvatar);
-
         // Hiển thị thời gian
         holder.tvTime.setText(currentItem.getTime());
         RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) holder.tvMessage.getLayoutParams();
         RelativeLayout.LayoutParams paramsOfImage = (RelativeLayout.LayoutParams) holder.ivMessage.getLayoutParams();
         RelativeLayout.LayoutParams paramsOfFile = (RelativeLayout.LayoutParams) holder.tvLink.getLayoutParams();
         RelativeLayout.LayoutParams paramsOfSeeker = (RelativeLayout.LayoutParams) holder.seekBar.getLayoutParams();
-
-        //Chỉnh kích thước textview
-//        String message=currentItem.getMessage();
-//        int legnth= message.length();
-//        Log.d("legnth: ", legnth+"");
-//        float textSize = holder.tvMessage.getTextSize(); // Kích thước chữ của TextView
-//        Paint paint = new Paint();
-//        paint.setTextSize(textSize);
-//        float charWidth = paint.measureText("X");
-//        int desiredWidth = (int) (charWidth* legnth);
-//        //holder.tvMessage.setWidth(desiredWidth+50);
-//        holder.tvMessage.setMaxWidth(desiredWidth+50);
+        RelativeLayout.LayoutParams paramsOfVideo = (RelativeLayout.LayoutParams) holder.vvMessage.getLayoutParams();
 
         // Nếu tin nhắn là của người gửi
         if (isSentByMe) {
@@ -85,6 +73,7 @@ public class ChatBoxAdapter extends RecyclerView.Adapter<ChatViewHolder> {
             paramsOfImage.addRule(RelativeLayout.ALIGN_PARENT_END);
             paramsOfFile.addRule(RelativeLayout.ALIGN_PARENT_END);
             paramsOfSeeker.addRule(RelativeLayout.ALIGN_PARENT_END);
+            paramsOfVideo.addRule(RelativeLayout.ALIGN_PARENT_END);
             holder.tvMessage.setTextColor(context.getColor(R.color.white));
             holder.tvMessage.setBackground(ContextCompat.getDrawable(context, R.drawable.bg_message));
             holder.ivAvatar.setVisibility(View.GONE);
@@ -171,8 +160,6 @@ public class ChatBoxAdapter extends RecyclerView.Adapter<ChatViewHolder> {
                 holder.ivMessage.setVisibility(View.GONE);
                 holder.tvLink.setVisibility(View.GONE);
                 holder.tvMessage.setVisibility(View.VISIBLE);
-                //video, image
-                holder.btnDownload.setVisibility(View.GONE);
                 //video
                 holder.seekBar.setVisibility(View.GONE);
                 holder.vvMessage.setVisibility(View.GONE);
@@ -269,8 +256,6 @@ public class ChatBoxAdapter extends RecyclerView.Adapter<ChatViewHolder> {
                 holder.ivMessage.setVisibility(View.GONE);
                 //file
                 holder.tvLink.setVisibility(View.GONE);
-                //video, image
-                holder.btnDownload.setVisibility(View.GONE);
                 //video
                 holder.seekBar.setVisibility(View.GONE);
                 holder.vvMessage.setVisibility(View.GONE);

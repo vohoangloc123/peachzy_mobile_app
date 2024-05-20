@@ -20,7 +20,6 @@ public class ChatViewHolder extends RecyclerView.ViewHolder {
     ImageView ivMessage; // Thêm ImageView mới để hiển thị ảnh trong tin nhắn (nếu có)
     SeekBar seekBar;
     VideoView vvMessage;
-    ImageButton btnDownload;
     public ChatViewHolder(@NonNull View itemView) {
         super(itemView);
         tvTime = itemView.findViewById(R.id.tvTime);
@@ -31,7 +30,6 @@ public class ChatViewHolder extends RecyclerView.ViewHolder {
         seekBar = itemView.findViewById(R.id.seekBar);
         vvMessage = itemView.findViewById(R.id.vvMessage);
         seekBar = itemView.findViewById(R.id.seekBar);
-        btnDownload=itemView.findViewById(R.id.btnDownload);
 
     }
 }

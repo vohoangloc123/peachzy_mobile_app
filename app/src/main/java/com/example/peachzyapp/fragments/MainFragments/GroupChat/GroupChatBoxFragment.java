@@ -21,6 +21,7 @@ import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -155,6 +156,9 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
         } else {
             Log.e("FriendcheckUID", "UID is null");
         }
+        ScrollView scrollView=view.findViewById(R.id.scrollView);
+        scrollView.fullScroll(View.FOCUS_DOWN);
+        scrollView.setSmoothScrollingEnabled(true);
         //set to UI from bundle
         tvGroupName.setText(groupName);
         //initial

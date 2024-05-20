@@ -16,19 +16,20 @@
 
     <TextView
         android:id="@+id/tv_friend"
-        android:layout_width="119dp"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginLeft="15dp"
         android:padding="10dp"
         android:text="Name"
         android:textColor="@color/black"
         android:textSize="15sp"
+        android:layout_weight="1"
         android:textStyle="bold" />
+
     <ImageButton
         android:id="@+id/btnMore"
         android:layout_width="50dp"
-        android:layout_height="60dp"
+        android:layout_height="50dp"
         android:background="@color/white"
-        android:layout_gravity="right"
         android:src="@drawable/ic_more_vert_black_24dp" />
 </LinearLayout>

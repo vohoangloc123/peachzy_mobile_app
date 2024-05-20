@@ -31,6 +31,7 @@ import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -165,9 +166,9 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
                 initWebSocket();
             }
         });
-
-
-        Log.d("RequestUIDchannel2", "onCreateView: "+channel_id);
+        ScrollView scrollView=view.findViewById(R.id.scrollView);
+        scrollView.fullScroll(View.FOCUS_DOWN);
+        scrollView.setSmoothScrollingEnabled(true);
         //xử lý resize giao diện và đẩy edit text và button lên khi chat ngoài ra còn load tin nhắn mói từ dưới lên
         InputMethodManager inputManager = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
         inputManager.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT);
@@ -224,14 +225,9 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
                     listMessage.add(new Item(currentTime, message,urlAvatar ,true, "text"));
                     adapter.notifyItemInserted(listMessage.size() - 1);
                     recyclerView.scrollToPosition(listMessage.size() - 1);
-
-                    //B2 gửi lên socket
                     JSONObject messageToSend = new JSONObject();
-                    // Tạo đối tượng JSON chứa trường type và message
                     JSONObject json = new JSONObject();
-
                     try{
-
                         messageToSend.put("conversation_id", channel_id);
                         messageToSend.put("from", uid);
                         messageToSend.put("to", friend_id);
@@ -246,7 +242,6 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
                     }catch (JSONException e) {
                         throw new RuntimeException(e);
                     }
-                    //myWebSocket.sendMessage(message);
                     myWebSocket.sendMessage(String.valueOf(json));
                     Log.d("CheckFriendName", friendName);
                     new AsyncTask<Void, Void, Void>() {
