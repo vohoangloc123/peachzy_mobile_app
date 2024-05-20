@@ -82,24 +82,17 @@ import software.amazon.awssdk.transfer.s3.model.Upload;
 
 public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSocketListener {
     public static final String TAG= GroupChatBoxFragment.class.getName();
-    TextView tvGroupName;
-    EditText etGroupMessage;
-    ImageButton btnSend;
-    RecyclerView recyclerView;
-    String groupID;
-    String groupName;
-    String groupAvatar;
-    String userID;
+    private TextView tvGroupName;
+    private EditText etGroupMessage;
+    private ImageButton btnSend, btnImage, btnVideo, btnOption, btnBack, btnLink;
+    private RecyclerView recyclerView;
+    private String groupID, groupName, groupAvatar, userID, userName, userAvatar;
     private List<GroupChat> listGroupMessage = new ArrayList<>();
-    MyWebSocket myWebSocket;
-    MainActivity mainActivity;
+    private MyWebSocket myWebSocket;
+    private MainActivity mainActivity;
     private DynamoDBManager dynamoDBManager;
     private GroupChatBoxAdapter adapter;
-    int newPosition;
-    private String userName;
-    private String userAvatar;
-    ImageButton btnImage, btnVideo;
-    ImageButton btnOption;
+    private int newPosition;
     private static final int PICK_IMAGE_REQUEST = 1;
     private static final int PICK_DOCUMENT_REQUEST = 2;
     private static final int PICK_VIDEO_REQUEST = 3;
@@ -108,8 +101,6 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
     private static final String BUCKET_NAME_FOR_DOCUMENT = "chat-app-document-cnm";
     private static final String BUCKET_NAME_FOR_VIDEO = "chat-app-video-cnm";
     private AmazonS3 s3Client;
-    private ImageButton btnLink;
-    private ImageButton btnBack;
     private MyGroupViewModel viewModel;
 
 

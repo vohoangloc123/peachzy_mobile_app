@@ -28,10 +28,8 @@ import com.example.peachzyapp.entities.Item;
 import com.squareup.picasso.Picasso;
 
 public class ChatBoxAdapter extends RecyclerView.Adapter<ChatViewHolder> {
-
-    Context context;
-    List<Item> items;
-
+    private Context context;
+    private List<Item> items;
     public ChatBoxAdapter(Context context, List<Item> items) {
         this.context = context;
         this.items = items;

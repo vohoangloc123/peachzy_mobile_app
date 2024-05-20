@@ -27,9 +27,9 @@ import com.squareup.picasso.Picasso;
 import java.util.List;
 
 public class GroupChatBoxAdapter extends RecyclerView.Adapter<GroupChatViewHolder>{
-    Context context;
-    List<GroupChat> groupChatItems;
-    String userID; // Thuộc tính mới để lưu uid
+    private Context context;
+    private List<GroupChat> groupChatItems;
+    private String userID; // Thuộc tính mới để lưu uid
     public GroupChatBoxAdapter(Context context, List<GroupChat> groupChatItems, String userID) {
         this.context = context;
         this.groupChatItems = groupChatItems;

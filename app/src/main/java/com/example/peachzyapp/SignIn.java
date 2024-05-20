@@ -90,20 +90,14 @@ public class SignIn extends AppCompatActivity {
                 notification(R.string.invalid_email);
                 return;
             }
-
-                // Thực hiện đăng nhập
                 mAuth.signInWithEmailAndPassword(email, password)
                         .addOnCompleteListener(this, task -> {
                             if (task.isSuccessful()) {
                                 // Log in success, update UI with the signed-in user's information
                                 user = mAuth.getCurrentUser();
-
-
                                 Intent intent = new Intent(SignIn.this, SplashTheme.class);
                                 intent.putExtra("uid", String.valueOf(user.getUid()));
                                 startActivity(intent);
-//                                finish();
-                               // new CountDownTask().execute();
                             } else {
                                 // If log in fails, display a message to the user.
                                 Toast.makeText(SignIn.this, "Log in failed.", Toast.LENGTH_SHORT).show();
@@ -144,7 +138,6 @@ public class SignIn extends AppCompatActivity {
             super.onPostExecute(aVoid);
             // Chuyển sang MainActivity
             Intent intent = new Intent(SignIn.this, SplashTheme.class);
-//            Intent intent = new Intent(SignIn.this, MainActivity.class);
             intent.putExtra("uid", String.valueOf(user.getUid()));
             startActivity(intent);
             // Hiển thị thông báo Toast khi đăng nhập thành công

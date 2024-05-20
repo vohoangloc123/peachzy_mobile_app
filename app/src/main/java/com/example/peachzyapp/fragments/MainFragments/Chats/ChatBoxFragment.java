@@ -177,7 +177,6 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
         SharedPreferences preferences = getActivity().getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
         uid = preferences.getString("uid", null);
         dynamoDBManager.getProfileByUID(uid, new DynamoDBManager.FriendFoundForGetUIDByEmailListener(){
-
             @Override
             public void onFriendFound(String uid, String name, String email, String avatar, Boolean sex, String dateOfBirth) {
 

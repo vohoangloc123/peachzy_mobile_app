@@ -20,9 +20,8 @@ import com.example.peachzyapp.Regexp.Regexp;
 import com.google.firebase.auth.FirebaseAuth;
 
 public class ForgetPassword extends AppCompatActivity {
-    EditText etEmail;
-    Button btnForgetPassword;
-    Button btnSignIn;
+    private EditText etEmail;
+    private Button btnForgetPassword, btnSignIn;
     private Regexp regexp;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,7 +36,6 @@ public class ForgetPassword extends AppCompatActivity {
         regexp= new Regexp();
         Context context = this;
         Resources resources = context.getResources();
-        //
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.etFind), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);

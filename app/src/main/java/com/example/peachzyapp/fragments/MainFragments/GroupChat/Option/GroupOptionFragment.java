@@ -205,18 +205,13 @@ public class GroupOptionFragment extends Fragment {
         });
         btnDeleteGroup.setOnClickListener(v->{
             dynamoDBManager.deleteGroupConversation(groupID);
-            //xóa groupID trong group của bảng Users của mình
-//            dynamoDBManager.deleteUserFromGroup(groupID, userID);
             dynamoDBManager.deleteGroupFromUser(userID, groupID);
-            //xóa groupID trong group của bảng Users của những member khác
-//            dynamoDBManager.deleteUserFromGroup(groupID, userID);
             dynamoDBManager.findMemberOfGroup(groupID, new DynamoDBManager.ListMemberListener() {
                 @Override
                 public void ListMemberID(String id) {
                     dynamoDBManager.deleteGroupFromUser(id, groupID);
                 }
             });
-            // dynamoDBManager.deleteGroupFromUser(userID, groupID);
             //Xóa group
             dynamoDBManager.deleteGroup(groupID);
             getActivity().getSupportFragmentManager().popBackStack();

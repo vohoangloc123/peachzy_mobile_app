@@ -26,7 +26,6 @@ import com.example.peachzyapp.entities.Conversation;
 import java.util.ArrayList;
 
 public class ChatListsFragment extends Fragment {
-
     private MainActivity mainActivity;
     private RecyclerView rcvChatList;
     private View view;
@@ -57,7 +56,7 @@ public class ChatListsFragment extends Fragment {
         } else {
             Log.e("FriendcheckUID", "UID is null");
         }
-        dynamoDBManager.loadConversation1(uid, new DynamoDBManager.LoadConversationListener() {
+        dynamoDBManager.loadConversation(uid, new DynamoDBManager.LoadConversationListener() {
             @Override
             public void onConversationFound(String conversationID, String friendID ,String message, String time, String avatar, String name) {
                 Conversation conversation = new Conversation(conversationID, friendID ,message, time, avatar, name);
@@ -91,11 +90,7 @@ public class ChatListsFragment extends Fragment {
             @Override
             public void onChanged(String newData) {
                 Log.d("Livedata1", "onChanged: Yes");
-                // Cập nhật RecyclerView hoặc bất kỳ thành phần UI nào khác ở đây
-                // newData chứa dữ liệu mới từ Fragment con
-               //conversationsList.clear();
                 resetRecycleView();
-                ///
             }
         });
 
@@ -108,7 +103,7 @@ public class ChatListsFragment extends Fragment {
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                dynamoDBManager.loadConversation1(uid, new DynamoDBManager.LoadConversationListener() {
+                dynamoDBManager.loadConversation(uid, new DynamoDBManager.LoadConversationListener() {
                     @Override
                     public void onConversationFound(String conversationID, String friendID,String message, String time, String avatar, String name) {
                         Conversation conversation = new Conversation(conversationID, friendID, message, time, avatar, name);
@@ -124,24 +119,4 @@ public class ChatListsFragment extends Fragment {
             }
         }, 1000); // 2000 milliseconds = 2 seconds
     }
-    // Function to load conversations
-//    private void loadConversations() {
-//        dynamoDBManager.loadConversation1(uid, new DynamoDBManager.LoadConversationListener() {
-//            @Override
-//            public void onConversationFound(String conversationID, String message, String time, String avatar, String name) {
-//                Conversation conversation = new Conversation(conversationID, message, time, avatar, name);
-//                conversationsList.add(conversation);
-//                Log.d("ConversationListSize", "Size: " + conversationsList.size());
-//
-//                Log.d("ConversationFound", "Conversation ID: " + conversationID + ", Message: " + message + ", Time: " + time + ", Avatar: " + avatar + ", Name: " + name);
-//                // Notify adapter that data set has changed after all conversations are added
-//                conversationAdapter.notifyDataSetChanged();
-//            }
-//
-//            @Override
-//            public void onLoadConversationError(Exception e) {
-//                e.printStackTrace();
-//            }
-//        });
-//    }
 }

@@ -38,13 +38,11 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.MultiTransformation;
 import com.bumptech.glide.load.resource.bitmap.CircleCrop;
 import com.example.peachzyapp.LiveData.MyGroupViewModel;
-import com.example.peachzyapp.LiveData.MyViewModel;
 import com.example.peachzyapp.MainActivity;
 import com.example.peachzyapp.Other.Utils;
 import com.example.peachzyapp.R;
 import com.example.peachzyapp.SocketIO.MyWebSocket;
 import com.example.peachzyapp.adapters.CreateGroupChatAdapter;
-import com.example.peachzyapp.adapters.RequestSentAdapter;
 import com.example.peachzyapp.dynamoDB.DynamoDBManager;
 import com.example.peachzyapp.entities.FriendItem;
 
@@ -90,8 +88,6 @@ public class CreateGroupChatFragment extends Fragment implements MyWebSocket.Web
         super.onCreate(savedInstanceState);
         viewModel = new ViewModelProvider(this).get(MyGroupViewModel.class);
     }
-
-
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {

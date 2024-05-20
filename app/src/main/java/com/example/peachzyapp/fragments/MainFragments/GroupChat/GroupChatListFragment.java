@@ -3,13 +3,9 @@ package com.example.peachzyapp.fragments.MainFragments.GroupChat;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -18,35 +14,21 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
-import android.widget.Button;
 import android.widget.ImageButton;
-
 import com.example.peachzyapp.LiveData.MyGroupViewModel;
-import com.example.peachzyapp.LiveData.MyViewModel;
 import com.example.peachzyapp.MainActivity;
 import com.example.peachzyapp.R;
 import com.example.peachzyapp.SocketIO.MyWebSocket;
-import com.example.peachzyapp.adapters.FriendAlreadyAdapter;
 import com.example.peachzyapp.adapters.GroupChatListAdapter;
-import com.example.peachzyapp.adapters.RequestSentAdapter;
 import com.example.peachzyapp.dynamoDB.DynamoDBManager;
-import com.example.peachzyapp.entities.Conversation;
-import com.example.peachzyapp.entities.FriendItem;
-import com.example.peachzyapp.entities.GroupChat;
 import com.example.peachzyapp.entities.GroupConversation;
 import com.example.peachzyapp.fragments.MainFragments.Users.AddFriendFragment;
-
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.util.ArrayList;
-import java.util.List;
-
-
 public class GroupChatListFragment extends Fragment implements MyWebSocket.WebSocketListener{
-    MyWebSocket myWebSocket;
-    RecyclerView rcvGroupChatList;
+    private MyWebSocket myWebSocket;
+    private RecyclerView rcvGroupChatList;
     private ArrayList<GroupConversation> listGroupChats;
     private View view;
     private MainActivity mainActivity;

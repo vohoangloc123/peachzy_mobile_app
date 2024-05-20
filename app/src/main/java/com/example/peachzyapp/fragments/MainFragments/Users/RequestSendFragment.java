@@ -22,8 +22,8 @@ import java.util.List;
 
 public class RequestSendFragment extends Fragment {
     public static final String TAG= RequestSendFragment .class.getName();
-    RecyclerView rcvRequestSent;
-    ImageButton btnBack;
+    private RecyclerView rcvRequestSent;
+    private ImageButton btnBack;
     private View view;
     private MainActivity mainActivity;
     private RequestSentAdapter requestSentAdapter;

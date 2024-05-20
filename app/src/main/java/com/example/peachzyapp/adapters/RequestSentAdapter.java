@@ -25,10 +25,10 @@ import java.util.List;
 public class RequestSentAdapter extends RecyclerView.Adapter<RequestSentAdapter.FriendViewHolder>{
     private List<FriendItem> listFriend;
     public ImageView avatarImageView;
-    DynamoDBManager dynamoDBManager;
-    RequestSendFragment requestSendFragment;
+    private DynamoDBManager dynamoDBManager;
+    private RequestSendFragment requestSendFragment;
 
-    Button btnRemoveRequest;
+    private Button btnRemoveRequest;
 
     private String uid;
 
@@ -56,7 +56,6 @@ public class RequestSentAdapter extends RecyclerView.Adapter<RequestSentAdapter.
         btnRemoveRequest = view.findViewById(R.id.btnRemoveRequest);
         dynamoDBManager = new DynamoDBManager(view.getContext());
         requestSendFragment = new RequestSendFragment();
-
         return new RequestSentAdapter.FriendViewHolder(view);
     }
     @Override
@@ -66,7 +65,6 @@ public class RequestSentAdapter extends RecyclerView.Adapter<RequestSentAdapter.
 
             String uid = this.uid; // Get uid from instance variable
             String friendId = friends.getId();
-
             btnRemoveRequest.setOnClickListener(v->{
                 Log.d("onBindViewHolder358", uid+":"+friendId);
                 Button btnRemoveRequest = (Button) holder.itemView.findViewById(R.id.btnCancel);
@@ -78,15 +76,11 @@ public class RequestSentAdapter extends RecyclerView.Adapter<RequestSentAdapter.
             });
 
         }
-
-
         holder.tvFriend.setText(friends.getName());
         Glide.with(holder.itemView.getContext())
                 .load(friends.getAvatar())
                 .transform(new MultiTransformation<Bitmap>(new CircleCrop()))
                 .into(avatarImageView);
-
-
     }
     public class FriendViewHolder extends RecyclerView.ViewHolder{
         public TextView tvFriend;

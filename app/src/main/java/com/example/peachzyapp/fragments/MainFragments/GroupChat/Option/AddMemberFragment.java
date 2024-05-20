@@ -62,24 +62,15 @@ public class AddMemberFragment extends Fragment {
         rcvAddMember = view.findViewById(R.id.rcvAddMember);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(mainActivity);
         rcvAddMember.setLayoutManager(linearLayoutManager);
-
-        //addMemeberAdapter = new AddMemeberAdapter(getListFriends());
         loadFriends();
         addMemberAdapter = new AddMemberAdapter(friendList);
-
-
-        //dynamoDBManager.findMemberOfGroup(groupID);
-
-
         rcvAddMember.setAdapter(addMemberAdapter);
-//        RecyclerView.ItemDecoration itemDecoration=new DividerItemDecoration(mainActivity, DividerItemDecoration.VERTICAL);
-//        rcvAddMember.addItemDecoration(itemDecoration);
         btnAddMember.setOnClickListener(v -> {
             Log.d("CheckAddMember", "userID " + uid + " groupID: " + groupID);
             List<String> selectedMemberIds = addMemberAdapter.getSelectedMemberIds();
             Log.d("CheckFriendIDFor", selectedMemberIds.toString());
             dynamoDBManager.updateGroupForAccounts(selectedMemberIds, groupID, "member");
-            dynamoDBManager.updateGroups(groupID, selectedMemberIds);
+            dynamoDBManager.updateGroup(groupID, selectedMemberIds);
             Log.d("RemainingMembers", selectedMemberIds.toString());
             getActivity().getSupportFragmentManager().popBackStack();
         });
@@ -166,10 +157,6 @@ public class AddMemberFragment extends Fragment {
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-//                        //Log.d("onDATAREquest", "run: "+data.getName());
-//                        friendList.add(friendItem);
-//                        addMemeberAdapter.notifyDataSetChanged();
-
                         if (!memberList.contains(friendItem.getId())) {
                             friendList.add(friendItem);
                             addMemberAdapter.notifyDataSetChanged();

@@ -28,18 +28,12 @@ import java.util.Calendar;
 import java.util.List;
 
 public class SignUp extends AppCompatActivity {
-    EditText etEmail;
-    EditText etFirstName;
-    EditText etLastName;
-    RadioButton rMale;
-    RadioButton rFemale;
-    TextView etDateOfBirth;
-    EditText etPassword;
-    Button btnSignUp;
-    Button btnSignIn;
+    private EditText etEmail, etFirstName, etLastName, etPassword, etConfirmPassword;
+    private RadioButton rMale, rFemale;
+    private TextView etDateOfBirth;
+    private Button btnSignUp, btnSignIn;
     private FirebaseAuth mAuth;
     private int generatedOTP;
-    EditText etConfirmPassword;
     private Regexp regexp;
 
     @Override

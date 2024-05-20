@@ -28,8 +28,7 @@ public class RequestReceivedAdapter extends RecyclerView.Adapter<RequestReceived
     private String test;
     private List<FriendItem> listFriend;
     public ImageView ivAvatar;
-    Button btnAccept;
-    Button btnCancel;
+    private Button btnAccept, btnCancel;
     private String uid;
     String name;
     Context mContext;

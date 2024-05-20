@@ -128,8 +128,8 @@ public class ManageMemberAdapter extends RecyclerView.Adapter<ManageMemberAdapte
                 } else if (itemId == R.id.action_popup_change_leader) {
                     Log.d(TAG, "Member: " + cbDeleteMember.getTag()+ " to member");
                     Log.d(TAG, "Leader: " + uid+ " to leader");
-                    dynamoDBManager.updateGroupForAccountVer2((String) cbDeleteMember.getTag(), groupID, "leader");
-                    dynamoDBManager.updateGroupForAccountVer2(uid, groupID, "member");
+                    dynamoDBManager.updateRoleForMember((String) cbDeleteMember.getTag(), groupID, "leader");
+                    dynamoDBManager.updateRoleForMember(uid, groupID, "member");
                     fragmentManager.popBackStack();
                     fragmentManager.popBackStack();
                     // Xử lý khi chọn Change Leader item ở đây
@@ -167,13 +167,11 @@ public class ManageMemberAdapter extends RecyclerView.Adapter<ManageMemberAdapte
                                 Log.d("onCountComplete1", "ok");
                                 dynamoDBManager.deleteGroupConversation(groupID);
                                 dynamoDBManager.deleteGroup(groupID);
-
                                 // changeData();
                                 fragmentManager.popBackStack();
                                 fragmentManager.popBackStack();
                                 fragmentManager.popBackStack();
                                 mainActivity.showBottomNavigation(true);
-
                             }
                             else {
                                 fragmentManager.popBackStack();

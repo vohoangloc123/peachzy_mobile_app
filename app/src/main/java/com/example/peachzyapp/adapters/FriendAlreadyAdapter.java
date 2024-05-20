@@ -42,9 +42,7 @@ public class FriendAlreadyAdapter extends RecyclerView.Adapter<FriendAlreadyAdap
     private DynamoDBManager dynamoDBManager;
     private MainActivity mainActivity;
     private FragmentManager fragmentManager;
-
     private MyViewModel viewModel;
-
     public void setViewModel(MyViewModel viewModel) {
         this.viewModel = viewModel;
     }
@@ -171,14 +169,14 @@ public class FriendAlreadyAdapter extends RecyclerView.Adapter<FriendAlreadyAdap
             });
             popupMenu.show();
         }
-@Override
-public void onClick(View v) {
-    int clickedPosition = getAdapterPosition(); // Lấy vị trí của item được click
-    if (clickedPosition != RecyclerView.NO_POSITION) { // Kiểm tra vị trí có hợp lệ không
-        Log.d(TAG, "onClick: " + clickedPosition);
-        showPopupMenu(v, clickedPosition); // Chuyển vị trí đã click vào phương thức showPopupMenu
-    }
-}
+        @Override
+        public void onClick(View v) {
+            int clickedPosition = getAdapterPosition(); // Lấy vị trí của item được click
+            if (clickedPosition != RecyclerView.NO_POSITION) { // Kiểm tra vị trí có hợp lệ không
+                Log.d(TAG, "onClick: " + clickedPosition);
+                showPopupMenu(v, clickedPosition); // Chuyển vị trí đã click vào phương thức showPopupMenu
+            }
+        }
         public void setDynamoDBManager(DynamoDBManager dynamoDBManager) {
             this.dynamoDBManager = dynamoDBManager;
         }
@@ -191,7 +189,7 @@ public void onClick(View v) {
         }
     }
 
-    private void changeData() {
-        viewModel.setData("New data");
-    }
+        private void changeData() {
+            viewModel.setData("New data");
+        }
 }

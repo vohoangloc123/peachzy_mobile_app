@@ -21,16 +21,15 @@ import com.example.peachzyapp.entities.FriendItem;
 import java.util.ArrayList;
 
 public class AddFriendFragment extends Fragment {
-    EditText etEmail;
-    ImageButton btnFind;
-    ImageButton btnBack;
+    private EditText etEmail;
+    private ImageButton btnFind, btnBack;
     private DynamoDBManager dynamoDBManager;
     private MainActivity mainActivity;
     public static final String TAG1= AddFriendFragment.class.getName();
     private ListView listView; // Assume you're using ListView
     private ArrayList<FriendItem> friendItems;
     private FriendAdapter friendAdapter;
-    String uid;
+    private String uid;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,

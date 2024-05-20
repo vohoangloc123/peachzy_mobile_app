@@ -153,13 +153,10 @@ public class ManageMemberFragment extends Fragment {
                             Log.d("onCountComplete1", "ok");
                             dynamoDBManager.deleteGroupConversation(groupID);
                             dynamoDBManager.deleteGroup(groupID);
-
-                            // changeData();
                             getActivity().getSupportFragmentManager().popBackStack();
                             getActivity().getSupportFragmentManager().popBackStack();
                             getActivity().getSupportFragmentManager().popBackStack();
                             mainActivity.showBottomNavigation(true);
-
                         }
                         else {
                             getActivity().getSupportFragmentManager().popBackStack();
@@ -172,8 +169,6 @@ public class ManageMemberFragment extends Fragment {
 
         }, 200); // 0.5 giây (500 mili giây)
     }
-
-
     private void searchForMember(String info) {
         dynamoDBManager.findFriendByInfor(info, uid, new DynamoDBManager.FriendFoundListener() {
             @Override
@@ -184,7 +179,6 @@ public class ManageMemberFragment extends Fragment {
                         friendItem = new FriendItem(id, avatar, name);
                         memberList.clear();
                         memberList.add(friendItem);
-
                         manageMemberAdapter.notifyDataSetChanged();
                         Toast.makeText(getActivity(), "Friend found!", Toast.LENGTH_SHORT).show();
                     }

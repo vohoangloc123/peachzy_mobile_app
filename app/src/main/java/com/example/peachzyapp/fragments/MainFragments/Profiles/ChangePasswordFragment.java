@@ -22,10 +22,8 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 public class ChangePasswordFragment extends Fragment {
-    Button btnChangePassword;
-    EditText etCurrentPassword;
-    EditText etNewPassword;
-    EditText etReNewPassword;
+    private Button btnChangePassword;
+    private EditText etCurrentPassword,  etNewPassword,  etReNewPassword;
     private FirebaseAuth mAuth;
     public static final String TAG= ChangePasswordFragment.class.getName();
     @Override
