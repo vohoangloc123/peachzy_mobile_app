@@ -61,10 +61,16 @@ public class AddFriendFragment extends Fragment {
                         @Override
                         public void run() {
                             FriendItem friendItem = new FriendItem(id, avatar, name);
-                            friendItems.clear();
-                            friendItems.add(friendItem);
-                            friendAdapter.notifyDataSetChanged();
-                            Toast.makeText(getActivity(), "Friend found!", Toast.LENGTH_SHORT).show();
+                            if(id.equals(uid))
+                            {
+                                friendItems.clear();
+                            }else
+                            {
+                                friendItems.clear();
+                                friendItems.add(friendItem);
+                                friendAdapter.notifyDataSetChanged();
+                                Toast.makeText(getActivity(), "Friend found!", Toast.LENGTH_SHORT).show();
+                            }
                         }
                     });
                 }
