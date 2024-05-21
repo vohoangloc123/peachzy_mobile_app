@@ -855,44 +855,73 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
         try {
 
             JSONObject jsonObject  = new JSONObject(receivedMessage);
-            JSONObject messageJson = jsonObject.getJSONObject("message");
-            String avatar = messageJson.getString("avatar"); // Đường dẫn ảnh đại diện mặc định
-            String from = messageJson.getString("from");
-            String to = messageJson.getString("to");
-            String message = messageJson.getString("text");
-            String currentTime = messageJson.getString("time");
-            String type=messageJson.getString("type");
-            Log.d("onMessageReceived1", receivedMessage);
+            String jsonType = jsonObject.getString("type");
 
-            // Kiểm tra xem tin nhắn nhận được có trùng với tin nhắn đã gửi không
-            boolean isDuplicate = false;
-            for (Item item : listMessage) {
-                if (item.getMessage().equals(receivedMessage)) {
-                    isDuplicate = true;
-                    break;
+            if(jsonType.equals("send-message")){
+                JSONObject messageJson = jsonObject.getJSONObject("message");
+                String avatar = messageJson.getString("avatar"); // Đường dẫn ảnh đại diện mặc định
+                String from = messageJson.getString("from");
+                String to = messageJson.getString("to");
+                String message = messageJson.getString("text");
+                String currentTime = messageJson.getString("time");
+                String type=messageJson.getString("type");
+                Log.d("onMessageReceived1", receivedMessage+" "+jsonType);
+
+                // Kiểm tra xem tin nhắn nhận được có trùng với tin nhắn đã gửi không
+                boolean isDuplicate = false;
+                for (Item item : listMessage) {
+                    if (item.getMessage().equals(receivedMessage)) {
+                        isDuplicate = true;
+                        break;
+                    }
                 }
-            }
 
-            scrollToBottom();
-            if (!isDuplicate) {
-                listMessage.add(new Item(currentTime, message, urlAvatar,false,type));
-                Log.d("TypeIs1218", type);
-                newPosition = listMessage.size() - 1; // Vị trí mới của tin nhắn
-                adapter.notifyItemInserted(newPosition);
                 scrollToBottom();
-                if (recyclerView.getLayoutManager() != null) {
-                    // Cuộn xuống vị trí mới
-                    recyclerView.post(() -> recyclerView.smoothScrollToPosition(newPosition));
-                } else {
-                    recyclerView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-                        @Override
-                        public void onGlobalLayout() {
-                            recyclerView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                            recyclerView.smoothScrollToPosition(newPosition);
-                        }
-                    });
+                if (!isDuplicate) {
+                    listMessage.add(new Item(currentTime, message, urlAvatar,false,type));
+                    Log.d("TypeIs1218", type);
+                    newPosition = listMessage.size() - 1; // Vị trí mới của tin nhắn
+                    adapter.notifyItemInserted(newPosition);
+                    scrollToBottom();
+                    if (recyclerView.getLayoutManager() != null) {
+                        // Cuộn xuống vị trí mới
+                        recyclerView.post(() -> recyclerView.smoothScrollToPosition(newPosition));
+                    } else {
+                        recyclerView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                            @Override
+                            public void onGlobalLayout() {
+                                recyclerView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                                recyclerView.smoothScrollToPosition(newPosition);
+                            }
+                        });
+                    }
                 }
             }
+            if(jsonType.equals("delete-message")) {
+                JSONObject messageJson = jsonObject.getJSONObject("message");
+                String avatar = messageJson.getString("avatar"); // Đường dẫn ảnh đại diện mặc định
+                String from = messageJson.getString("from");
+                String to = messageJson.getString("to");
+                String message = messageJson.getString("text");
+                String currentTime = messageJson.getString("time");
+                String type = messageJson.getString("type");
+                Log.d("onMessageReceived2", receivedMessage + " " + jsonType+" "+message+" "+currentTime);
+
+
+
+                //Item(message.getTime(), message.getMessage(),urlAvatar, message.isSentByMe(),message.getType());
+                boolean isSentByMe =false;
+                if(from.equals(uid)){
+                    isSentByMe=true;
+                }
+                Item itemIndex = new Item(currentTime, message, urlAvatar,isSentByMe,type);
+                int position = listMessage.indexOf(itemIndex);
+                Log.d("onMessageReceived posotion: ",position+"");
+                removeItemFromListMessage(position);
+
+            }
+
+
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -1068,8 +1097,30 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
     private void recallMessage(int position) {
         Item item = ((ChatBoxAdapter) recyclerView.getAdapter()).getItem(position);
         Log.d("recallMessage: ",item.getMessage() +"+"+item.getTime()+"+"+channel_id);
-        dynamoDBManager.RecallMessage(channel_id,item.getMessage(),item.getTime());
+        dynamoDBManager.recallMessage(channel_id,item.getMessage(),item.getTime());
+
         listMessage.remove(item);
+
+
+        JSONObject messageToSend = new JSONObject();
+        JSONObject json = new JSONObject();
+        try{
+            messageToSend.put("conversation_id", channel_id);
+            messageToSend.put("from", uid);
+            messageToSend.put("to", friend_id);
+            messageToSend.put("memberName", userName);
+            messageToSend.put("avatar", item.getAvatar());
+            messageToSend.put("text", item.getMessage());
+            messageToSend.put("time", item.getTime());
+            messageToSend.put("type", item.getType());
+            json.put("type", "delete-message");
+            json.put("message", messageToSend);
+
+        }catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+        myWebSocket.sendMessage(String.valueOf(json));
+
 
         adapter.notifyDataSetChanged();
 
@@ -1254,6 +1305,29 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
             key = Paths.get(path).getFileName().toString();
         }
         return key;
+    }
+
+    Handler handler = new Handler(Looper.getMainLooper());
+    private void removeItemFromListMessage(int position) {
+        Log.d("removeItemFromListMessage", "Removing item at position: " + position);
+
+        Item item = ((ChatBoxAdapter) recyclerView.getAdapter()).getItem(position);
+
+        if (item != null) {
+            Log.d("removeItemFromListMessage", "Found item: " + item.getMessage());
+
+            listMessage.remove(item);
+
+            // Gửi một tin nhắn tới Handler của luồng giao diện chính để thực hiện cập nhật giao diện
+            handler.post(() -> {
+                //adapter.notifyDataSetChanged();
+                //adapter.notifyItemRemoved(position);
+                adapter.notifyDataSetChanged();
+                Log.d("removeItemFromListMessage", "Item removed and adapter notified");
+            });
+        } else {
+            Log.d("removeItemFromListMessage", "Item not found at position: " + position);
+        }
     }
 
 

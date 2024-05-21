@@ -15,6 +15,8 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Looper;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -824,6 +826,9 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
             try {
 
                 JSONObject jsonObject  = new JSONObject(receivedMessage);
+                String jsonType = jsonObject.getString("type");
+
+                if(jsonType.equals("send-group-message")){
                 JSONObject messageJson = jsonObject.getJSONObject("message");
 
                // String avatar = messageJson.getString("avatar");
@@ -864,6 +869,25 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
                         });
                     }
                 }
+                }
+                if(jsonType.equals("delete-group-message")){
+                    JSONObject messageJson = jsonObject.getJSONObject("message");
+
+                    // String avatar = messageJson.getString("avatar");
+                    String avatar = messageJson.getString("memberAvatar"); // Đường dẫn ảnh đại diện mặc định
+                    String userName = messageJson.getString("memberName");
+                    String userID = messageJson.getString("memberID");
+                    String message = messageJson.getString("message");
+                    String currentTime = messageJson.getString("time");
+                    String type=messageJson.getString("type");
+                    Log.d("onMessageReceived2", avatar+" "+userName+" "+message+" "+userID);
+
+                    GroupChat newMessage=new GroupChat(avatar, message,userName,currentTime, userID, type);
+                    int position = listGroupMessage.indexOf(newMessage);
+                    Log.d("onMessageReceived posotion: ",position+"");
+                    removeItemFromListMessage(position);
+                }
+
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -1006,6 +1030,32 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
     private void recallMessage(int position) {
         GroupChat item = ((GroupChatBoxAdapter) recyclerView.getAdapter()).getItem(position);
         Log.d("recallMessage: ",item.getMessage() +"+"+item.getTime()+"+"+groupID);
+        dynamoDBManager.recallMessageForGroup(groupID,item.getMessage(),item.getTime());
+        listGroupMessage.remove(position);
+
+        JSONObject messageToSend = new JSONObject();
+        // Tạo đối tượng JSON chứa trường type và message
+        JSONObject json = new JSONObject();
+        try{
+
+            messageToSend.put("memberID", item.getUserID());
+            messageToSend.put("memberName", item.getName());
+            messageToSend.put("memberAvatar", item.getAvatar());
+            messageToSend.put("message", item.getMessage());
+            messageToSend.put("time", item.getTime());
+            messageToSend.put("type", item.getType());
+            json.put("type", "delete-group-message");
+            json.put("message", messageToSend);
+
+        }catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+        myWebSocket.sendMessage(String.valueOf(json));
+
+        adapter.notifyDataSetChanged();
+
+
+
 
         Toast.makeText(getContext(), "Message recalled", Toast.LENGTH_SHORT).show();
     }
@@ -1196,4 +1246,26 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
         }
     }
 
+    Handler handler = new Handler(Looper.getMainLooper());
+    private void removeItemFromListMessage(int position) {
+        Log.d("removeItemFromListMessage", "Removing item at position: " + position);
+
+        GroupChat item = ((GroupChatBoxAdapter) recyclerView.getAdapter()).getItem(position);
+
+        if (item != null) {
+            Log.d("removeItemFromListMessage", "Found item: " + item.getMessage());
+
+            listGroupMessage.remove(item);
+
+            // Gửi một tin nhắn tới Handler của luồng giao diện chính để thực hiện cập nhật giao diện
+            handler.post(() -> {
+                //adapter.notifyDataSetChanged();
+                //adapter.notifyItemRemoved(position);
+                adapter.notifyDataSetChanged();
+                Log.d("removeItemFromListMessage", "Item removed and adapter notified");
+            });
+        } else {
+            Log.d("removeItemFromListMessage", "Item not found at position: " + position);
+        }
+    }
 }

@@ -1,5 +1,7 @@
 package com.example.peachzyapp.entities;
 
+import java.util.Objects;
+
 public class GroupChat {
     private String id;
     private String groupName;
@@ -125,5 +127,18 @@ public class GroupChat {
                 ", time='" + time + '\'' +
                 ", userID='" + userID + '\'' +
                 '}';
+    }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        GroupChat item = (GroupChat) o;
+        return Objects.equals(time, item.time) &&
+                Objects.equals(message, item.message);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(time, message);
     }
 }
