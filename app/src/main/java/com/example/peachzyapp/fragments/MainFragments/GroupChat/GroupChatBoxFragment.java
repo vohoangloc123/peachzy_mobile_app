@@ -2,6 +2,8 @@ package com.example.peachzyapp.fragments.MainFragments.GroupChat;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
@@ -12,6 +14,7 @@ import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -44,12 +47,14 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.AbortMultipartUploadRequest;
 import com.amazonaws.services.s3.model.CompleteMultipartUploadRequest;
+import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.InitiateMultipartUploadRequest;
 import com.amazonaws.services.s3.model.InitiateMultipartUploadResult;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PartETag;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.PutObjectResult;
+import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.UploadPartRequest;
 import com.amazonaws.services.s3.model.UploadPartResult;
 import com.example.peachzyapp.LiveData.MyGroupViewModel;
@@ -69,8 +74,14 @@ import org.json.JSONObject;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -106,8 +117,7 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
     private static final String BUCKET_NAME_FOR_VIDEO = "chat-app-video-cnm";
     private AmazonS3 s3Client;
     private MyGroupViewModel viewModel;
-
-
+    private String thisType, key;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -894,8 +904,7 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
         GroupChat item = ((GroupChatBoxAdapter) recyclerView.getAdapter()).getItem(position);
         Button btnRecall = dialogView.findViewById(R.id.btnRecall);
         Button btnForward = dialogView.findViewById(R.id.btnForward);
-
-     //   Log.d("showOptionsDialog: ",item.getUserID()+" "+userID);
+        Button btnButton = dialogView.findViewById(R.id.btnButton);
         if(!userID.equals(item.getUserID())){
 
             //btnRecall.setVisibility(View.VISIBLE);
@@ -904,17 +913,78 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
         }
 
 
-        //ImageView ivAvatarDelete = dialogView.findViewById(R.id.ivAvatarDelete);
-        //TextView tvMessageDelete = dialogView.findViewById(R.id.tvMessageDelete);
-
-        // Lấy thông tin tin nhắn từ MyAdapter
-        // Item item = ((MyAdapter) recyclerView.getAdapter()).getItem(position);
-
-
         AlertDialog alertDialog = builder.create();
         alertDialog.show();
 
+        dynamoDBManager.GetTypeOfGroupMessage(groupID, item.getMessage(), item.getTime(), new DynamoDBManager.GetTypeOfMessageListener() {
+            @Override
+            public void onFound(String type) {
+                thisType = type;
+                if (type.equals("text")) {
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            btnButton.setText("Copy");
+                        }
+                    });
+                } else {
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            btnButton.setText("Download");
+                        }
+                    });
+                }
+            }
+        });
+        btnButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (thisType == null) {
+                    btnButton.setVisibility(View.GONE);
+                } else {
+                    switch (thisType) {
+                        case "text":
+                            Log.d("CheckingType", "Copy"+item.getMessage());
+                            copyToClipboard(item.getMessage());
+                            break;
+                        case "image":
+                            try {
+                                key = getKey(item.getMessage());
+                                Log.d("CheckingType", "Download image: "+key);
+                                downloadImage(BUCKET_NAME, key);
+                                changeData();
+                            } catch (MalformedURLException e) {
+                                throw new RuntimeException(e);
+                            }
+                            break;
+                        case "document":
+                            try {
+                                key = getKey(item.getMessage());
+                                Log.d("CheckingType", "Download video: "+key);
+                                downloadDocument(BUCKET_NAME_FOR_DOCUMENT, key);
+                                changeData();
+                            } catch (MalformedURLException e) {
+                                throw new RuntimeException(e);
+                            }
+                            break;
+                        case "video":
+                            try {
+                                key = getKey(item.getMessage());
+                                Log.d("CheckingType", "Download video: "+key);
+                                downloadVideo(BUCKET_NAME_FOR_VIDEO, key);
+                                changeData();
+                            } catch (MalformedURLException e) {
+                                throw new RuntimeException(e);
+                            }
 
+                        default:
+                            // Xử lý trường hợp không xác định
+                            break;
+                    }
+                }
+            }
+        });
         btnRecall.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -936,17 +1006,6 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
     private void recallMessage(int position) {
         GroupChat item = ((GroupChatBoxAdapter) recyclerView.getAdapter()).getItem(position);
         Log.d("recallMessage: ",item.getMessage() +"+"+item.getTime()+"+"+groupID);
-        //dynamoDBManager.RecallMessage(channel_id,item.getMessage(),item.getTime());
-        // dynamoDBManager.RecallMessage(friend_id,uid,item.getMessage(),item.getTime());
-        //updateRecyclerView();
-        //item.setMessage("(Tin nhắn đã được thu hồi)");
-        //listGroupMessage.remove(item);
-
-
-
-
-
-        //adapter.notifyDataSetChanged();
 
         Toast.makeText(getContext(), "Message recalled", Toast.LENGTH_SHORT).show();
     }
@@ -960,10 +1019,181 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
 
         Toast.makeText(getContext(), "Message forward", Toast.LENGTH_SHORT).show();
     }
+    private void copyToClipboard(String text) {
+        ClipboardManager clipboard = (ClipboardManager) requireContext().getSystemService(Context.CLIPBOARD_SERVICE);
+        ClipData clip = ClipData.newPlainText("Copied Text", text);
+        clipboard.setPrimaryClip(clip);
+        Toast.makeText(getContext(), "Text copied to clipboard", Toast.LENGTH_SHORT).show();
+    }
+    private String getKey(String mediaUrl) throws MalformedURLException {
+        URL url = new URL(mediaUrl);
+        // Lấy phần path của URL
+        String key=null;
+        String path = url.getPath();
 
-    // Phương thức để xóa một mục khỏi listMessage dựa trên thời gian và tin nhắn
+        // Trích xuất key từ phần path (tên tệp)
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            key = Paths.get(path).getFileName().toString();
+        }
+        return key;
+    }
+    private void downloadImage(String bucketName, String key) {
+        new AsyncTask<String, Void, Bitmap>() {
+            @Override
+            protected Bitmap doInBackground(String... params) {
+                try {
+                    S3Object s3Object = s3Client.getObject(new GetObjectRequest(params[0], params[1]));
+                    InputStream inputStream = s3Object.getObjectContent();
+                    return BitmapFactory.decodeStream(inputStream);
+                } catch (Exception e) {
+                    Log.e(TAG, "Error downloading image", e);
+                    return null;
+                }
+            }
 
-//******
-    ///++++
+            @Override
+            protected void onPostExecute(Bitmap bitmap) {
+                if (bitmap != null) {
+                    saveImageToDownloads(bitmap);
+                } else {
+                    Toast.makeText(getContext(), "Failed to download image", Toast.LENGTH_SHORT).show();
+                }
+            }
+        }.execute(bucketName, key);
+    }
+
+    private void saveImageToDownloads(Bitmap bitmap) {
+        try {
+            File downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+            if (!downloadsDir.exists()) {
+                downloadsDir.mkdirs(); // Tạo thư mục nếu chưa tồn tại
+            }
+            String fileName = "image_" + System.currentTimeMillis() + ".jpg"; // Tạo tên tệp mới dựa trên thời gian hiện tại
+            File file = new File(downloadsDir, fileName);
+            try (FileOutputStream fos = new FileOutputStream(file)) {
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+                Toast.makeText(getContext(), "Image saved: " + file.getAbsolutePath(), Toast.LENGTH_SHORT).show();
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error saving image", e);
+            Toast.makeText(getContext(), "Error saving image", Toast.LENGTH_SHORT).show();
+        }
+    }
+    private void downloadDocument(String bucketName, String key) {
+        new AsyncTask<String, Void, File>() {
+            @Override
+            protected File doInBackground(String... params) {
+                try {
+                    S3Object s3Object = s3Client.getObject(new GetObjectRequest(params[0], params[1]));
+                    InputStream inputStream = s3Object.getObjectContent();
+                    File file = new File(getContext().getFilesDir(), "document_" + System.currentTimeMillis() + ".pdf"); // Tạo tên tệp mới dựa trên thời gian hiện tại
+                    try (FileOutputStream fos = new FileOutputStream(file)) {
+                        byte[] buffer = new byte[1024];
+                        int length;
+                        while ((length = inputStream.read(buffer)) > 0) {
+                            fos.write(buffer, 0, length);
+                        }
+                    }
+                    return file;
+                } catch (Exception e) {
+                    Log.e(TAG, "Error downloading document", e);
+                    return null;
+                }
+            }
+
+            @Override
+            protected void onPostExecute(File file) {
+                if (file != null) {
+                    saveDocumentToDownloads(file);
+                    Toast.makeText(getContext(), "Document downloaded", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(getContext(), "Failed to download document", Toast.LENGTH_SHORT).show();
+                }
+            }
+        }.execute(bucketName, key);
+    }
+    private void saveDocumentToDownloads(File documentFile) {
+        try {
+            File downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+            if (!downloadsDir.exists()) {
+                downloadsDir.mkdirs(); // Tạo thư mục nếu chưa tồn tại
+            }
+            String fileName = "document_" + System.currentTimeMillis() + ".pdf"; // Tạo tên tệp mới dựa trên thời gian hiện tại
+            File file = new File(downloadsDir, fileName);
+
+            // Copy tài liệu vào thư mục Downloads
+            try (InputStream inStream = new FileInputStream(documentFile);
+                 OutputStream outStream = new FileOutputStream(file)) {
+                byte[] buffer = new byte[1024];
+                int length;
+                while ((length = inStream.read(buffer)) > 0) {
+                    outStream.write(buffer, 0, length);
+                }
+            }
+
+            Toast.makeText(getContext(), "Document saved: " + file.getAbsolutePath(), Toast.LENGTH_SHORT).show();
+        } catch (Exception e) {
+            Log.e(TAG, "Error saving document", e);
+            Toast.makeText(getContext(), "Error saving document", Toast.LENGTH_SHORT).show();
+        }
+    }
+    private void downloadVideo(String bucketName, String key) {
+        new AsyncTask<String, Void, File>() {
+            @Override
+            protected File doInBackground(String... params) {
+                try {
+                    S3Object s3Object = s3Client.getObject(new GetObjectRequest(params[0], params[1]));
+                    InputStream inputStream = s3Object.getObjectContent();
+                    File file = new File(getContext().getFilesDir(), "video_" + System.currentTimeMillis() + ".mp4"); // Tạo tên tệp mới dựa trên thời gian hiện tại
+                    try (FileOutputStream fos = new FileOutputStream(file)) {
+                        byte[] buffer = new byte[1024];
+                        int length;
+                        while ((length = inputStream.read(buffer)) > 0) {
+                            fos.write(buffer, 0, length);
+                        }
+                    }
+                    return file;
+                } catch (Exception e) {
+                    Log.e(TAG, "Error downloading video", e);
+                    return null;
+                }
+            }
+
+            @Override
+            protected void onPostExecute(File file) {
+                if (file != null) {
+                    saveVideoToDownloads(file);
+                } else {
+                    Toast.makeText(getContext(), "Failed to download video", Toast.LENGTH_SHORT).show();
+                }
+            }
+        }.execute(bucketName, key);
+    }
+
+    private void saveVideoToDownloads(File videoFile) {
+        try {
+            File downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+            if (!downloadsDir.exists()) {
+                downloadsDir.mkdirs(); // Tạo thư mục nếu chưa tồn tại
+            }
+            String fileName = "video_" + System.currentTimeMillis() + ".mp4"; // Tạo tên tệp mới dựa trên thời gian hiện tại
+            File file = new File(downloadsDir, fileName);
+
+            // Copy video vào thư mục Downloads
+            try (InputStream inStream = new FileInputStream(videoFile);
+                 OutputStream outStream = new FileOutputStream(file)) {
+                byte[] buffer = new byte[1024];
+                int length;
+                while ((length = inStream.read(buffer)) > 0) {
+                    outStream.write(buffer, 0, length);
+                }
+            }
+
+            Toast.makeText(getContext(), "Video saved: " + file.getAbsolutePath(), Toast.LENGTH_SHORT).show();
+        } catch (Exception e) {
+            Log.e(TAG, "Error saving video", e);
+            Toast.makeText(getContext(), "Error saving video", Toast.LENGTH_SHORT).show();
+        }
+    }
 
 }

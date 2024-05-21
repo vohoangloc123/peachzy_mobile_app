@@ -123,7 +123,7 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
     String friendName;
     String userAvatar;
 
-    String thisType, key;
+    private String thisType, key;
     private MyViewChatModel viewModel;
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -569,7 +569,6 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
                                     .withPartSize(bytesToRead)
                                     .withInputStream(new ByteArrayInputStream(partData));
                             UploadPartResult uploadResult = s3Client.uploadPart(uploadRequest);
-
                             // Lưu ETag của phần đã tải lên
                             partETags.put(i + 1, uploadResult.getETag());
                         }
@@ -1026,7 +1025,6 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
                             }
                             break;
                         case "video":
-                            //Chưa là bạn nên k có trong mảng friends vì thế kết bạn
                             try {
                                 key = getKey(item.getMessage());
                                 Log.d("CheckingType", "Download video: "+key);
@@ -1187,8 +1185,6 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
             Toast.makeText(getContext(), "Error saving document", Toast.LENGTH_SHORT).show();
         }
     }
-
-
     private void downloadVideo(String bucketName, String key) {
         new AsyncTask<String, Void, File>() {
             @Override
