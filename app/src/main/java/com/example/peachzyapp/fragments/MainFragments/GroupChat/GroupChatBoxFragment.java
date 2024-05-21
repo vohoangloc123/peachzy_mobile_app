@@ -1,6 +1,7 @@
 package com.example.peachzyapp.fragments.MainFragments.GroupChat;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
@@ -19,6 +20,7 @@ import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ScrollView;
@@ -55,9 +57,11 @@ import com.example.peachzyapp.MainActivity;
 import com.example.peachzyapp.Other.Utils;
 import com.example.peachzyapp.R;
 import com.example.peachzyapp.SocketIO.MyWebSocket;
+import com.example.peachzyapp.adapters.ChatBoxAdapter;
 import com.example.peachzyapp.adapters.GroupChatBoxAdapter;
 import com.example.peachzyapp.dynamoDB.DynamoDBManager;
 import com.example.peachzyapp.entities.GroupChat;
+import com.example.peachzyapp.entities.Item;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -266,6 +270,15 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
             getActivity().getSupportFragmentManager().popBackStack();
             mainActivity.showBottomNavigation(true);
         });
+
+        adapter.setOnItemLongClickListener(new ChatBoxAdapter.OnItemLongClickListener() {
+            @Override
+            public void onItemLongClick(int position) {
+                // Xử lý hành động khi nhấn giữ
+                showOptionsDialog(position);
+            }
+        });
+
         return view;
     }
 
@@ -870,5 +883,87 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
     private void changeData() {
         viewModel.setData("New data");
     }
+
+    ///++++
+//******
+    private void showOptionsDialog(int position) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        LayoutInflater inflater = getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.message_option_fragment, null);
+        builder.setView(dialogView);
+        GroupChat item = ((GroupChatBoxAdapter) recyclerView.getAdapter()).getItem(position);
+        Button btnRecall = dialogView.findViewById(R.id.btnRecall);
+        Button btnForward = dialogView.findViewById(R.id.btnForward);
+
+     //   Log.d("showOptionsDialog: ",item.getUserID()+" "+userID);
+        if(!userID.equals(item.getUserID())){
+
+            //btnRecall.setVisibility(View.VISIBLE);
+            btnRecall.setEnabled(false);
+            btnRecall.setAlpha(0.5f);
+        }
+
+
+        //ImageView ivAvatarDelete = dialogView.findViewById(R.id.ivAvatarDelete);
+        //TextView tvMessageDelete = dialogView.findViewById(R.id.tvMessageDelete);
+
+        // Lấy thông tin tin nhắn từ MyAdapter
+        // Item item = ((MyAdapter) recyclerView.getAdapter()).getItem(position);
+
+
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+
+
+        btnRecall.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Xử lý logic khi người dùng chọn Recall
+                recallMessage(position);
+                alertDialog.dismiss();
+            }
+        });
+
+        btnForward.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Xử lý logic khi người dùng chọn Delete
+                forwardMessage(position);
+                alertDialog.dismiss();
+            }
+        });
+    }
+    private void recallMessage(int position) {
+        GroupChat item = ((GroupChatBoxAdapter) recyclerView.getAdapter()).getItem(position);
+        Log.d("recallMessage: ",item.getMessage() +"+"+item.getTime()+"+"+groupID);
+        //dynamoDBManager.RecallMessage(channel_id,item.getMessage(),item.getTime());
+        // dynamoDBManager.RecallMessage(friend_id,uid,item.getMessage(),item.getTime());
+        //updateRecyclerView();
+        //item.setMessage("(Tin nhắn đã được thu hồi)");
+        //listGroupMessage.remove(item);
+
+
+
+
+
+        //adapter.notifyDataSetChanged();
+
+        Toast.makeText(getContext(), "Message recalled", Toast.LENGTH_SHORT).show();
+    }
+
+    private void forwardMessage(int position) {
+        GroupChat item = ((GroupChatBoxAdapter) recyclerView.getAdapter()).getItem(position);
+        //dynamoDB Manager.RecallMessage(uid,friend_id,item.getMessage(),item.getTime());
+        // updateRecyclerView();
+        //item.setMessage("(Tin nhắn đã được xóa)");
+        adapter.notifyDataSetChanged();
+
+        Toast.makeText(getContext(), "Message forward", Toast.LENGTH_SHORT).show();
+    }
+
+    // Phương thức để xóa một mục khỏi listMessage dựa trên thời gian và tin nhắn
+
+//******
+    ///++++
 
 }

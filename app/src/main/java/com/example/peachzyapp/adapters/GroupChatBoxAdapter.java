@@ -40,6 +40,20 @@ public class GroupChatBoxAdapter extends RecyclerView.Adapter<GroupChatViewHolde
         this.groupChatItems = groupChatItems;
         notifyDataSetChanged(); // Cập nhật giao diện khi dữ liệu thay đổi
     }
+
+    //++
+    public interface OnItemLongClickListener {
+        void onItemLongClick(int position);
+    }
+    private ChatBoxAdapter.OnItemLongClickListener mLongListener;
+
+    public void setOnItemLongClickListener(ChatBoxAdapter.OnItemLongClickListener listener) {
+        mLongListener = listener;
+    }
+    public GroupChat getItem(int position) {
+        return groupChatItems.get(position);
+    }
+    //++
     @NonNull
     @Override
     public GroupChatViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -266,6 +280,18 @@ public class GroupChatBoxAdapter extends RecyclerView.Adapter<GroupChatViewHolde
                 }
             }
         });
+        //*******
+        holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                if (mLongListener != null) {
+                    mLongListener.onItemLongClick(position);
+                    return true;
+                }
+                return false;
+            }
+        });
+        //*******
 
     }
 
