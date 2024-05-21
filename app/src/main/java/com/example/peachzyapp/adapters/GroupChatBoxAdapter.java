@@ -22,6 +22,7 @@ import com.bumptech.glide.load.MultiTransformation;
 import com.bumptech.glide.load.resource.bitmap.CircleCrop;
 import com.example.peachzyapp.R;
 import com.example.peachzyapp.entities.GroupChat;
+import com.example.peachzyapp.entities.Item;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
@@ -59,7 +60,6 @@ public class GroupChatBoxAdapter extends RecyclerView.Adapter<GroupChatViewHolde
         RelativeLayout.LayoutParams paramsOfImage = (RelativeLayout.LayoutParams) holder.ivGroupMessage.getLayoutParams();
         RelativeLayout.LayoutParams paramsOfVideo = (RelativeLayout.LayoutParams) holder.vvGroupMessage.getLayoutParams();
         RelativeLayout.LayoutParams paramsOfFile = (RelativeLayout.LayoutParams) holder.tvGroupLink.getLayoutParams();
-        RelativeLayout.LayoutParams paramsOfDownLoad = (RelativeLayout.LayoutParams) holder.btnDownload.getLayoutParams();
         RelativeLayout.LayoutParams paramsOfSeeker = (RelativeLayout.LayoutParams) holder.seekBar.getLayoutParams();
         if (currentItem.getUserID().equals(userID)) {
             params.addRule(RelativeLayout.ALIGN_PARENT_END);
@@ -67,7 +67,6 @@ public class GroupChatBoxAdapter extends RecyclerView.Adapter<GroupChatViewHolde
             paramsOfFile.addRule(RelativeLayout.ALIGN_PARENT_END);
             paramsOfVideo.addRule(RelativeLayout.ALIGN_PARENT_END);
             paramsOfSeeker.addRule(RelativeLayout.ALIGN_PARENT_END);
-            paramsOfDownLoad.addRule(RelativeLayout.ALIGN_PARENT_END);
             holder.tvGroupMessage.setTextColor(context.getColor(R.color.white));
             holder.tvGroupMessage.setBackground(ContextCompat.getDrawable(context, R.drawable.bg_message));
             holder.ivGroupAvatar.setVisibility(View.GONE);
@@ -158,8 +157,7 @@ public class GroupChatBoxAdapter extends RecyclerView.Adapter<GroupChatViewHolde
                 holder.ivGroupMessage.setVisibility(View.GONE);
                 //file
                 holder.tvGroupLink.setVisibility(View.GONE);
-                //video, image
-                holder.btnDownload.setVisibility(View.GONE);
+
                 //video
                 holder.seekBar.setVisibility(View.GONE);
                 holder.vvGroupMessage.setVisibility(View.GONE);
@@ -254,8 +252,6 @@ public class GroupChatBoxAdapter extends RecyclerView.Adapter<GroupChatViewHolde
                 holder.ivGroupMessage.setVisibility(View.GONE);
                 //file
                 holder.tvGroupLink.setVisibility(View.GONE);
-                //video, image
-                holder.btnDownload.setVisibility(View.GONE);
                 //video
                 holder.seekBar.setVisibility(View.GONE);
                 holder.vvGroupMessage.setVisibility(View.GONE);

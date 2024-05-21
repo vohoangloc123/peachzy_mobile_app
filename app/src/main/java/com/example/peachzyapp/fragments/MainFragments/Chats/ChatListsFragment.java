@@ -110,7 +110,6 @@ public class ChatListsFragment extends Fragment {
                         conversationsList.add(conversation);
                         conversationAdapter.notifyDataSetChanged();
                     }
-
                     @Override
                     public void onLoadConversationError(Exception e) {
                         e.printStackTrace();

@@ -83,12 +83,6 @@
         android:textColor="@android:color/black"
         android:textSize="16sp"
         tools:text="This is a message" />
-    <ImageButton
-        android:id="@+id/btnDownload"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/baseline_download_24"
-        android:layout_below="@+id/ivGroupMessage"/>
     <SeekBar
         android:id="@+id/seekBar"
         android:layout_width="match_parent"

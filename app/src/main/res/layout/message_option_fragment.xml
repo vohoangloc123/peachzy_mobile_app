@@ -21,10 +21,10 @@
         android:text="Recall" />
 
     <Button
-        android:id="@+id/btnCopy"
+        android:id="@+id/btnButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Copy" />
+        android:text="" />
 
 
 

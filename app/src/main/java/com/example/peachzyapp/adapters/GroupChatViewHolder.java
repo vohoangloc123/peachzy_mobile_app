@@ -18,7 +18,6 @@ public class GroupChatViewHolder  extends RecyclerView.ViewHolder{
     ImageView ivGroupMessage; // Thêm ImageView mới để hiển thị ảnh trong tin nhắn (nếu có)
     VideoView vvGroupMessage;
     SeekBar seekBar;
-    ImageButton btnDownload;
     public GroupChatViewHolder(@NonNull View itemView) {
         super(itemView);
         tvGroupTime = itemView.findViewById(R.id.tvGroupTime);
@@ -29,6 +28,5 @@ public class GroupChatViewHolder  extends RecyclerView.ViewHolder{
         tvUserName=itemView.findViewById(R.id.tvUserName);
         vvGroupMessage = itemView.findViewById(R.id.vvGroupMessage);
         seekBar = itemView.findViewById(R.id.seekBar);
-        btnDownload=itemView.findViewById(R.id.btnDownload);
     }
 }
