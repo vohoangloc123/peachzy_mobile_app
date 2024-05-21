@@ -38,6 +38,19 @@ public class ChatBoxAdapter extends RecyclerView.Adapter<ChatViewHolder> {
         this.items = items;
         notifyDataSetChanged(); // Cập nhật giao diện khi dữ liệu thay đổi
     }
+    ///+++
+    public interface OnItemLongClickListener {
+        void onItemLongClick(int position);
+    }
+    private OnItemLongClickListener mLongListener;
+
+    public void setOnItemLongClickListener(OnItemLongClickListener listener) {
+        mLongListener = listener;
+    }
+    public Item getItem(int position) {
+        return items.get(position);
+    }
+    //******
 
     @NonNull
     @Override
@@ -259,6 +272,18 @@ public class ChatBoxAdapter extends RecyclerView.Adapter<ChatViewHolder> {
                 holder.vvMessage.setVisibility(View.GONE);
             }
         }
+        //*******
+        holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                if (mLongListener != null) {
+                    mLongListener.onItemLongClick(position);
+                    return true;
+                }
+                return false;
+            }
+        });
+        //*******
     }
     private void checkFileTypeAndDisplay(ImageView holder, String url) {
         Log.d("CheckTypeOfPicture", url);
