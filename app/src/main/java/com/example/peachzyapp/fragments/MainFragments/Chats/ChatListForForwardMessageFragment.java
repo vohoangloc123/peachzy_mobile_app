@@ -98,8 +98,15 @@ public class ChatListForForwardMessageFragment extends Fragment {
                                 ", Friend Name: " + urlAvatar + ", My Name: " + forwardMyName+", Channel ID: " + forwardChannelID);
                         String currentTime = Utils.getCurrentTime();
                         dynamoDBManager.saveMessageOneToOne(forwardChannelID,forwardMessage,currentTime,forwardType,uid,id);
-                        dynamoDBManager.saveConversation(uid,  id, forwardMessage, currentTime, forwardMyAvatar, friendName);
-                        dynamoDBManager.saveConversation(id, uid,forwardMessage, currentTime, urlAvatar, forwardMyName);
+                        if(forwardType.equals("text"))
+                        {
+                            dynamoDBManager.saveConversation(uid,  id, forwardMyName+": "+forwardMessage, currentTime, forwardMyAvatar, friendName);
+                            dynamoDBManager.saveConversation(id, uid,forwardMyName+": "+forwardMessage, currentTime, urlAvatar, forwardMyName);
+                        }else
+                        {
+                            dynamoDBManager.saveConversation(uid,  id, forwardMyName+": "+forwardType, currentTime, forwardMyAvatar, friendName);
+                            dynamoDBManager.saveConversation(id, uid,forwardMyName+": "+forwardType, currentTime, urlAvatar, forwardMyName);
+                        }
                     }
                 });
                 conversationsList.clear();

@@ -6,6 +6,7 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -1064,12 +1065,47 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
 
     private void forwardMessage(int position) {
         GroupChat item = ((GroupChatBoxAdapter) recyclerView.getAdapter()).getItem(position);
-        //dynamoDB Manager.RecallMessage(uid,friend_id,item.getMessage(),item.getTime());
-        // updateRecyclerView();
-        //item.setMessage("(Tin nhắn đã được xóa)");
-        adapter.notifyDataSetChanged();
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setTitle("Chọn loại chat");
+        builder.setMessage("Bạn muốn chuyển tiếp tin nhắn tới:");
 
-        Toast.makeText(getContext(), "Message forward", Toast.LENGTH_SHORT).show();
+        // Tạo các nút cho hộp thoại
+        builder.setPositiveButton("Chat đơn", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Bundle bundle=new Bundle();
+                bundle.putString("forwardType",  item.getType());
+                bundle.putString("forwardMessage",  item.getMessage());
+                bundle.putString("forwardMyName", userName);
+                bundle.putString("forwardMyAvatar", userAvatar);
+                mainActivity.goToChatBoxListFragment(bundle);
+                Toast.makeText(getContext(), "Forward to Single Chat", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        builder.setNegativeButton("Chat nhóm", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Bundle bundle=new Bundle();
+                bundle.putString("forwardType",  item.getType());
+                bundle.putString("forwardMessage",  item.getMessage());
+                bundle.putString("forwardMyName", userName);
+                bundle.putString("forwardMyAvatar", userAvatar);
+                mainActivity.goToGroupChatBoxListFragment(bundle);
+                Toast.makeText(getContext(), "Forward to Group Chat", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        builder.setNeutralButton("Hủy", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+
+        // Hiển thị hộp thoại
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
     private void copyToClipboard(String text) {
         ClipboardManager clipboard = (ClipboardManager) requireContext().getSystemService(Context.CLIPBOARD_SERVICE);

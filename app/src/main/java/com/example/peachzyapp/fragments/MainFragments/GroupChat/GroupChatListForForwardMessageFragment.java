@@ -108,8 +108,16 @@ public class GroupChatListForForwardMessageFragment extends Fragment {
             @Override
             public void onItemClick(String id, String groupName, String avatar) {
                 String currentTime = Utils.getCurrentTime();
-                dynamoDBManager.saveGroupMessage(id, forwardMessage, currentTime, uid, forwardMyAvatar, forwardMyName, forwardType);
-                dynamoDBManager.saveGroupConversation(id, forwardMessage, groupName, currentTime,forwardMyAvatar,forwardMyName);
+                if(forwardType.equals("text"))
+                {
+                    dynamoDBManager.saveGroupMessage(id, forwardMessage, currentTime, uid, forwardMyAvatar, forwardMyName, forwardType);
+                    dynamoDBManager.saveGroupConversation(id, forwardMessage, groupName, currentTime,forwardMyAvatar,forwardMyName);
+
+                }else
+                {
+                    dynamoDBManager.saveGroupMessage(id, forwardMessage, currentTime, uid, forwardMyAvatar, forwardMyName, forwardType);
+                    dynamoDBManager.saveGroupConversation(id, forwardType, groupName, currentTime,forwardMyAvatar,forwardMyName);
+                }
                 listGroupChats.clear();
                 getParentFragmentManager().popBackStack();
                 mainActivity.showBottomNavigation(false);
