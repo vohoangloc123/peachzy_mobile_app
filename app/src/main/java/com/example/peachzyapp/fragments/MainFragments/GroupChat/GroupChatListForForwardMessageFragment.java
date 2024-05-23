@@ -32,7 +32,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-public class GroupChatListForForwardMessageFragment extends Fragment {
+public class GroupChatListForForwardMessageFragment extends Fragment  implements MyWebSocket.WebSocketListener {
     public static final String TAG = GroupChatListForForwardMessageFragment.class.getName();
     private MyWebSocket myWebSocket;
     private RecyclerView rcvGroupChatList;
@@ -86,8 +86,6 @@ public class GroupChatListForForwardMessageFragment extends Fragment {
             @Override
             public void onChanged(String newData) {
                 Log.d("LivedataGroup", "onChanged: Yes");
-                // Cập nhật RecyclerView hoặc bất kỳ thành phần UI nào khác ở đây
-                // newData chứa dữ liệu mới từ Fragment con
                 resetRecycleView();
             }
         });//
@@ -108,6 +106,8 @@ public class GroupChatListForForwardMessageFragment extends Fragment {
             @Override
             public void onItemClick(String id, String groupName, String avatar) {
                 String currentTime = Utils.getCurrentTime();
+                initWebSocket(id);
+                sendMessageToSocket(uid, forwardMyName, forwardMyAvatar, forwardMessage, currentTime, forwardType);
                 if(forwardType.equals("text"))
                 {
                     dynamoDBManager.saveGroupMessage(id, forwardMessage, currentTime, uid, forwardMyAvatar, forwardMyName, forwardType);
@@ -118,6 +118,7 @@ public class GroupChatListForForwardMessageFragment extends Fragment {
                     dynamoDBManager.saveGroupMessage(id, forwardMessage, currentTime, uid, forwardMyAvatar, forwardMyName, forwardType);
                     dynamoDBManager.saveGroupConversation(id, forwardType, groupName, currentTime,forwardMyAvatar,forwardMyName);
                 }
+                //live data
                 listGroupChats.clear();
                 getParentFragmentManager().popBackStack();
                 mainActivity.showBottomNavigation(false);
@@ -145,5 +146,48 @@ public class GroupChatListForForwardMessageFragment extends Fragment {
                 Log.d("LivedataGroup1", "ok" + uid);
             }
         }, 400); // 0.2 giây (200 mili giây)
+    }
+    private void sendMessageToSocket(String senderID, String userName, String senderAvatar, String message, String time, String type )
+    {
+        JSONObject messageToSend = new JSONObject();
+        JSONObject json = new JSONObject();
+        try{
+            messageToSend.put("memberID", senderID);
+            messageToSend.put("memberName", userName);
+            messageToSend.put("memberAvatar", senderAvatar);
+            messageToSend.put("message", message);
+            messageToSend.put("time", time);
+            messageToSend.put("type", type);
+            json.put("type", "send-group-message");
+            json.put("message", messageToSend);
+        }catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+        Log.d(TAG, "sending data"+String.valueOf(json));
+        myWebSocket.sendMessage(String.valueOf(json));
+    }
+    private void initWebSocket(String groupID) {
+        // Kiểm tra xem channel_id đã được thiết lập chưa
+        if (groupID != null) {
+            // Nếu đã có channel_id, thì khởi tạo myWebSocket
+            myWebSocket = new MyWebSocket("wss://free.blr2.piesocket.com/v3/"+groupID+"?api_key=ujXx32mn0joYXVcT2j7Gp18c0JcbKTy3G6DE9FMB&notify_self=0", this);
+        } else {
+            // Nếu channel_id vẫn chưa được thiết lập, hiển thị thông báo hoặc xử lý lỗi tương ứng
+            Log.e(TAG, "Error: Channel ID is null");
+        }
+    }
+
+    @Override
+    public void onMessageReceived(String message) {
+
+    }
+
+    @Override
+    public void onConnectionStateChanged(boolean isConnected) {
+        if (isConnected) {
+            Log.d(TAG, "WebSocket Connected");
+        } else {
+            Log.e(TAG, "WebSocket Disconnected");
+        }
     }
 }

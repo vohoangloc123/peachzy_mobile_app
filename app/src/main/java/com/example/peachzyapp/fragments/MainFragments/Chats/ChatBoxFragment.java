@@ -475,7 +475,6 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
                     }catch (JSONException e) {
                         throw new RuntimeException(e);
                     }
-                    //myWebSocket.sendMessage(String.valueOf(messageToSend));
                     myWebSocket.sendMessage(String.valueOf(json));
 
 
@@ -622,7 +621,6 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
                     }catch (JSONException e) {
                         throw new RuntimeException(e);
                     }
-                    //myWebSocket.sendMessage(String.valueOf(messageToSend));
                     myWebSocket.sendMessage(String.valueOf(json));
 
                     // Lưu tin nhắn và cuộc trò chuyện vào DynamoDB
@@ -781,7 +779,6 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
                     }
 
 
-                    //myWebSocket.sendMessage(message);
                     myWebSocket.sendMessage(String.valueOf(json));
 
                     // Lưu tin nhắn và cuộc trò chuyện vào DynamoDB

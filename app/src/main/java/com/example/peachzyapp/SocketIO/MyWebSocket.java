@@ -79,9 +79,9 @@ public class MyWebSocket {
 
     public void sendMessage(String message) {
         if (webSocket != null && webSocket.send(message)) {
-            Log.d("SendMessage", message);
+            Log.d("GroupChatListForForwardMessageFragment", "On message: "+message);
         } else {
-            Log.e("SendMessage", "Failed to send message: " + message);
+            Log.e("GroupChatListForForwardMessageFragment", "Failed to send message: " + message);
         }
     }
 

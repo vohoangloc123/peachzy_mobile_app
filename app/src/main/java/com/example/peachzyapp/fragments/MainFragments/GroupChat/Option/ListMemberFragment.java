@@ -167,4 +167,11 @@ public class ListMemberFragment extends Fragment {
     private void changeData() {
         viewModel.setData("New data");
     }
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        // Ngắt kết nối khi Fragment bị hủy
+        mainActivity.showBottomNavigation(false);
+
+    }
 }

@@ -20,13 +20,17 @@ import com.example.peachzyapp.LiveData.MyViewChatModel;
 import com.example.peachzyapp.MainActivity;
 import com.example.peachzyapp.Other.Utils;
 import com.example.peachzyapp.R;
+import com.example.peachzyapp.SocketIO.MyWebSocket;
 import com.example.peachzyapp.adapters.ConversationAdapter;
 import com.example.peachzyapp.dynamoDB.DynamoDBManager;
 import com.example.peachzyapp.entities.Conversation;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 
-public class ChatListForForwardMessageFragment extends Fragment {
+public class ChatListForForwardMessageFragment extends Fragment  implements MyWebSocket.WebSocketListener {
     public static final String TAG= ChatListForForwardMessageFragment.class.getName();
     private MainActivity mainActivity;
     private RecyclerView rcvChatList;
@@ -38,6 +42,7 @@ public class ChatListForForwardMessageFragment extends Fragment {
     private MyViewChatModel viewModel;
     private String forwardType, forwardMessage;
     private String forwardChannelID,forwardMyAvatar,forwardMyName;
+    private MyWebSocket myWebSocket;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -93,10 +98,12 @@ public class ChatListForForwardMessageFragment extends Fragment {
                     @Override
                     public void GetChannelId(String channelID) {
                         forwardChannelID=channelID;
+                        initWebSocket(channelID);
                         Log.d("ForwardData", "Channel ID: " + forwardChannelID + ", Message: " + forwardMessage +
                                 ", Type: " + forwardType + ", My Avatar: " + forwardMyAvatar +
                                 ", Friend Name: " + urlAvatar + ", My Name: " + forwardMyName+", Channel ID: " + forwardChannelID);
                         String currentTime = Utils.getCurrentTime();
+                        sendMessageToSocket(channelID, uid, forwardMyName, forwardMyAvatar, forwardMessage, currentTime, forwardType);
                         dynamoDBManager.saveMessageOneToOne(forwardChannelID,forwardMessage,currentTime,forwardType,uid,id);
                         if(forwardType.equals("text"))
                         {
@@ -107,6 +114,7 @@ public class ChatListForForwardMessageFragment extends Fragment {
                             dynamoDBManager.saveConversation(uid,  id, forwardMyName+": "+forwardType, currentTime, forwardMyAvatar, friendName);
                             dynamoDBManager.saveConversation(id, uid,forwardMyName+": "+forwardType, currentTime, urlAvatar, forwardMyName);
                         }
+                        //live data
                     }
                 });
                 conversationsList.clear();
@@ -146,5 +154,46 @@ public class ChatListForForwardMessageFragment extends Fragment {
                 });
             }
         }, 1000); // 2000 milliseconds = 2 seconds
+    }
+    private void sendMessageToSocket(String channel_id, String friend_id, String userName, String senderAvatar, String message, String time, String type )
+    {
+        JSONObject messageToSend = new JSONObject();
+        JSONObject json = new JSONObject();
+        try{
+            messageToSend.put("conversation_id", channel_id);
+            messageToSend.put("from", uid);
+            messageToSend.put("to", friend_id);
+            messageToSend.put("memberName", userName);
+            messageToSend.put("avatar", senderAvatar);
+            messageToSend.put("text", message);
+            messageToSend.put("time", time);
+            messageToSend.put("type", type);
+            json.put("type", "send-message");
+            json.put("message", messageToSend);
+
+        }catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+        myWebSocket.sendMessage(String.valueOf(json));
+    }
+    private void initWebSocket(String channelID) {
+        // Kiểm tra xem channel_id đã được thiết lập chưa
+        if (channelID != null) {
+            // Nếu đã có channel_id, thì khởi tạo myWebSocket
+            myWebSocket = new MyWebSocket("wss://free.blr2.piesocket.com/v3/"+channelID+"?api_key=ujXx32mn0joYXVcT2j7Gp18c0JcbKTy3G6DE9FMB&notify_self=0", this);
+        } else {
+            // Nếu channel_id vẫn chưa được thiết lập, hiển thị thông báo hoặc xử lý lỗi tương ứng
+            Log.e("WebSocket", "Error: Channel ID is null");
+        }
+    }
+
+    @Override
+    public void onMessageReceived(String message) {
+
+    }
+
+    @Override
+    public void onConnectionStateChanged(boolean isConnected) {
+
     }
 }

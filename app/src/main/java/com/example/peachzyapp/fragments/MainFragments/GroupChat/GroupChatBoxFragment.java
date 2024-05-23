@@ -224,7 +224,6 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
                     // Tạo đối tượng JSON chứa trường type và message
                     JSONObject json = new JSONObject();
                     try{
-
                         messageToSend.put("memberID", userID);
                         messageToSend.put("memberName", userName);
                         messageToSend.put("memberAvatar", userAvatar);
@@ -233,7 +232,6 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
                         messageToSend.put("type", "text");
                         json.put("type", "send-group-message");
                         json.put("message", messageToSend);
-
                     }catch (JSONException e) {
                         throw new RuntimeException(e);
                     }
@@ -812,10 +810,9 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
         recyclerView.scrollToPosition(listGroupMessage.size() - 1);
     }
     private void initWebSocket() {
+        Log.d("CheckGroupID", groupID);
         // Kiểm tra xem channel_id đã được thiết lập chưa
         if (groupID != null) {
-            // Nếu đã có channel_id, thì khởi tạo myWebSocket
-           // myWebSocket = new MyWebSocket("wss://s12275.nyc1.piesocket.com/v3/"+groupID+"?api_key=CIL9dbE6489dDCZhDUngwMm43Btfp4J9bdnxEK4m&notify_self=1", this);
             myWebSocket = new MyWebSocket("wss://free.blr2.piesocket.com/v3/"+groupID+"?api_key=ujXx32mn0joYXVcT2j7Gp18c0JcbKTy3G6DE9FMB&notify_self=0", this);
         } else {
             // Nếu channel_id vẫn chưa được thiết lập, hiển thị thông báo hoặc xử lý lỗi tương ứng
@@ -825,14 +822,10 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
     @Override
     public void onMessageReceived(String receivedMessage) {
             try {
-
                 JSONObject jsonObject  = new JSONObject(receivedMessage);
                 String jsonType = jsonObject.getString("type");
-
                 if(jsonType.equals("send-group-message")){
                 JSONObject messageJson = jsonObject.getJSONObject("message");
-
-               // String avatar = messageJson.getString("avatar");
                 String avatar = messageJson.getString("memberAvatar"); // Đường dẫn ảnh đại diện mặc định
                 String userName = messageJson.getString("memberName");
                 String userID = messageJson.getString("memberID");
@@ -853,7 +846,6 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
                 scrollToBottom();
                 if (!isDuplicate) {
                     listGroupMessage.add(new GroupChat(groupID, groupName, avatar, message, userName, currentTime, userID, type));
-                    Log.d("TypeIs1218", type);
                     int newPosition = listGroupMessage.size() - 1; // Vị trí mới của tin nhắn
                     adapter.notifyItemInserted(newPosition);
                     scrollToBottom();
@@ -882,9 +874,6 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
                     String currentTime = messageJson.getString("time");
                     String type=messageJson.getString("type");
                     Log.d("onMessageReceived2", avatar+" "+userName+" "+message+" "+userID);
-
-
-
                     GroupChat newMessage=new GroupChat(groupID, groupName, avatar, message, userName, currentTime, userID, type);
                     int position = listGroupMessage.indexOf(newMessage);
                     Log.d("onMessageReceived posotion: ",position+"");
@@ -906,6 +895,7 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
     public void onDestroyView() {
         super.onDestroyView();
         // Ngắt kết nối khi Fragment bị hủy
+        mainActivity.showBottomNavigation(true);
         myWebSocket.closeWebSocket();
     }
     private void scrollToBottom() {
@@ -1306,4 +1296,5 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
             Log.d("removeItemFromListMessage", "Item not found at position: " + position);
         }
     }
+
 }

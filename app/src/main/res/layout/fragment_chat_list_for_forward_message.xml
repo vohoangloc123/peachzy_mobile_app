@@ -10,26 +10,31 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <RelativeLayout
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="80dp"
+            android:layout_height="75dp"
             android:background="@color/btnColor"
             android:orientation="horizontal">
+
+            <ImageButton
+                android:id="@+id/btnBack"
+                android:layout_width="84dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:backgroundTint="@color/btnColor"
+                android:src="@drawable/arrow_left" />
+
             <TextView
                 android:id="@+id/textView"
-                android:layout_width="match_parent"
-                android:layout_height="70dp"
-                android:textAlignment="center"
-                android:layout_marginLeft="20dp"
+                android:layout_width="300dp"
+                android:layout_height="match_parent"
                 android:layout_marginTop="5dp"
                 android:layout_weight="1"
                 android:padding="15dp"
-                android:text="@string/message"
+                android:text="@string/edit_user_information"
                 android:textColor="@color/white"
                 android:textSize="20dp" />
-
-
-        </RelativeLayout>
+        </LinearLayout>
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rcvConversation"
             android:layout_width="match_parent"
