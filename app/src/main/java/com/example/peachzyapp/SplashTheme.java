@@ -12,21 +12,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 public class SplashTheme extends AppCompatActivity {
 
-
-//    @Override
-//    protected void onCreate(@Nullable Bundle savedInstanceState) {
-//        super.onCreate(savedInstanceState);
-//
-//        new Handler().postDelayed(new Runnable() {
-//            @Override
-//            public void run() {
-//                Intent intent = new Intent(SplashTheme.this, SignIn.class);
-//                startActivity(intent);
-//                finish();  // Kết thúc splash screen activity sau khi chuyển sang SignIn
-//            }
-//        }, 3000); // Chờ 2 giây trước khi chuyển sang SignIn
-//    }
-String uid;
+    String uid;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -37,8 +23,6 @@ String uid;
         Animation rotateAnimation = AnimationUtils.loadAnimation(this, R.anim.rotate_anim);
         imageView.startAnimation(rotateAnimation);
 
-
-//
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {

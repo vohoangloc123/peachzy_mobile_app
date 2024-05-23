@@ -34,6 +34,9 @@ android {
     }
 }
 android {
+    buildFeatures {
+        viewBinding = true
+    }
     packagingOptions {
         exclude("META-INF/INDEX.LIST")
     }
@@ -70,6 +73,7 @@ dependencies {
     implementation("io.socket:socket.io-client:1.0.0")
     //crop avatar
     implementation ("com.github.bumptech.glide:glide:4.12.0")
+    implementation(libs.navigation.ui)
     annotationProcessor ("com.github.bumptech.glide:compiler:4.12.0")
     //chia nhỏ kích thước video
     implementation("software.amazon.awssdk:s3-transfer-manager:2.25.38")

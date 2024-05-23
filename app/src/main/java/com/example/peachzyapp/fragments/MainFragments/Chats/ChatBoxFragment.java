@@ -6,6 +6,7 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -104,8 +105,7 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
     MyWebSocket myWebSocket;
     RecyclerView recyclerView;
     int newPosition;
-    String uid;
-    String friend_id;
+    private String uid, friend_id;
     private String channel_id = null;
     DynamoDBManager dynamoDBManager;
     MainActivity mainActivity;
@@ -123,7 +123,7 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
     String friendName;
     String userAvatar;
 
-    private String thisType, key;
+    private String thisType, key, forwardType, forwardMessage;;
     private MyViewChatModel viewModel;
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -191,6 +191,7 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
         //bản thân
         SharedPreferences preferences = getActivity().getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
         uid = preferences.getString("uid", null);
+
         dynamoDBManager.getProfileByUID(uid, new DynamoDBManager.FriendFoundForGetUIDByEmailListener(){
             @Override
             public void onFriendFound(String uid, String name, String email, String avatar, Boolean sex, String dateOfBirth) {
@@ -228,6 +229,7 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
                 recyclerView.scrollToPosition(adapter.getItemCount() - 1);
             }
         });
+
         scrollToBottom();
         btnSend.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -292,7 +294,6 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
             startActivityForResult(Intent.createChooser(intent, "Select Video"), PICK_VIDEO_REQUEST);
         });
         btnBack.setOnClickListener(v -> {
-            // Sử dụng FragmentManager để quản lý back stack và pop back khi cần thiết
             getParentFragmentManager().popBackStack();
             mainActivity.showBottomNavigation(true);
         });
@@ -906,16 +907,7 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
                 String currentTime = messageJson.getString("time");
                 String type = messageJson.getString("type");
                 Log.d("onMessageReceived2", receivedMessage + " " + jsonType+" "+message+" "+currentTime);
-
-
-
-                //Item(message.getTime(), message.getMessage(),urlAvatar, message.isSentByMe(),message.getType());
-//                boolean isSentByMe =false;
-//                if(from.equals(uid)){
-//                    isSentByMe=true;
-//                }
                 Item itemIndex =new Item(currentTime, message, urlAvatar,false,type);
-               // Item itemIndex = new Item(currentTime, message, urlAvatar,isSentByMe,type);
                 int position = listMessage.indexOf(itemIndex);
                 Log.d("onMessageReceived posotion: ",position+"");
                 removeItemFromListMessage(position);
@@ -1130,12 +1122,47 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
 
     private void forwardMessage(int position) {
         Item item = ((ChatBoxAdapter) recyclerView.getAdapter()).getItem(position);
-        //dynamoDB Manager.RecallMessage(uid,friend_id,item.getMessage(),item.getTime());
-        // updateRecyclerView();
-        //item.setMessage("(Tin nhắn đã được xóa)");
-        adapter.notifyDataSetChanged();
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setTitle("Chọn loại chat");
+        builder.setMessage("Bạn muốn chuyển tiếp tin nhắn tới:");
 
-        Toast.makeText(getContext(), "Message forward", Toast.LENGTH_SHORT).show();
+        // Tạo các nút cho hộp thoại
+        builder.setPositiveButton("Chat đơn", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Bundle bundle=new Bundle();
+                bundle.putString("forwardType",  item.getType());
+                bundle.putString("forwardMessage",  item.getMessage());
+                bundle.putString("forwardMyName", userName);
+                bundle.putString("forwardMyAvatar", urlAvatar);
+                mainActivity.goToChatBoxListFragment(bundle);
+                Toast.makeText(getContext(), "Forward to Single Chat", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        builder.setNegativeButton("Chat nhóm", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Bundle bundle=new Bundle();
+                bundle.putString("forwardType",  item.getType());
+                bundle.putString("forwardMessage",  item.getMessage());
+                bundle.putString("forwardMyName", userName);
+                bundle.putString("forwardMyAvatar", urlAvatar);
+                mainActivity.goToGroupChatBoxListFragment(bundle);
+                Toast.makeText(getContext(), "Forward to Group Chat", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        builder.setNeutralButton("Hủy", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+
+        // Hiển thị hộp thoại
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
     private void downloadImage(String bucketName, String key) {
         new AsyncTask<String, Void, Bitmap>() {
@@ -1330,6 +1357,7 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
             Log.d("removeItemFromListMessage", "Item not found at position: " + position);
         }
     }
+
 
 
 }
