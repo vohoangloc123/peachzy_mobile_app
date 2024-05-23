@@ -910,11 +910,12 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
 
 
                 //Item(message.getTime(), message.getMessage(),urlAvatar, message.isSentByMe(),message.getType());
-                boolean isSentByMe =false;
-                if(from.equals(uid)){
-                    isSentByMe=true;
-                }
-                Item itemIndex = new Item(currentTime, message, urlAvatar,isSentByMe,type);
+//                boolean isSentByMe =false;
+//                if(from.equals(uid)){
+//                    isSentByMe=true;
+//                }
+                Item itemIndex =new Item(currentTime, message, urlAvatar,false,type);
+               // Item itemIndex = new Item(currentTime, message, urlAvatar,isSentByMe,type);
                 int position = listMessage.indexOf(itemIndex);
                 Log.d("onMessageReceived posotion: ",position+"");
                 removeItemFromListMessage(position);

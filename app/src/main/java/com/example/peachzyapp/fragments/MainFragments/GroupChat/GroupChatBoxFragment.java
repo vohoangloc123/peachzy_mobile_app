@@ -882,7 +882,9 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
                     String type=messageJson.getString("type");
                     Log.d("onMessageReceived2", avatar+" "+userName+" "+message+" "+userID);
 
-                    GroupChat newMessage=new GroupChat(avatar, message,userName,currentTime, userID, type);
+
+
+                    GroupChat newMessage=new GroupChat(groupID, groupName, avatar, message, userName, currentTime, userID, type);
                     int position = listGroupMessage.indexOf(newMessage);
                     Log.d("onMessageReceived posotion: ",position+"");
                     removeItemFromListMessage(position);
