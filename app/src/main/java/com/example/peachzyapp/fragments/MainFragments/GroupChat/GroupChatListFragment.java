@@ -141,7 +141,6 @@ public class GroupChatListFragment extends Fragment implements MyWebSocket.WebSo
         groupChatListAdapter= new GroupChatListAdapter(listGroupChats);
 
         rcvGroupChatList.setAdapter(groupChatListAdapter);
-
         groupChatListAdapter.setOnItemClickListener(new GroupChatListAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(String id, String groupName, String avatar) {

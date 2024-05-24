@@ -7,7 +7,8 @@ public class GroupConversation {
     private String time;
     private String avatar;
     private String name;
-
+    private int lastRead;
+    private boolean unread;
 
     public GroupConversation(String groupConversationID, String groupName, String name, String avatar, String message, String time) {
         this.groupConversationID = groupConversationID;
@@ -16,6 +17,22 @@ public class GroupConversation {
         this.time = time;
         this.message = message;
         this.name = name;
+    }
+
+    public int getLastRead() {
+        return lastRead;
+    }
+
+    public void setLastRead(int lastRead) {
+        this.lastRead = lastRead;
+    }
+
+    public boolean isUnread() {
+        return unread;
+    }
+
+    public void setUnread(boolean unread) {
+        this.unread = unread;
     }
 
     public String getGroupConversationID() {
@@ -66,6 +83,17 @@ public class GroupConversation {
         this.name = name;
     }
 
+    public GroupConversation(String groupConversationID, String groupName, String message, String time, String avatar, String name, int lastRead, boolean unread) {
+        this.groupConversationID = groupConversationID;
+        this.groupName = groupName;
+        this.message = message;
+        this.time = time;
+        this.avatar = avatar;
+        this.name = name;
+        this.lastRead = lastRead;
+        this.unread = unread;
+    }
+
     @Override
     public String toString() {
         return "GroupConversation{" +
@@ -75,6 +103,8 @@ public class GroupConversation {
                 ", time='" + time + '\'' +
                 ", avatar='" + avatar + '\'' +
                 ", name='" + name + '\'' +
+                ", lastRead=" + lastRead +
+                ", unread=" + unread +
                 '}';
     }
 }

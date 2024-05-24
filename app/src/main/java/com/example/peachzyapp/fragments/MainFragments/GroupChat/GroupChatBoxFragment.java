@@ -121,6 +121,7 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
     private AmazonS3 s3Client;
     private MyGroupViewModel viewModel;
     private String thisType, key;
+    private ArrayList<String> listMember;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -164,9 +165,6 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
         } else {
             Log.e("FriendcheckUID", "UID is null");
         }
-//        ScrollView scrollView=view.findViewById(R.id.scrollView);
-//        scrollView.fullScroll(View.FOCUS_DOWN);
-//        scrollView.setSmoothScrollingEnabled(true);
         //set to UI from bundle
         tvGroupName.setText(groupName);
         //initial
@@ -190,7 +188,6 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
             @Override
             public void onFriendFound(String uid, String name, String email, String avatar, Boolean sex, String dateOfBirth) {
             }
-
             @Override
             public void onFriendFound(String uid, String name, String email, String avatar, Boolean sex, String dateOfBirth, String role) {
                 userName=name;
@@ -207,6 +204,19 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
 
             }
         });
+        listMember=new ArrayList<>();
+        dynamoDBManager.getMembersGroup(groupID, new DynamoDBManager.GroupMemberListener() {
+            @Override
+            public void onMemberLoaded(String member) {
+                listMember.add(member);
+            }
+
+            @Override
+            public void onError(String errorMessage) {
+
+            }
+        });
+        dynamoDBManager.resetlastReadAndUnread(userID, groupID);
         scrollToBottom();
         btnSend.setOnClickListener(new View.OnClickListener(){
             @Override
@@ -239,6 +249,7 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
                     //B3 đẩy lên dynamoDB để load lại tin nhắn khi out ra khung chat
                     dynamoDBManager.saveGroupMessage(groupID, message, currentTime, userID, userAvatar, userName, "text");
                     dynamoDBManager.saveGroupConversation(groupID, message, groupName, currentTime,userAvatar, userName);
+                    updateLastSeenAndRead();
                     scrollToBottom();
                     changeData();
                 } else {
@@ -641,6 +652,7 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
             }
         }).start();
     }
+
     private void uploadDocumentToS3AndSocketAndDynamoDB(Uri uri, String fileType) {
         new Thread(() -> {
             try {
@@ -1318,6 +1330,10 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
         // Định dạng thời gian hiện tại thành chuỗi
         String formattedDateTime = dateFormat.format(currentTime);
         return formattedDateTime;
+    }
+    public void updateLastSeenAndRead()
+    {
+        dynamoDBManager.updatelastReadAndUnread(groupID, listMember);
     }
 
 
