@@ -51,7 +51,7 @@ public class GroupChatListFragment extends Fragment implements MyWebSocket.WebSo
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        initWebSocket();
+
         listGroupChats = new ArrayList<>();
         view = inflater.inflate(R.layout.fragment_group_chat_list, container, false);
         dynamoDBManager = new DynamoDBManager(getActivity());
@@ -115,6 +115,7 @@ public class GroupChatListFragment extends Fragment implements MyWebSocket.WebSo
                 mainActivity.goToGroupChat(bundle);
             }
         });
+        initWebSocket(uid);
         return view;
     }
 
@@ -188,9 +189,10 @@ private void resetRecycleView() {
     public void onConnectionStateChanged(boolean isConnected) {
 
     }
-    private void initWebSocket() {
-            myWebSocket = new MyWebSocket("wss://free.blr2.piesocket.com/v3/1?api_key=ujXx32mn0joYXVcT2j7Gp18c0JcbKTy3G6DE9FMB&notify_self=0", this);
-        // myWebSocket.sendMessage("ok");
+    private void initWebSocket( String channelId) {
+
+        myWebSocket = new MyWebSocket("wss://free.blr2.piesocket.com/v3/"+channelId+"?api_key=ujXx32mn0joYXVcT2j7Gp18c0JcbKTy3G6DE9FMB&notify_self=0", this);
+
     }
     private void changeData() {
         viewModel.setData("New data");
