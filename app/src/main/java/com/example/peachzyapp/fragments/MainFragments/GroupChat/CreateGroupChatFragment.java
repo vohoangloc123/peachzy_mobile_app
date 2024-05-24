@@ -185,7 +185,7 @@ public class CreateGroupChatFragment extends Fragment implements MyWebSocket.Web
                     }
                     dynamoDBManager.createGroup(groupID,  selectedFriendIDsToCreateGroup);
                     dynamoDBManager.saveGroupConversation(groupID, "Vừa tạo group", groupName, currentTime, urlAvatar, "");
-
+                    //dynamoDBManager.saveGroupMessage(groupID,"has been added by ",getCurrentDateTime(),uid,urlAvatar,"","notification");
 
 
                     getActivity().getSupportFragmentManager().popBackStack();
@@ -204,7 +204,7 @@ public class CreateGroupChatFragment extends Fragment implements MyWebSocket.Web
                     }
                     dynamoDBManager.createGroup(groupID,  selectedFriendIDsToCreateGroup);
                     dynamoDBManager.saveGroupConversation(groupID, "Vừa tạo group", groupName, currentTime, "https://chat-app-image-cnm.s3.ap-southeast-1.amazonaws.com/avatar.jpg", "");
-
+                    //dynamoDBManager.saveGroupMessage(groupID,"has been added by ",getCurrentDateTime(),uid,"https://chat-app-image-cnm.s3.ap-southeast-1.amazonaws.com/avatar.jpg","","notification");
                     getActivity().getSupportFragmentManager().popBackStack();
                     mainActivity.showBottomNavigation(true);
                 }else {
@@ -214,8 +214,8 @@ public class CreateGroupChatFragment extends Fragment implements MyWebSocket.Web
             }
             ///*
             ArrayList<FriendItem> listMember = new ArrayList<>();
-            CountDownLatch latch = new CountDownLatch(selectedFriendIds.size());
-            for (String friendId : selectedFriendIds) {
+            CountDownLatch latch = new CountDownLatch(selectedFriendIDsToCreateGroup.size());
+            for (String friendId : selectedFriendIDsToCreateGroup) {
                 dynamoDBManager.getProfileByUID(friendId, new DynamoDBManager.FriendFoundForGetUIDByEmailListener() {
                     @Override
                     public void onFriendFound(String uid, String name, String email, String avatar, Boolean sex, String dateOfBirth) {
@@ -268,6 +268,9 @@ public class CreateGroupChatFragment extends Fragment implements MyWebSocket.Web
             JSONObject messageToSend = new JSONObject();
             JSONObject json = new JSONObject();
 
+            JSONObject jsonNotification = new JSONObject();
+            JSONObject messageToSendNotification = new JSONObject();
+
             try{
 
                 messageToSend.put("_id", groupID);
@@ -277,7 +280,7 @@ public class CreateGroupChatFragment extends Fragment implements MyWebSocket.Web
                     messageToSend.put("avatar", urlAvatar);
                 }
                 messageToSend.put("groupName", groupName);
-                messageToSend.put("time", currentTime);
+                messageToSend.put("time", getCurrentDateTime());
                 messageToSend.put("name", "");
                 messageToSend.put("message", "Vừa tạo group");
 
@@ -286,13 +289,40 @@ public class CreateGroupChatFragment extends Fragment implements MyWebSocket.Web
                 messageToSend.put("members",membersArray);
                 json.put("message", messageToSend);
 
+                //
+
+                if(urlAvatar==null){
+                    messageToSendNotification.put("avatar", "https://chat-app-image-cnm.s3.ap-southeast-1.amazonaws.com/avatar.jpg");
+                }else{
+                    messageToSendNotification.put("avatar", urlAvatar);
+                }
+                messageToSendNotification.put("memberID", uid);
+                messageToSendNotification.put("memberName", "");
+                messageToSendNotification.put("message", "has been added by ");
+                messageToSendNotification.put("members",membersArray);
+                messageToSendNotification.put("time", getCurrentDateTime());
+                messageToSendNotification.put("type", "notification");
+
+                jsonNotification.put("message",messageToSendNotification);
+                jsonNotification.put("type","send-group-message");
+
+
 
             }catch (JSONException e) {
                 throw new RuntimeException(e);
             }
+            String currenAvtar="";
+            if(urlAvatar==null){
+                currenAvtar="https://chat-app-image-cnm.s3.ap-southeast-1.amazonaws.com/avatar.jpg";
+            } else if (urlAvatar!=null) {
+                currenAvtar=urlAvatar;
+            }
+            dynamoDBManager.saveGroupMessageWithListMember(groupID," has been added by ",getCurrentDateTime(),uid,currenAvtar,"","notification",listMember);
             for(String id: selectedFriendIDsToCreateGroup){
                 initWebSocket(id);
                 myWebSocket.sendMessage(String.valueOf(json));
+                myWebSocket.sendMessage(String.valueOf(jsonNotification));
+
                 myWebSocket.closeWebSocket();
             }
             ///*
@@ -439,4 +469,12 @@ public class CreateGroupChatFragment extends Fragment implements MyWebSocket.Web
         String formattedDateTime = dateFormat.format(currentTime);
         return formattedDateTime;
     }
+
+
+
+    public void notification(){
+
+    }
+
+
 }

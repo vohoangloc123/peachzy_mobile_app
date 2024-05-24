@@ -163,9 +163,15 @@ public class GroupChatBoxAdapter extends RecyclerView.Adapter<GroupChatViewHolde
             setVisibility(holder, View.GONE, View.VISIBLE, View.VISIBLE, View.GONE, View.GONE);
         } else if (isS3Video(currentItem.getType())) {
             setupVideo(holder, currentItem.getMessage());
-        } else {
+        } else if(isText(currentItem.getType())) {
             holder.tvGroupMessage.setText(currentItem.getMessage());
             setVisibility(holder, View.VISIBLE, View.GONE, View.GONE, View.GONE, View.GONE);
+        }
+        else{
+
+
+            holder.tvGroupTime.setVisibility(View.GONE);
+            setVisibility(holder, View.GONE, View.GONE, View.GONE, View.GONE, View.GONE);
         }
     }
 
@@ -255,4 +261,5 @@ public class GroupChatBoxAdapter extends RecyclerView.Adapter<GroupChatViewHolde
     private boolean isS3Video(String url) {
         return url != null && url.equals("video");
     }
+    private boolean isText(String url) {return url != null && url.equals("text");}
 }
