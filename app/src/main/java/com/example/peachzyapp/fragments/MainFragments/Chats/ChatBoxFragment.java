@@ -181,9 +181,9 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
                 initWebSocket();
             }
         });
-        ScrollView scrollView=view.findViewById(R.id.scrollView);
-        scrollView.fullScroll(View.FOCUS_DOWN);
-        scrollView.setSmoothScrollingEnabled(true);
+//        ScrollView scrollView=view.findViewById(R.id.scrollView);
+//        scrollView.fullScroll(View.FOCUS_DOWN);
+//        scrollView.setSmoothScrollingEnabled(true);
         //xử lý resize giao diện và đẩy edit text và button lên khi chat ngoài ra còn load tin nhắn mói từ dưới lên
         InputMethodManager inputManager = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
         inputManager.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT);

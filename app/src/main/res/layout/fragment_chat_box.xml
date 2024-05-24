@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -7,17 +8,20 @@
     tools:context=".fragments.MainFragments.Chats.ChatBoxFragment"
     android:background="@color/bgWhiteBlue">
 
+    <!-- Header Layout -->
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="62dp"
+        android:id="@+id/headerLayout"
+        android:layout_width="0dp"
+        android:layout_height="70dp"
         android:orientation="horizontal"
-        android:layout_alignParentTop="true"
         android:background="@color/btnColor"
-        android:layout_above="@+id/scrollView">
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
         <ImageButton
             android:id="@+id/btnBack"
-            android:layout_width="61dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:background="@color/btnColor"
@@ -26,7 +30,7 @@
 
         <TextView
             android:id="@+id/etName"
-            android:layout_width="171dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
             android:layout_weight="1"
@@ -53,6 +57,7 @@
             android:src="@drawable/callvd"
             android:backgroundTint="@color/btnColor"
             android:layout_marginTop="5dp"/>
+
         <ImageButton
             android:id="@+id/btnOption"
             android:layout_width="wrap_content"
@@ -61,36 +66,33 @@
             android:src="@drawable/options"
             android:backgroundTint="@color/btnColor"
             android:layout_marginTop="5dp"/>
-
     </LinearLayout>
 
-    <ScrollView
-        android:id="@+id/scrollView"
-        android:layout_width="match_parent"
-        android:layout_height="610dp"
-        android:layout_above="@+id/layout_input"
+    <!-- RecyclerView Layout -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycleview"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:layout_marginBottom="2dp"
-        android:fillViewport="true">
+        android:background="@color/bgWhiteBlue"
+        app:layout_constraintTop_toBottomOf="@id/headerLayout"
+        app:layout_constraintBottom_toTopOf="@id/layout_input"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recycleview"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_marginBottom="2dp"
-            android:background="@color/bgWhiteBlue" />
-
-    </ScrollView>
-
+    <!-- Input Layout -->
     <LinearLayout
         android:id="@+id/layout_input"
-        android:layout_width="match_parent"
-        android:layout_height="54dp"
-        android:layout_alignParentBottom="true"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:background="@color/white"
         android:paddingRight="2dp"
         android:paddingBottom="5dp"
-        >
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
         <ImageButton
             android:id="@+id/btnLink"
             android:layout_width="29dp"
@@ -98,15 +100,13 @@
             android:layout_weight="1"
             android:backgroundTint="@color/white"
             android:src="@drawable/link"
-            android:background="@drawable/border_button_sent"
-
-            />
+            android:background="@drawable/border_button_sent"/>
 
         <EditText
             android:id="@+id/etMessage"
-            android:layout_width="164dp"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_weight="4"
             android:background="@drawable/edittext_profile_no_border"
             android:hint="@string/nhap_tin_nhan"
             android:layout_marginTop="10dp"
@@ -121,8 +121,7 @@
             android:layout_weight="1"
             android:background="@color/btnColor"
             android:backgroundTint="@color/white"
-            android:src="@drawable/baseline_video_file_30"
-            />
+            android:src="@drawable/baseline_video_file_30"/>
 
         <ImageButton
             android:id="@+id/btnImage"
@@ -131,7 +130,7 @@
             android:layout_weight="1"
             android:background="@drawable/border_button_sent"
             android:backgroundTint="@color/white"
-            android:src="@drawable/imagechat" />
+            android:src="@drawable/imagechat"/>
 
         <ImageButton
             android:id="@+id/btnSend"
@@ -139,11 +138,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:background="@drawable/border_button_sent"
-            android:src="@drawable/sentmessage"
-
-            />
-
-
+            android:src="@drawable/sentmessage"/>
     </LinearLayout>
 
-</RelativeLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
