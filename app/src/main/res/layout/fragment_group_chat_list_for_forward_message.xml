@@ -5,10 +5,6 @@
     android:layout_height="match_parent"
     android:background="@color/bgWhiteBlue"
     tools:context=".fragments.MainFragments.GroupChat.GroupChatListFragment">
-
-    <!-- TODO: Update blank fragment layout -->
-
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -35,7 +31,7 @@
                 android:layout_marginTop="5dp"
                 android:layout_weight="1"
                 android:padding="15dp"
-                android:text="@string/edit_user_information"
+                android:text="@string/group_message"
                 android:textColor="@color/white"
                 android:textSize="20dp" />
         </LinearLayout>

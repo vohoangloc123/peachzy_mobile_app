@@ -40,13 +40,13 @@ public class GroupChatListForForwardMessageFragment extends Fragment  implements
     private View view;
     private MainActivity mainActivity;
     private GroupChatListAdapter groupChatListAdapter;
-    private ImageButton btnOpenCreateGroup;
     private DynamoDBManager dynamoDBManager;
     private ArrayList<GroupConversation> groupConversationList;
     private String uid;
     private MyGroupViewModel viewModel;
     private String forwardType, forwardMessage;
     private String forwardMyAvatar,forwardMyName;
+    private ImageButton btnBack;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -70,12 +70,6 @@ public class GroupChatListForForwardMessageFragment extends Fragment  implements
         }
         mainActivity= (MainActivity) getActivity();
         rcvGroupChatList = view.findViewById(R.id.rcvGroupChatList);
-
-//        btnOpenCreateGroup=view.findViewById(R.id.btnOpenCreateGroup);
-//        btnOpenCreateGroup.setOnClickListener(v->{
-//            //  mainActivity.goToDetailFragmentAddFriend();
-//            mainActivity.goToCreateGroupChat();
-//        });
         DynamoDBManager dynamoDBManager=new DynamoDBManager(getContext());
         groupConversationList=new ArrayList<>();
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(mainActivity);
@@ -124,6 +118,11 @@ public class GroupChatListForForwardMessageFragment extends Fragment  implements
                 getParentFragmentManager().popBackStack();
                 mainActivity.showBottomNavigation(false);
             }
+        });
+        btnBack=view.findViewById(R.id.btnBack);
+        btnBack.setOnClickListener(v -> {
+            getParentFragmentManager().popBackStack();
+            mainActivity.showBottomNavigation(false);
         });
         return view;
     }
@@ -193,5 +192,10 @@ public class GroupChatListForForwardMessageFragment extends Fragment  implements
     }
     private void changeData() {
         viewModel.setData("New data");
+    }
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mainActivity.showBottomNavigation(false);
     }
 }

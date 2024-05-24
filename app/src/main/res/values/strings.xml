@@ -85,6 +85,7 @@
     <string name="manage_member">Manage member</string>
     <string name="list_member">List member</string>
     <string name="message">Message</string>
+    <string name="group_message">Group message</string>
     <string name="change_profile">Change profile</string>
     <string name="edit_user_information">Edit user information</string>
     <string name="sign_out">Sign out</string>

@@ -15,6 +15,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 
 import com.example.peachzyapp.LiveData.MyViewChatModel;
 import com.example.peachzyapp.MainActivity;
@@ -43,6 +44,7 @@ public class ChatListForForwardMessageFragment extends Fragment  implements MyWe
     private String forwardType, forwardMessage;
     private String forwardChannelID,forwardMyAvatar,forwardMyName;
     private MyWebSocket myWebSocket;
+    private ImageButton btnBack;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -52,7 +54,6 @@ public class ChatListForForwardMessageFragment extends Fragment  implements MyWe
         dynamoDBManager = new DynamoDBManager(getActivity());
         rcvChatList = view.findViewById(R.id.rcvConversation);
         rcvChatList.setLayoutManager(new LinearLayoutManager(mainActivity));
-        // Initialize conversationsList before calling loadConversations()
         conversationsList = new ArrayList<>();
         conversationAdapter = new ConversationAdapter(conversationsList);
         // Set adapter to RecyclerView
@@ -73,14 +74,11 @@ public class ChatListForForwardMessageFragment extends Fragment  implements MyWe
             forwardMyName=bundle.getString("forwardMyName");
             Log.d("ForwardData", "Type: " + forwardType + ", Message: ");
         }
-
         dynamoDBManager.loadConversation(uid, new DynamoDBManager.LoadConversationListener() {
             @Override
             public void onConversationFound(String conversationID, String friendID ,String message, String time, String avatar, String name) {
                 Conversation conversation = new Conversation(conversationID, friendID ,message, time, avatar, name);
                 conversationsList.add(conversation);
-                Log.d("ConversationListSize", "Size: " + conversationsList.size());
-
                 Log.d("ConversationFound", "Conversation ID: " + conversationID + ", Message: " + message + ", Time: " + time + ", Avatar: " + avatar + ", Name: " + name);
                 // Notify adapter that data set has changed after all conversations are added
                 conversationAdapter.notifyDataSetChanged();
@@ -90,7 +88,9 @@ public class ChatListForForwardMessageFragment extends Fragment  implements MyWe
                 e.printStackTrace();
             }
         });
+        conversationsList.clear();
         conversationAdapter.setOnItemClickListener(new ConversationAdapter.OnItemClickListener(){
+
             @Override
             public void onItemClick(String id, String urlAvatar, String friendName) {
 
@@ -133,12 +133,15 @@ public class ChatListForForwardMessageFragment extends Fragment  implements MyWe
                 resetRecycleView();
             }
         });
-
+        btnBack=view.findViewById(R.id.btnBack);
+        btnBack.setOnClickListener(v -> {
+            getParentFragmentManager().popBackStack();
+            mainActivity.showBottomNavigation(false);
+        });
         return view;
     }
     private void resetRecycleView() {
         conversationsList.clear();
-        Log.d("batdauchay", "yes: ");
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -200,5 +203,11 @@ public class ChatListForForwardMessageFragment extends Fragment  implements MyWe
     }
     private void changeData() {
         viewModel.setData("New data");
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mainActivity.showBottomNavigation(false);
     }
 }

@@ -13,7 +13,6 @@
         android:gravity="center"
         android:textSize="12sp"
         tools:text="11:40"/>
-
     <ImageView
         android:id="@+id/ivAvatar"
         android:layout_width="38dp"
@@ -21,7 +20,6 @@
         android:layout_below="@id/tvTime"
         android:padding="8dp"
         android:src="@drawable/logo" />
-
     <TextView
         android:id="@+id/tvMessage"
         android:layout_width="wrap_content"

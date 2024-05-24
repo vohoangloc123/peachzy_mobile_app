@@ -53,13 +53,7 @@ public class SignIn extends AppCompatActivity {
         regexp= new Regexp();
         Context context = this;
         Resources resources = context.getResources();
-        //
-        if (dynamoDBManager.checkDynamoDBConnection()) {
-            Toast.makeText(this, "DynamoDB connection successful.", Toast.LENGTH_SHORT).show();
 
-        } else {
-            Toast.makeText(this, "DynamoDB connection failed.", Toast.LENGTH_SHORT).show();
-        }
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.etFind), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);

@@ -153,7 +153,6 @@ public class ProfileFragment extends Fragment {
                             // Handle null case if needed
                         }
                         tvDateOfBirth.setText(profile.getDateOfBirth());
-                        Toast.makeText(getActivity(), "Profile!", Toast.LENGTH_SHORT).show();
                     }
                 });
             }

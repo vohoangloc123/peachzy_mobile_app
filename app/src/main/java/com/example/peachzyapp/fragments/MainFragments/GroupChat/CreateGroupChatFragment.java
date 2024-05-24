@@ -411,13 +411,6 @@ public class CreateGroupChatFragment extends Fragment implements MyWebSocket.Web
         viewModel.setData("New data");
     }
 
-//    @Override
-//    public void onDetach() {
-//        super.onDetach();
-//        viewModel.setData("Change");
-//        Log.d("Detach", "onDetach: ");
-//    }
-
     @Override
     public void onMessageReceived(String message) {
 
@@ -431,7 +424,7 @@ public class CreateGroupChatFragment extends Fragment implements MyWebSocket.Web
     public void onDestroyView() {
         super.onDestroyView();
         // Ngắt kết nối khi Fragment bị hủy
-        myWebSocket.closeWebSocket();
+        mainActivity.showBottomNavigation(true);
     }
     private void initWebSocket(String channelId) {
         Log.d("initWebSocket: ",channelId);
