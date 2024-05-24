@@ -1020,7 +1020,7 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
                 } else {
                     switch (thisType) {
                         case "text":
-                           Log.d("CheckingType", "Copy"+item.getMessage());
+                            Log.d("CheckingType", "Copy"+item.getMessage());
                             copyToClipboard(item.getMessage());
                             break;
                         case "image":
@@ -1088,6 +1088,9 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
         Item item = ((ChatBoxAdapter) recyclerView.getAdapter()).getItem(position);
         Log.d("recallMessage: ",item.getMessage() +"+"+item.getTime()+"+"+channel_id);
         dynamoDBManager.recallMessage(channel_id,item.getMessage(),item.getTime());
+        String currentTime = Utils.getCurrentTime();
+        dynamoDBManager.saveConversation(uid,  friend_id, userName+": message has been recalled", currentTime, urlAvatar, friendName);
+        dynamoDBManager.saveConversation(friend_id, uid,userName+": message has been recalled", currentTime, userAvatar, userName);
 
         listMessage.remove(item);
 
@@ -1113,7 +1116,7 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
 
 
         adapter.notifyDataSetChanged();
-
+        changeData();
         Toast.makeText(getContext(), "Message recalled", Toast.LENGTH_SHORT).show();
     }
 
@@ -1134,12 +1137,14 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
                 bundle.putString("forwardMyAvatar", urlAvatar);
                 mainActivity.goToChatBoxListFragment(bundle);
                 Toast.makeText(getContext(), "Forward to Single Chat", Toast.LENGTH_SHORT).show();
+
             }
         });
 
         builder.setNegativeButton("Chat nhóm", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
+
                 Bundle bundle=new Bundle();
                 bundle.putString("forwardType",  item.getType());
                 bundle.putString("forwardMessage",  item.getMessage());
@@ -1210,6 +1215,16 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
                 try {
                     S3Object s3Object = s3Client.getObject(new GetObjectRequest(params[0], params[1]));
                     InputStream inputStream = s3Object.getObjectContent();
+                    //
+//                    Log.d( "CheckingType2: ",key+ "");
+//                    File file = null;
+//                    if(key.endsWith("docx")){
+//                        Log.d( "CheckingType3: ","docx");
+//                         file = new File(getContext().getFilesDir(), "document_" + System.currentTimeMillis() + ".docx"); // Tạo tên tệp mới dựa trên thời gian hiện tại
+//                    }else{
+//                        Log.d( "CheckingType3: ","pdf");
+//                        file = new File(getContext().getFilesDir(), "document_" + System.currentTimeMillis() + ".pdf");
+//                    }
                     File file = new File(getContext().getFilesDir(), "document_" + System.currentTimeMillis() + ".pdf"); // Tạo tên tệp mới dựa trên thời gian hiện tại
                     try (FileOutputStream fos = new FileOutputStream(file)) {
                         byte[] buffer = new byte[1024];
@@ -1242,7 +1257,22 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
             if (!downloadsDir.exists()) {
                 downloadsDir.mkdirs(); // Tạo thư mục nếu chưa tồn tại
             }
-            String fileName = "document_" + System.currentTimeMillis() + ".pdf"; // Tạo tên tệp mới dựa trên thời gian hiện tại
+
+            Log.d( "saveDocumentToDownloads: ",key);
+            String fileName="" ;
+            if(key.endsWith("pdf")){
+                fileName = "document_" + System.currentTimeMillis() + ".pdf";
+            }
+            else if(key.endsWith("docx")){
+                fileName = "document_" + System.currentTimeMillis() + ".docx";
+
+            }
+            else if(key.endsWith("txt")){
+                fileName = "document_" + System.currentTimeMillis() + ".txt";
+
+            }
+
+            //String fileName = "document_" + System.currentTimeMillis() + ".pdf"; // Tạo tên tệp mới dựa trên thời gian hiện tại
             File file = new File(downloadsDir, fileName);
 
             // Copy tài liệu vào thư mục Downloads

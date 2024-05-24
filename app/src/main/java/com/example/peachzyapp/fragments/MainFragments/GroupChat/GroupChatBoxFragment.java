@@ -821,10 +821,10 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
     }
     @Override
     public void onMessageReceived(String receivedMessage) {
-            try {
-                JSONObject jsonObject  = new JSONObject(receivedMessage);
-                String jsonType = jsonObject.getString("type");
-                if(jsonType.equals("send-group-message")){
+        try {
+            JSONObject jsonObject  = new JSONObject(receivedMessage);
+            String jsonType = jsonObject.getString("type");
+            if(jsonType.equals("send-group-message")){
                 JSONObject messageJson = jsonObject.getJSONObject("message");
                 String avatar = messageJson.getString("memberAvatar"); // Đường dẫn ảnh đại diện mặc định
                 String userName = messageJson.getString("memberName");
@@ -862,28 +862,28 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
                         });
                     }
                 }
-                }
-                if(jsonType.equals("delete-group-message")){
-                    JSONObject messageJson = jsonObject.getJSONObject("message");
-
-                    // String avatar = messageJson.getString("avatar");
-                    String avatar = messageJson.getString("memberAvatar"); // Đường dẫn ảnh đại diện mặc định
-                    String userName = messageJson.getString("memberName");
-                    String userID = messageJson.getString("memberID");
-                    String message = messageJson.getString("message");
-                    String currentTime = messageJson.getString("time");
-                    String type=messageJson.getString("type");
-                    Log.d("onMessageReceived2", avatar+" "+userName+" "+message+" "+userID);
-                    GroupChat newMessage=new GroupChat(groupID, groupName, avatar, message, userName, currentTime, userID, type);
-                    int position = listGroupMessage.indexOf(newMessage);
-                    Log.d("onMessageReceived posotion: ",position+"");
-                    removeItemFromListMessage(position);
-                }
-
-            } catch (JSONException e) {
-                e.printStackTrace();
             }
+            if(jsonType.equals("delete-group-message")){
+                JSONObject messageJson = jsonObject.getJSONObject("message");
+
+                // String avatar = messageJson.getString("avatar");
+                String avatar = messageJson.getString("memberAvatar"); // Đường dẫn ảnh đại diện mặc định
+                String userName = messageJson.getString("memberName");
+                String userID = messageJson.getString("memberID");
+                String message = messageJson.getString("message");
+                String currentTime = messageJson.getString("time");
+                String type=messageJson.getString("type");
+                Log.d("onMessageReceived2", avatar+" "+userName+" "+message+" "+userID);
+                GroupChat newMessage=new GroupChat(groupID, groupName, avatar, message, userName, currentTime, userID, type);
+                int position = listGroupMessage.indexOf(newMessage);
+                Log.d("onMessageReceived posotion: ",position+"");
+                removeItemFromListMessage(position);
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
+    }
 
 
     @Override
@@ -1025,6 +1025,8 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
         Log.d("recallMessage: ",item.getMessage() +"+"+item.getTime()+"+"+groupID);
         dynamoDBManager.recallMessageForGroup(groupID,item.getMessage(),item.getTime());
         listGroupMessage.remove(position);
+        String currentTime = Utils.getCurrentTime();
+        dynamoDBManager.saveGroupConversation(groupID, "message has been recalled", groupName, currentTime,userAvatar, userName);
 
         JSONObject messageToSend = new JSONObject();
         // Tạo đối tượng JSON chứa trường type và message
@@ -1047,7 +1049,7 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
 
         adapter.notifyDataSetChanged();
 
-
+        changeData();
 
 
         Toast.makeText(getContext(), "Message recalled", Toast.LENGTH_SHORT).show();
@@ -1196,7 +1198,19 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
             if (!downloadsDir.exists()) {
                 downloadsDir.mkdirs(); // Tạo thư mục nếu chưa tồn tại
             }
-            String fileName = "document_" + System.currentTimeMillis() + ".pdf"; // Tạo tên tệp mới dựa trên thời gian hiện tại
+            String fileName="" ;
+            if(key.endsWith("pdf")){
+                fileName = "document_" + System.currentTimeMillis() + ".pdf";
+            }
+            else if(key.endsWith("docx")){
+                fileName = "document_" + System.currentTimeMillis() + ".docx";
+
+            }
+            else if(key.endsWith("txt")){
+                fileName = "document_" + System.currentTimeMillis() + ".txt";
+
+            }
+            // String fileName = "document_" + System.currentTimeMillis() + ".pdf"; // Tạo tên tệp mới dựa trên thời gian hiện tại
             File file = new File(downloadsDir, fileName);
 
             // Copy tài liệu vào thư mục Downloads

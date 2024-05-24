@@ -47,7 +47,6 @@ public class GroupChatListForForwardMessageFragment extends Fragment  implements
     private MyGroupViewModel viewModel;
     private String forwardType, forwardMessage;
     private String forwardMyAvatar,forwardMyName;
-    private ImageButton btnBack;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -72,11 +71,11 @@ public class GroupChatListForForwardMessageFragment extends Fragment  implements
         mainActivity= (MainActivity) getActivity();
         rcvGroupChatList = view.findViewById(R.id.rcvGroupChatList);
 
-        btnOpenCreateGroup=view.findViewById(R.id.btnBack);
-        btnOpenCreateGroup.setOnClickListener(v->{
-            //  mainActivity.goToDetailFragmentAddFriend();
-
-        });
+//        btnOpenCreateGroup=view.findViewById(R.id.btnOpenCreateGroup);
+//        btnOpenCreateGroup.setOnClickListener(v->{
+//            //  mainActivity.goToDetailFragmentAddFriend();
+//            mainActivity.goToCreateGroupChat();
+//        });
         DynamoDBManager dynamoDBManager=new DynamoDBManager(getContext());
         groupConversationList=new ArrayList<>();
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(mainActivity);
@@ -89,7 +88,8 @@ public class GroupChatListForForwardMessageFragment extends Fragment  implements
                 Log.d("LivedataGroup", "onChanged: Yes");
                 resetRecycleView();
             }
-        });
+        });//
+        listGroupChats.clear();
         dynamoDBManager.loadGroupList(uid, new DynamoDBManager.LoadGroupListListener() {
             @Override
             public void onGroupListFound(String id, String groupName, String avatar, String message, String name, String time) {
@@ -119,6 +119,7 @@ public class GroupChatListForForwardMessageFragment extends Fragment  implements
                     dynamoDBManager.saveGroupConversation(id, forwardType, groupName, currentTime,forwardMyAvatar,forwardMyName);
                 }
                 //live data
+                changeData();
                 listGroupChats.clear();
                 getParentFragmentManager().popBackStack();
                 mainActivity.showBottomNavigation(false);
@@ -189,5 +190,8 @@ public class GroupChatListForForwardMessageFragment extends Fragment  implements
         } else {
             Log.e(TAG, "WebSocket Disconnected");
         }
+    }
+    private void changeData() {
+        viewModel.setData("New data");
     }
 }

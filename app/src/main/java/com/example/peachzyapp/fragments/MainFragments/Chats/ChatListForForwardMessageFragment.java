@@ -115,11 +115,13 @@ public class ChatListForForwardMessageFragment extends Fragment  implements MyWe
                             dynamoDBManager.saveConversation(id, uid,forwardMyName+": "+forwardType, currentTime, urlAvatar, forwardMyName);
                         }
                         //live data
+
                     }
                 });
+                changeData();
                 conversationsList.clear();
-                    getParentFragmentManager().popBackStack();
-                    mainActivity.showBottomNavigation(false);
+                getParentFragmentManager().popBackStack();
+                mainActivity.showBottomNavigation(false);
             }
         });
         //Live data
@@ -195,5 +197,8 @@ public class ChatListForForwardMessageFragment extends Fragment  implements MyWe
     @Override
     public void onConnectionStateChanged(boolean isConnected) {
 
+    }
+    private void changeData() {
+        viewModel.setData("New data");
     }
 }
