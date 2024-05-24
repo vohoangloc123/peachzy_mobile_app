@@ -17,6 +17,9 @@ import com.example.peachzyapp.R;
 import com.example.peachzyapp.entities.GroupChat;
 import com.example.peachzyapp.entities.GroupConversation;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 public class GroupChatListAdapter extends RecyclerView.Adapter<GroupChatListAdapter.GroupChatListViewHolder>{
@@ -57,10 +60,24 @@ public class GroupChatListAdapter extends RecyclerView.Adapter<GroupChatListAdap
         if(groupChat==null){
             return;
         }
-
         holder.tvNameGroup.setText(groupChat.getGroupName());
         holder.tvLastChatGroup.setText(groupChat.getName()+": "+groupChat.getMessage());
-        holder.tvTimeGroup.setText(groupChat.getTime());
+        String trimmedTime = groupChat.getTime().trim();
+        SimpleDateFormat inputFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+        SimpleDateFormat outputFormat = new SimpleDateFormat("HH:mm");
+        try {
+            // Parse chuỗi thời gian từ chuỗi đã loại bỏ khoảng trắng
+            Date date = inputFormat.parse(trimmedTime);
+
+            // Format lại thành chuỗi chỉ chứa giờ và phút
+            String timeOnly = outputFormat.format(date);
+
+            // Hiển thị chuỗi giờ và phút trong TextView
+            holder.tvTimeGroup.setText(timeOnly);
+        } catch (ParseException e) {
+            // Xử lý nếu có lỗi xảy ra khi parse chuỗi thời gian
+            e.printStackTrace();
+        }
 
         Glide.with(holder.itemView.getContext())
                 .load(groupChat.getAvatar())

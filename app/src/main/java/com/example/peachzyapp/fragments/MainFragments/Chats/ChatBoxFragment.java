@@ -237,7 +237,7 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
                 String message = etMessage.getText().toString().trim();
                 if (!message.isEmpty()) {
                     // Add the new message to the list and notify adapter
-                    String currentTime = Utils.getCurrentTime();
+                    String currentTime = getCurrentDateTime();
                     listMessage.add(new Item(currentTime, message,urlAvatar ,true, "text"));
                     adapter.notifyItemInserted(listMessage.size() - 1);
                     recyclerView.scrollToPosition(listMessage.size() - 1);
@@ -483,7 +483,7 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
 
                     // Cập nhật giao diện trên luồng UI
                     getActivity().runOnUiThread(() -> {
-                        String currentTime = Utils.getCurrentTime();
+                        String currentTime = getCurrentDateTime();
                         // Thêm tin nhắn mới vào danh sách
                         listMessage.add(new Item(Utils.getCurrentTime(), urlVideo, urlAvatar, true, "video"));
                         adapter.notifyItemInserted(listMessage.size() - 1); // Thông báo cho adapter về sự thay đổi
@@ -657,7 +657,7 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
     }
 
     private void saveMessageAndConversationToDB(String urlImage, String message, String type) {
-        String currentTime = Utils.getCurrentTime();
+        String currentTime = getCurrentDateTime();
         // Lưu tin nhắn và cuộc trò chuyện vào DynamoDB
         new AsyncTask<Void, Void, Void>() {
             @Override
@@ -759,7 +759,7 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
 
                     // Lấy URL của video trên S3
                     String urlDocument = s3Client.getUrl(BUCKET_NAME_FOR_DOCUMENT, fileName + "."+fileType).toString();
-                    String currentTime = Utils.getCurrentTime();
+                    String currentTime = getCurrentDateTime();
                     JSONObject messageToSend = new JSONObject();
                     JSONObject json = new JSONObject();
                     try{
@@ -814,7 +814,7 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
     }
 
     private void saveFileDB(String urlFile) {
-        String currentTime = Utils.getCurrentTime();
+        String currentTime = getCurrentDateTime();
         new AsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground(Void... voids) {
@@ -1088,7 +1088,7 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
         Item item = ((ChatBoxAdapter) recyclerView.getAdapter()).getItem(position);
         Log.d("recallMessage: ",item.getMessage() +"+"+item.getTime()+"+"+channel_id);
         dynamoDBManager.recallMessage(channel_id,item.getMessage(),item.getTime());
-        String currentTime = Utils.getCurrentTime();
+        String currentTime = getCurrentDateTime();
         dynamoDBManager.saveConversation(uid,  friend_id, userName+": message has been recalled", currentTime, urlAvatar, friendName);
         dynamoDBManager.saveConversation(friend_id, uid,userName+": message has been recalled", currentTime, userAvatar, userName);
 
@@ -1384,7 +1384,15 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
             Log.d("removeItemFromListMessage", "Item not found at position: " + position);
         }
     }
-
+    public static String getCurrentDateTime() {
+        // Định dạng cho ngày tháng năm và giờ
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+        // Lấy thời gian hiện tại
+        Date currentTime = new Date();
+        // Định dạng thời gian hiện tại thành chuỗi
+        String formattedDateTime = dateFormat.format(currentTime);
+        return formattedDateTime;
+    }
 
 
 }

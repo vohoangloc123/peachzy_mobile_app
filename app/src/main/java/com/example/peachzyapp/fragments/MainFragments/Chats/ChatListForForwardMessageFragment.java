@@ -90,7 +90,6 @@ public class ChatListForForwardMessageFragment extends Fragment  implements MyWe
         });
         conversationsList.clear();
         conversationAdapter.setOnItemClickListener(new ConversationAdapter.OnItemClickListener(){
-
             @Override
             public void onItemClick(String id, String urlAvatar, String friendName) {
 

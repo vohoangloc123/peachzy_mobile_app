@@ -214,7 +214,7 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
                 String message = etGroupMessage.getText().toString().trim();
                 if (!message.isEmpty()) {
                     // Add the new message to the list and notify adapter
-                    String currentTime = Utils.getCurrentTime();
+                    String currentTime = getCurrentDateTime();
                     //B1 hiển thị lên giao diện chat
                     listGroupMessage.add(new GroupChat(groupID, groupName, userAvatar, message, userName, currentTime, userID, "text"));
                     adapter.notifyItemInserted(listGroupMessage.size() - 1);
@@ -482,7 +482,7 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
 
                     // Cập nhật giao diện trên luồng UI
                     getActivity().runOnUiThread(() -> {
-                        String currentTime = Utils.getCurrentTime();
+                        String currentTime = getCurrentDateTime();
                         // Thêm tin nhắn mới vào danh sách
                         listGroupMessage.add(new GroupChat(groupID, groupName, userAvatar, urlImage, userName, currentTime, userID, "image"));
                         adapter.notifyItemInserted(listGroupMessage.size() - 1); // Thông báo cho adapter về sự thay đổi
@@ -613,7 +613,7 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
 
                     // Cập nhật giao diện trên luồng UI
                     getActivity().runOnUiThread(() -> {
-                        String currentTime = Utils.getCurrentTime();
+                        String currentTime = getCurrentDateTime();
                         // Thêm tin nhắn mới vào danh sách
                         listGroupMessage.add(new GroupChat(groupID, groupName, userAvatar, urlVideo, userName, currentTime, userID, "video"));
                         adapter.notifyItemInserted(listGroupMessage.size() - 1); // Thông báo cho adapter về sự thay đổi
@@ -738,7 +738,7 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
                     saveMessageAndConversationToDB(urlDocument, "Document", "document");
                     // Cập nhật giao diện trên luồng UI
                     getActivity().runOnUiThread(() -> {
-                        String currentTime = Utils.getCurrentTime();
+                        String currentTime = getCurrentDateTime();
                         // Thêm tin nhắn mới vào danh sách
                         listGroupMessage.add(new GroupChat(groupID, groupName, userAvatar, urlDocument, userName, currentTime, userID, "document"));
                         adapter.notifyItemInserted(listGroupMessage.size() - 1); // Thông báo cho adapter về sự thay đổi
@@ -768,7 +768,7 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
     }
 
     private void saveMessageAndConversationToDB(String urlImage, String message, String type) {
-        String currentTime = Utils.getCurrentTime();
+        String currentTime = getCurrentDateTime();
         // Lưu tin nhắn và cuộc trò chuyện vào DynamoDB
         new AsyncTask<Void, Void, Void>() {
             @Override
@@ -1025,7 +1025,7 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
         Log.d("recallMessage: ",item.getMessage() +"+"+item.getTime()+"+"+groupID);
         dynamoDBManager.recallMessageForGroup(groupID,item.getMessage(),item.getTime());
         listGroupMessage.remove(position);
-        String currentTime = Utils.getCurrentTime();
+        String currentTime = getCurrentDateTime();
         dynamoDBManager.saveGroupConversation(groupID, "message has been recalled", groupName, currentTime,userAvatar, userName);
 
         JSONObject messageToSend = new JSONObject();
@@ -1301,8 +1301,6 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
 
             // Gửi một tin nhắn tới Handler của luồng giao diện chính để thực hiện cập nhật giao diện
             handler.post(() -> {
-                //adapter.notifyDataSetChanged();
-                //adapter.notifyItemRemoved(position);
                 adapter.notifyDataSetChanged();
                 Log.d("removeItemFromListMessage", "Item removed and adapter notified");
             });
@@ -1310,5 +1308,15 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
             Log.d("removeItemFromListMessage", "Item not found at position: " + position);
         }
     }
+    public static String getCurrentDateTime() {
+        // Định dạng cho ngày tháng năm và giờ
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+        // Lấy thời gian hiện tại
+        Date currentTime = new Date();
+        // Định dạng thời gian hiện tại thành chuỗi
+        String formattedDateTime = dateFormat.format(currentTime);
+        return formattedDateTime;
+    }
+
 
 }

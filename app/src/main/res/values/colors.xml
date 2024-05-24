@@ -13,5 +13,7 @@
     <color name="btnEdit">#FFCEC2</color>
     <color name="sentColor">#6457FC</color>
     <color name="textHintChat">#9FA9B3</color>
+    <color name="bgForward">#626262</color>
+    <color name="greyShadow">#d7cfcf</color>
 
 </resources>

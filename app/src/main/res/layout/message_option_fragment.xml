@@ -4,28 +4,36 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="16dp"
-    android:background="@drawable/rounded_corners"
+    android:background="@color/bgForward"
     >
 
-    <Button
-        android:id="@+id/btnForward"
+
+    <LinearLayout
+        android:padding="10dp"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Forward" />
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:background="@drawable/rounded_corners">
+        <Button
+            android:id="@+id/btnForward"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Forward"
+            android:backgroundTint="@color/btnColor"/>
 
-    <Button
-        android:id="@+id/btnRecall"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Recall" />
+        <Button
+            android:id="@+id/btnRecall"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Recall"
+            android:backgroundTint="@color/btnColor"/>
 
-    <Button
-        android:id="@+id/btnButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="" />
+        <Button
+            android:id="@+id/btnButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Copy"
+            android:backgroundTint="@color/btnColor"/>
 
-
-
+    </LinearLayout>
 </LinearLayout>

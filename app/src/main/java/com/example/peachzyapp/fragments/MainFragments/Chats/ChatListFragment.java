@@ -25,7 +25,7 @@ import com.example.peachzyapp.entities.Conversation;
 
 import java.util.ArrayList;
 
-public class ChatListsFragment extends Fragment {
+public class ChatListFragment extends Fragment {
     private MainActivity mainActivity;
     private RecyclerView rcvChatList;
     private View view;

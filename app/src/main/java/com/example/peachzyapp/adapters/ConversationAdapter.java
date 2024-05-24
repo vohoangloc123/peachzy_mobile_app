@@ -17,6 +17,9 @@ import com.example.peachzyapp.R;
 import com.example.peachzyapp.entities.Conversation;
 import com.squareup.picasso.Picasso;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapter.ConversationViewHolder>{
@@ -57,7 +60,24 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
             return;
         }
         holder.tvMessage.setText(conversation.getMessage());
-        holder.tvTime.setText(conversation.getTime());
+        String trimmedTime = conversation.getTime().trim();
+
+        SimpleDateFormat inputFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+        SimpleDateFormat outputFormat = new SimpleDateFormat("HH:mm");
+
+        try {
+            // Parse chuỗi thời gian từ chuỗi đã loại bỏ khoảng trắng
+            Date date = inputFormat.parse(trimmedTime);
+
+            // Format lại thành chuỗi chỉ chứa giờ và phút
+            String timeOnly = outputFormat.format(date);
+
+            // Hiển thị chuỗi giờ và phút trong TextView
+            holder.tvTime.setText(timeOnly);
+        } catch (ParseException e) {
+            // Xử lý nếu có lỗi xảy ra khi parse chuỗi thời gian
+            e.printStackTrace();
+        }
         holder.tvName.setText(conversation.getName());
 //        Picasso.get().load(conversation.getAvatar()).into(ivAvatar);
         Glide.with(holder.itemView.getContext())

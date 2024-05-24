@@ -13,17 +13,14 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentStatePagerAdapter;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.viewpager.widget.ViewPager;
 
 import com.example.peachzyapp.adapters.ViewPagerAdapter;
-import com.example.peachzyapp.entities.ChatBox;
 import com.example.peachzyapp.fragments.MainFragments.Chats.ChatBoxFragment;
 import com.example.peachzyapp.fragments.MainFragments.Chats.ChatListForForwardMessageFragment;
 import com.example.peachzyapp.fragments.MainFragments.GroupChat.GroupChatListForForwardMessageFragment;
-import com.example.peachzyapp.fragments.MainFragments.GroupChat.GroupChatListFragment;
 import com.example.peachzyapp.fragments.MainFragments.GroupChat.Option.AddMemberFragment;
 import com.example.peachzyapp.fragments.MainFragments.GroupChat.CreateGroupChatFragment;
 import com.example.peachzyapp.fragments.MainFragments.GroupChat.Option.EditGroupNameFragment;
@@ -36,7 +33,7 @@ import com.example.peachzyapp.fragments.MainFragments.Profiles.EditProfileFragme
 import com.example.peachzyapp.fragments.MainFragments.Profiles.ProfileFragment;
 import com.example.peachzyapp.fragments.MainFragments.Profiles.ViewProfileFragment;
 import com.example.peachzyapp.fragments.MainFragments.Users.AddFriendFragment;
-import com.example.peachzyapp.fragments.MainFragments.Chats.ChatListsFragment;
+import com.example.peachzyapp.fragments.MainFragments.Chats.ChatListFragment;
 import com.example.peachzyapp.fragments.MainFragments.Users.RequestReceivedFragment;
 import com.example.peachzyapp.fragments.MainFragments.Users.RequestSendFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -111,7 +108,7 @@ public class MainActivity extends AppCompatActivity {
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
                 int itemId = menuItem.getItemId();
                 if (itemId == R.id.navigation_chats) {
-                    ChatListsFragment chatLists = (ChatListsFragment) viewPager.getAdapter().instantiateItem(viewPager, 0);
+                    ChatListFragment chatLists = (ChatListFragment) viewPager.getAdapter().instantiateItem(viewPager, 0);
                     viewPager.setCurrentItem(0);
                 } else if (itemId == R.id.navigation_notifications) {
                     viewPager.setCurrentItem(1);

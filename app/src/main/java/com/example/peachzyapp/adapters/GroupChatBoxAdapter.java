@@ -25,7 +25,11 @@ import com.example.peachzyapp.entities.GroupChat;
 import com.example.peachzyapp.entities.Item;
 import com.squareup.picasso.Picasso;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 public class GroupChatBoxAdapter extends RecyclerView.Adapter<GroupChatViewHolder>{
     private Context context;
@@ -62,225 +66,44 @@ public class GroupChatBoxAdapter extends RecyclerView.Adapter<GroupChatViewHolde
     @Override
     public void onBindViewHolder(@NonNull GroupChatViewHolder holder, int position) {
         GroupChat currentItem = groupChatItems.get(position);
-        holder.tvGroupTime.setText(currentItem.getTime());
+
+        String trimmedTime = currentItem.getTime().trim();
+        SimpleDateFormat inputFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+        SimpleDateFormat outputFormat = new SimpleDateFormat("HH:mm");
+        try {
+            // Parse chuỗi thời gian từ chuỗi đã loại bỏ khoảng trắng
+            Date date = inputFormat.parse(trimmedTime);
+
+            // Format lại thành chuỗi chỉ chứa giờ và phút
+            String timeOnly = outputFormat.format(date);
+
+            // Hiển thị chuỗi giờ và phút trong TextView
+            holder.tvGroupTime.setText(timeOnly);
+        } catch (ParseException e) {
+            // Xử lý nếu có lỗi xảy ra khi parse chuỗi thời gian
+            e.printStackTrace();
+        }
+
+        // Hiển thị avatar
         Glide.with(holder.itemView.getContext())
                 .load(currentItem.getAvatar())
                 .placeholder(R.drawable.logo)
-                .transform(new MultiTransformation<Bitmap>(new CircleCrop()))
+                .transform(new MultiTransformation<>(new CircleCrop()))
                 .into(holder.ivGroupAvatar);
 
         holder.tvUserName.setText(currentItem.getName());
-        RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) holder.tvGroupMessage.getLayoutParams();
-        RelativeLayout.LayoutParams paramsOfImage = (RelativeLayout.LayoutParams) holder.ivGroupMessage.getLayoutParams();
-        RelativeLayout.LayoutParams paramsOfVideo = (RelativeLayout.LayoutParams) holder.vvGroupMessage.getLayoutParams();
-        RelativeLayout.LayoutParams paramsOfFile = (RelativeLayout.LayoutParams) holder.tvGroupLink.getLayoutParams();
-        RelativeLayout.LayoutParams paramsOfSeeker = (RelativeLayout.LayoutParams) holder.seekBar.getLayoutParams();
-        if (currentItem.getUserID().equals(userID)) {
-            params.addRule(RelativeLayout.ALIGN_PARENT_END);
-            paramsOfImage.addRule(RelativeLayout.ALIGN_PARENT_END);
-            paramsOfFile.addRule(RelativeLayout.ALIGN_PARENT_END);
-            paramsOfVideo.addRule(RelativeLayout.ALIGN_PARENT_END);
-            paramsOfSeeker.addRule(RelativeLayout.ALIGN_PARENT_END);
-            holder.tvGroupMessage.setTextColor(context.getColor(R.color.white));
-            holder.tvGroupMessage.setBackground(ContextCompat.getDrawable(context, R.drawable.bg_message));
-            holder.ivGroupAvatar.setVisibility(View.GONE);
-            holder.tvGroupLink.setVisibility(View.GONE);
-            holder.tvUserName.setVisibility(View.GONE);
-            // Nếu tin nhắn chứa đường dẫn của hình ảnh từ S3
-            if (isS3ImageUrl(currentItem.getType())) {
-                Picasso.get().load(currentItem.getMessage()).into(holder.ivGroupMessage);
-                holder.ivGroupMessage.setVisibility(View.VISIBLE); // Hiển thị ivMessage
-                //text
-                holder.tvGroupMessage.setVisibility(View.GONE);
-                //file
-                holder.tvGroupLink.setVisibility(View.GONE);
-                //video
-                holder.seekBar.setVisibility(View.GONE);
-                holder.vvGroupMessage.setVisibility(View.GONE);
-            } else if(isS3Document(currentItem.getType())){
-                //text
-                holder.tvGroupMessage.setVisibility(View.GONE);
-                //video
-                holder.seekBar.setVisibility(View.GONE);
-                holder.vvGroupMessage.setVisibility(View.GONE);
-                //file
-                holder.tvGroupLink.setVisibility(View.VISIBLE);
-                holder.ivGroupMessage.setVisibility(View.VISIBLE); // Hiển thị ivMessage
-                checkFileTypeAndDisplay(holder.ivGroupMessage, currentItem.getMessage());
-                holder.tvGroupLink.setText(currentItem.getMessage());
-            }
-            else if(isS3Video(currentItem.getType())) {
-                holder.tvGroupMessage.setVisibility(View.GONE);
-                holder.tvGroupLink.setVisibility(View.GONE);
-                holder.ivGroupMessage.setVisibility(View.GONE); // Hiển thị ivMessage
-                holder.vvGroupMessage.setVisibility(View.VISIBLE);
-                String videoUrl = currentItem.getMessage();
 
-                // Tải video từ URL và đặt nó vào VideoView
-                try {
-                    Uri videoUri = Uri.parse(videoUrl);
-                    holder.vvGroupMessage.setVideoURI(videoUri);
-                    MediaController mediaController = new MediaController(context);
-                    mediaController.setMediaPlayer(holder.vvGroupMessage);
-                    holder.vvGroupMessage.setMediaController(mediaController);
-                    holder.vvGroupMessage.setOnClickListener(v -> {holder.vvGroupMessage.setOnPreparedListener(mp -> {
-                        // Bắt đầu phát video khi đã chuẩn bị sẵn
-                        mp.start();
-                        // Set up SeekBar for tracking progress
-                        holder.seekBar.setMax(mp.getDuration());
-                        new Handler().postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                if (holder.vvGroupMessage.isPlaying()) {
-                                    int currentPosition = holder.vvGroupMessage.getCurrentPosition();
-                                    holder.seekBar.setProgress(currentPosition);
-                                    new Handler().postDelayed(this, 1000); // Update seekbar every second
-                                }
-                            }
-                        }, 1000);
-                    });
-                        holder.vvGroupMessage.setOnCompletionListener(mp -> {
-                            // Tắt VideoView khi video phát xong
-                            mp.stop();
-                        });
+        // Kiểm tra xem tin nhắn có phải của người gửi hay không
+        boolean isSentByMe = Objects.equals(currentItem.getUserID(), userID);
 
-                        holder.seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-                            @Override
-                            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                                if (fromUser) {
-                                    holder.vvGroupMessage.seekTo(progress);
-                                }
-                            }
-
-                            @Override
-                            public void onStartTrackingTouch(SeekBar seekBar) {}
-
-                            @Override
-                            public void onStopTrackingTouch(SeekBar seekBar) {}
-                        });
-                    });
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-            else {
-                //text
-                holder.tvGroupMessage.setText(currentItem.getMessage());
-                holder.tvGroupMessage.setVisibility(View.VISIBLE);
-                //image, file
-                holder.ivGroupMessage.setVisibility(View.GONE);
-                //file
-                holder.tvGroupLink.setVisibility(View.GONE);
-
-                //video
-                holder.seekBar.setVisibility(View.GONE);
-                holder.vvGroupMessage.setVisibility(View.GONE);
-            }
-        } else if(!currentItem.getUserID().equals(userID)) { // Nếu tin nhắn là của người nhận
-            holder.tvGroupMessage.setTextColor(context.getColor(R.color.black));
-            holder.tvGroupMessage.setBackground(ContextCompat.getDrawable(context, R.drawable.rounded_rectangle_secondary));
-
-            params.addRule(RelativeLayout.ALIGN_PARENT_START);
-            paramsOfImage.addRule(RelativeLayout.ALIGN_PARENT_START);
-            paramsOfFile.addRule(RelativeLayout.ALIGN_PARENT_START);
-            // Nếu tin nhắn chứa đường dẫn của hình ảnh từ S3
-            if (isS3ImageUrl(currentItem.getType())) {
-                Picasso.get().load(currentItem.getMessage()).into(holder.ivGroupMessage);
-                holder.ivGroupMessage.setVisibility(View.VISIBLE); // Hiển thị ivMessage
-                //text
-                holder.tvGroupMessage.setVisibility(View.GONE);
-                //file
-                holder.tvGroupLink.setVisibility(View.GONE);
-                //video
-                holder.seekBar.setVisibility(View.GONE);
-                holder.vvGroupMessage.setVisibility(View.GONE);
-            } else if (isS3Document(currentItem.getType())) {
-                //text
-                holder.tvGroupMessage.setVisibility(View.GONE);
-                //video
-                holder.seekBar.setVisibility(View.GONE);
-                holder.vvGroupMessage.setVisibility(View.GONE);
-                //file
-                holder.tvGroupLink.setVisibility(View.VISIBLE);
-                holder.ivGroupMessage.setVisibility(View.VISIBLE); // Hiển thị ivMessage
-                checkFileTypeAndDisplay(holder.ivGroupMessage, currentItem.getMessage());
-                holder.tvGroupLink.setText(currentItem.getMessage());
-            } else if (isS3Video(currentItem.getType())) {
-                holder.tvGroupMessage.setVisibility(View.GONE);
-                holder.tvGroupLink.setVisibility(View.GONE);
-                holder.ivGroupMessage.setVisibility(View.GONE); // Hiển thị ivMessage
-                holder.vvGroupMessage.setVisibility(View.VISIBLE);
-                String videoUrl = currentItem.getMessage();
-                // Tải video từ URL và đặt nó vào VideoView
-                try {
-                    Uri videoUri = Uri.parse(videoUrl);
-                    holder.vvGroupMessage.setVideoURI(videoUri);
-                    MediaController mediaController = new MediaController(context);
-                    mediaController.setMediaPlayer(holder.vvGroupMessage);
-                    holder.vvGroupMessage.setMediaController(mediaController);
-                    holder.vvGroupMessage.setOnClickListener(v -> {holder.vvGroupMessage.setOnPreparedListener(mp -> {
-                        // Bắt đầu phát video khi đã chuẩn bị sẵn
-                        mp.start();
-                        // Set up SeekBar for tracking progress
-                        holder.seekBar.setMax(mp.getDuration());
-                        new Handler().postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                if (holder.vvGroupMessage.isPlaying()) {
-                                    int currentPosition = holder.vvGroupMessage.getCurrentPosition();
-                                    holder.seekBar.setProgress(currentPosition);
-                                    new Handler().postDelayed(this, 1000); // Update seekbar every second
-                                }
-                            }
-                        }, 1000);
-                    });
-                        holder.vvGroupMessage.setOnCompletionListener(mp -> {
-                            // Tắt VideoView khi video phát xong
-                            mp.stop();
-                        });
-
-                        holder.seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-                            @Override
-                            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                                if (fromUser) {
-                                    holder.vvGroupMessage.seekTo(progress);
-                                }
-                            }
-
-                            @Override
-                            public void onStartTrackingTouch(SeekBar seekBar) {}
-
-                            @Override
-                            public void onStopTrackingTouch(SeekBar seekBar) {}
-                        });
-                    });
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-
-            } else {
-                //text
-                holder.tvGroupMessage.setText(currentItem.getMessage());
-                holder.tvGroupMessage.setVisibility(View.VISIBLE);
-                //image, file
-                holder.ivGroupMessage.setVisibility(View.GONE);
-                //file
-                holder.tvGroupLink.setVisibility(View.GONE);
-                //video
-                holder.seekBar.setVisibility(View.GONE);
-                holder.vvGroupMessage.setVisibility(View.GONE);
-            }
+        // Thiết lập căn chỉnh và nội dung dựa trên người gửi
+        if (isSentByMe) {
+            setAlignmentForSender(holder);
+            handleContentForSender(holder, currentItem);
+        } else {
+            setAlignmentForReceiver(holder);
+            handleContentForReceiver(holder, currentItem);
         }
-        holder.vvGroupMessage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Bắt đầu phát video khi người dùng ấn vào VideoView
-                if (!holder.vvGroupMessage.isPlaying()) {
-                    holder.vvGroupMessage.start();
-                }
-            }
-        });
-        //*******
         holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
@@ -291,9 +114,116 @@ public class GroupChatBoxAdapter extends RecyclerView.Adapter<GroupChatViewHolde
                 return false;
             }
         });
-        //*******
-
     }
+
+    private void setAlignmentForSender(GroupChatViewHolder holder) {
+        setLayoutParamsAlignments(holder, RelativeLayout.ALIGN_PARENT_END);
+        holder.tvGroupMessage.setTextColor(context.getColor(R.color.white));
+        holder.tvGroupMessage.setBackground(ContextCompat.getDrawable(context, R.drawable.bg_message));
+        holder.ivGroupAvatar.setVisibility(View.GONE);
+        holder.tvGroupLink.setVisibility(View.GONE);
+        holder.tvUserName.setVisibility(View.GONE);
+    }
+
+    private void handleContentForSender(GroupChatViewHolder holder, GroupChat currentItem) {
+        handleContent(holder, currentItem);
+    }
+
+    private void setAlignmentForReceiver(GroupChatViewHolder holder) {
+        setLayoutParamsAlignments(holder, RelativeLayout.ALIGN_PARENT_START);
+        holder.tvGroupMessage.setTextColor(context.getColor(R.color.black));
+        holder.tvGroupMessage.setBackground(ContextCompat.getDrawable(context, R.drawable.rounded_rectangle_secondary));
+    }
+
+    private void handleContentForReceiver(GroupChatViewHolder holder, GroupChat currentItem) {
+        handleContent(holder, currentItem);
+    }
+
+    private void setLayoutParamsAlignments(GroupChatViewHolder holder, int alignmentRule) {
+        RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) holder.tvGroupMessage.getLayoutParams();
+        RelativeLayout.LayoutParams paramsOfImage = (RelativeLayout.LayoutParams) holder.ivGroupMessage.getLayoutParams();
+        RelativeLayout.LayoutParams paramsOfVideo = (RelativeLayout.LayoutParams) holder.vvGroupMessage.getLayoutParams();
+        RelativeLayout.LayoutParams paramsOfFile = (RelativeLayout.LayoutParams) holder.tvGroupLink.getLayoutParams();
+        RelativeLayout.LayoutParams paramsOfSeeker = (RelativeLayout.LayoutParams) holder.seekBar.getLayoutParams();
+
+        params.addRule(alignmentRule);
+        paramsOfImage.addRule(alignmentRule);
+        paramsOfFile.addRule(alignmentRule);
+        paramsOfVideo.addRule(alignmentRule);
+        paramsOfSeeker.addRule(alignmentRule);
+    }
+
+    private void handleContent(GroupChatViewHolder holder, GroupChat currentItem) {
+        if (isS3ImageUrl(currentItem.getType())) {
+            Picasso.get().load(currentItem.getMessage()).into(holder.ivGroupMessage);
+            setVisibility(holder, View.GONE, View.VISIBLE, View.GONE, View.GONE, View.GONE);
+        } else if (isS3Document(currentItem.getType())) {
+            checkFileTypeAndDisplay(holder.ivGroupMessage, currentItem.getMessage());
+            holder.tvGroupLink.setText(currentItem.getMessage());
+            setVisibility(holder, View.GONE, View.VISIBLE, View.VISIBLE, View.GONE, View.GONE);
+        } else if (isS3Video(currentItem.getType())) {
+            setupVideo(holder, currentItem.getMessage());
+        } else {
+            holder.tvGroupMessage.setText(currentItem.getMessage());
+            setVisibility(holder, View.VISIBLE, View.GONE, View.GONE, View.GONE, View.GONE);
+        }
+    }
+
+    private void setVisibility(GroupChatViewHolder holder, int textVisibility, int imageVisibility, int linkVisibility, int seekerVisibility, int videoVisibility) {
+        holder.tvGroupMessage.setVisibility(textVisibility);
+        holder.ivGroupMessage.setVisibility(imageVisibility);
+        holder.tvGroupLink.setVisibility(linkVisibility);
+        holder.seekBar.setVisibility(seekerVisibility);
+        holder.vvGroupMessage.setVisibility(videoVisibility);
+    }
+
+    private void setupVideo(GroupChatViewHolder holder, String videoUrl) {
+        holder.vvGroupMessage.setVisibility(View.VISIBLE);
+        holder.tvGroupMessage.setVisibility(View.GONE);
+        holder.tvGroupLink.setVisibility(View.GONE);
+        holder.ivGroupMessage.setVisibility(View.GONE);
+
+        try {
+            Uri videoUri = Uri.parse(videoUrl);
+            holder.vvGroupMessage.setVideoURI(videoUri);
+            MediaController mediaController = new MediaController(context);
+            mediaController.setMediaPlayer(holder.vvGroupMessage);
+            holder.vvGroupMessage.setMediaController(mediaController);
+            holder.vvGroupMessage.setOnClickListener(v -> {
+                holder.vvGroupMessage.setOnPreparedListener(mp -> {
+                    mp.start();
+                    holder.seekBar.setMax(mp.getDuration());
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (holder.vvGroupMessage.isPlaying()) {
+                                holder.seekBar.setProgress(holder.vvGroupMessage.getCurrentPosition());
+                                new Handler().postDelayed(this, 1000);
+                            }
+                        }
+                    }, 1000);
+                });
+            });
+            holder.vvGroupMessage.setOnCompletionListener(mp -> mp.stop());
+            holder.seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                @Override
+                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                    if (fromUser) {
+                        holder.vvGroupMessage.seekTo(progress);
+                    }
+                }
+
+                @Override
+                public void onStartTrackingTouch(SeekBar seekBar) {}
+
+                @Override
+                public void onStopTrackingTouch(SeekBar seekBar) {}
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 
     private void checkFileTypeAndDisplay(ImageView holder, String url) {
         Log.d("CheckTypeOfPicture", url);

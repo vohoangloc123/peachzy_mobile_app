@@ -30,6 +30,5 @@ public class ChatViewHolder extends RecyclerView.ViewHolder {
         seekBar = itemView.findViewById(R.id.seekBar);
         vvMessage = itemView.findViewById(R.id.vvMessage);
         seekBar = itemView.findViewById(R.id.seekBar);
-
     }
 }
