@@ -46,7 +46,7 @@ public class ChatListForForwardMessageFragment extends Fragment  implements MyWe
     private String uid;
     private ConversationAdapter conversationAdapter;
     private MyViewChatModel viewModel;
-    private String forwardType, forwardMessage;
+    private String forwardType, forwardMessage,forwardIDfriend;
     private String forwardChannelID,forwardMyAvatar,forwardMyName;
     private MyWebSocket myWebSocket;
     private ImageButton btnBack;
@@ -74,6 +74,7 @@ public class ChatListForForwardMessageFragment extends Fragment  implements MyWe
         }
         Bundle bundle = getArguments();
         if (bundle != null) {
+            forwardIDfriend=bundle.getString("forwardIDfriend");
             forwardType = bundle.getString("forwardType");
             forwardMessage=bundle.getString("forwardMessage");
             forwardMyAvatar = bundle.getString("forwardMyAvatar");
@@ -85,33 +86,35 @@ public class ChatListForForwardMessageFragment extends Fragment  implements MyWe
             @Override
             public void onConversationFound(String conversationID, String friendID, String message, String time, String avatar, String name) {
                 try {
-                    // Parse the time string into a Date object
-                    Date conversationTime = dateFormat.parse(time);
+                    if(forwardIDfriend.equals(friendID)==false) {
+                        // Parse the time string into a Date object
+                        Date conversationTime = dateFormat.parse(time);
 
-                    // Create the conversation object
-                    Conversation conversation = new Conversation(conversationID, friendID, message, time, avatar, name);
+                        // Create the conversation object
+                        Conversation conversation = new Conversation(conversationID, friendID, message, time, avatar, name);
 
-                    // Add the conversation to the list
-                    conversationsList.add(conversation);
+                        // Add the conversation to the list
+                        conversationsList.add(conversation);
 
-                    // Sort the list based on the conversationTime in descending order
-                    Collections.sort(conversationsList, new Comparator<Conversation>() {
-                        @Override
-                        public int compare(Conversation c1, Conversation c2) {
-                            Date date1 = null;
-                            Date date2 = null;
-                            try {
-                                date1 = dateFormat.parse(c1.getTime());
-                                date2 = dateFormat.parse(c2.getTime());
-                            } catch (ParseException e) {
-                                e.printStackTrace();
+                        // Sort the list based on the conversationTime in descending order
+                        Collections.sort(conversationsList, new Comparator<Conversation>() {
+                            @Override
+                            public int compare(Conversation c1, Conversation c2) {
+                                Date date1 = null;
+                                Date date2 = null;
+                                try {
+                                    date1 = dateFormat.parse(c1.getTime());
+                                    date2 = dateFormat.parse(c2.getTime());
+                                } catch (ParseException e) {
+                                    e.printStackTrace();
+                                }
+                                return date2.compareTo(date1); // Sort in descending order
                             }
-                            return date2.compareTo(date1); // Sort in descending order
-                        }
-                    });
+                        });
 
-                    // Notify the adapter of the dataset change
-                    conversationAdapter.notifyDataSetChanged();
+                        // Notify the adapter of the dataset change
+                        conversationAdapter.notifyDataSetChanged();
+                    }
                 } catch (ParseException e) {
                     // Handle parsing exceptions if any
                     e.printStackTrace();
@@ -137,36 +140,37 @@ public class ChatListForForwardMessageFragment extends Fragment  implements MyWe
                                 ", Type: " + forwardType + ", My Avatar: " + forwardMyAvatar +
                                 ", Friend Name: " + urlAvatar + ", My Name: " + forwardMyName+", Channel ID: " + forwardChannelID);
                         String currentTime = Utils.getCurrentTime();
-                        sendMessageToSocket(channelID, uid, forwardMyName, forwardMyAvatar, forwardMessage, currentTime, forwardType);
-                        dynamoDBManager.saveMessageOneToOne(forwardChannelID,forwardMessage,currentTime,forwardType,uid,id);
+                        sendMessageToSocket(channelID, uid, forwardMyName, forwardMyAvatar, forwardMessage, getCurrentDateTime(), forwardType);
+                        dynamoDBManager.saveMessageOneToOne(forwardChannelID,forwardMessage,getCurrentDateTime(),forwardType,uid,id);
                         if(forwardType.equals("text"))
                         {
-                            dynamoDBManager.saveConversation(uid,  id, forwardMyName+": "+forwardMessage, currentTime, forwardMyAvatar, friendName);
-                            dynamoDBManager.saveConversation(id, uid,forwardMyName+": "+forwardMessage, currentTime, urlAvatar, forwardMyName);
+                            dynamoDBManager.saveConversation(uid,  id, forwardMyName+": "+forwardMessage, getCurrentDateTime(), forwardMyAvatar, friendName);
+                            dynamoDBManager.saveConversation(id, uid,forwardMyName+": "+forwardMessage, getCurrentDateTime(), urlAvatar, forwardMyName);
                         }else
                         {
-                            dynamoDBManager.saveConversation(uid,  id, forwardMyName+": "+forwardType, currentTime, forwardMyAvatar, friendName);
-                            dynamoDBManager.saveConversation(id, uid,forwardMyName+": "+forwardType, currentTime, urlAvatar, forwardMyName);
+                            dynamoDBManager.saveConversation(uid,  id, forwardMyName+": "+forwardType, getCurrentDateTime(), forwardMyAvatar, friendName);
+                            dynamoDBManager.saveConversation(id, uid,forwardMyName+": "+forwardType, getCurrentDateTime(), urlAvatar, forwardMyName);
                         }
                         //live data
 
                     }
                 });
-                changeData();
+
                 conversationsList.clear();
+                changeData();
                 getParentFragmentManager().popBackStack();
                 mainActivity.showBottomNavigation(false);
             }
         });
         //Live data
         viewModel = new ViewModelProvider(requireActivity()).get(MyViewChatModel.class);
-        viewModel.getData().observe(getViewLifecycleOwner(), new Observer<String>() {
-            @Override
-            public void onChanged(String newData) {
-                Log.d("Livedata1", "onChanged: Yes");
-                resetRecycleView();
-            }
-        });
+//        viewModel.getData().observe(getViewLifecycleOwner(), new Observer<String>() {
+//            @Override
+//            public void onChanged(String newData) {
+//                Log.d("Livedata1", "onChanged: Yes");
+//                resetRecycleView();
+//            }
+//        });
         btnBack=view.findViewById(R.id.btnBack);
         btnBack.setOnClickListener(v -> {
             getParentFragmentManager().popBackStack();
@@ -274,5 +278,15 @@ public class ChatListForForwardMessageFragment extends Fragment  implements MyWe
     public void onDestroy() {
         super.onDestroy();
         mainActivity.showBottomNavigation(false);
+    }
+
+    public static String getCurrentDateTime() {
+        // Định dạng cho ngày tháng năm và giờ
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+        // Lấy thời gian hiện tại
+        Date currentTime = new Date();
+        // Định dạng thời gian hiện tại thành chuỗi
+        String formattedDateTime = dateFormat.format(currentTime);
+        return formattedDateTime;
     }
 }

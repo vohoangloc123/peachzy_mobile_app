@@ -265,8 +265,8 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
                         protected Void doInBackground(Void... voids) {
                             Log.d("RequestUIDchannel811", "onCreateView: " + channel_id);
                             dynamoDBManager.saveMessageOneToOne(channel_id,message,currentTime,"text",uid,friend_id);
-                            dynamoDBManager.saveConversation(uid,  friend_id, message, currentTime, urlAvatar, friendName);
-                            dynamoDBManager.saveConversation(friend_id, uid,message, currentTime, userAvatar, userName);
+                            dynamoDBManager.saveConversation(uid,  friend_id,userName+": "+ message, currentTime, urlAvatar, friendName);
+                            dynamoDBManager.saveConversation(friend_id, uid,userName+": "+message, currentTime, userAvatar, userName);
                             return null;
                         }
                     }.execute();
@@ -1131,6 +1131,7 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 Bundle bundle=new Bundle();
+                bundle.putString("forwardIDfriend",  friend_id);
                 bundle.putString("forwardType",  item.getType());
                 bundle.putString("forwardMessage",  item.getMessage());
                 bundle.putString("forwardMyName", userName);
@@ -1146,6 +1147,7 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
             public void onClick(DialogInterface dialog, int which) {
 
                 Bundle bundle=new Bundle();
+                bundle.putString("forwardID",  "");
                 bundle.putString("forwardType",  item.getType());
                 bundle.putString("forwardMessage",  item.getMessage());
                 bundle.putString("forwardMyName", userName);

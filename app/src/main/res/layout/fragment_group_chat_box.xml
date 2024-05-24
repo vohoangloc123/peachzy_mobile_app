@@ -66,7 +66,7 @@
     <ScrollView
         android:id="@+id/scrollView"
         android:layout_width="match_parent"
-        android:layout_height="700dp"
+        android:layout_height="610dp"
         android:layout_above="@+id/layout_input">
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rcvGroupChat"

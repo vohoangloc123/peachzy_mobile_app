@@ -49,7 +49,7 @@ public class GroupChatListForForwardMessageFragment extends Fragment  implements
     private ArrayList<GroupConversation> groupConversationList;
     private String uid;
     private MyGroupViewModel viewModel;
-    private String forwardType, forwardMessage;
+    private String forwardType, forwardMessage,forwardID;
     private String forwardMyAvatar,forwardMyName;
     private ImageButton btnBack;
     private SimpleDateFormat dateFormat;
@@ -69,6 +69,7 @@ public class GroupChatListForForwardMessageFragment extends Fragment  implements
         }
         Bundle bundle = getArguments();
         if (bundle != null) {
+            forwardID = bundle.getString("forwardID");
             forwardType = bundle.getString("forwardType");
             forwardMessage=bundle.getString("forwardMessage");
             forwardMyAvatar = bundle.getString("forwardMyAvatar");
@@ -82,46 +83,48 @@ public class GroupChatListForForwardMessageFragment extends Fragment  implements
         rcvGroupChatList.setLayoutManager(linearLayoutManager);
 
         viewModel = new ViewModelProvider(requireActivity()).get(MyGroupViewModel.class);
-        viewModel.getData().observe(getViewLifecycleOwner(), new Observer<String>() {
-            @Override
-            public void onChanged(String newData) {
-                Log.d("LivedataGroup", "onChanged: Yes");
-                resetRecycleView();
-            }
-        });//
+//        viewModel.getData().observe(getViewLifecycleOwner(), new Observer<String>() {
+//            @Override
+//            public void onChanged(String newData) {
+//                Log.d("LivedataGroup", "onChanged: Yes");
+//                resetRecycleView();
+//            }
+//        });//
         listGroupChats.clear();
         dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         dynamoDBManager.loadGroupList(uid, new DynamoDBManager.LoadGroupListListener() {
             @Override
             public void onGroupListFound(String id, String groupName, String avatar, String message, String name, String time) {
                 try {
-                    // Parse the time string into a Date object
-                    Date messageTime = dateFormat.parse(time);
+                    if(forwardID.equals(id)==false) {
+                        // Parse the time string into a Date object
+                        Date messageTime = dateFormat.parse(time);
 
-                    // Create the group conversation object
-                    GroupConversation groupConversation = new GroupConversation(id, groupName, name, avatar, message, time);
+                        // Create the group conversation object
+                        GroupConversation groupConversation = new GroupConversation(id, groupName, name, avatar, message, time);
 
-                    // Add the group conversation to the list
-                    listGroupChats.add(groupConversation);
+                        // Add the group conversation to the list
+                        listGroupChats.add(groupConversation);
 
-                    // Sort the list based on the messageTime in descending order
-                    Collections.sort(listGroupChats, new Comparator<GroupConversation>() {
-                        @Override
-                        public int compare(GroupConversation gc1, GroupConversation gc2) {
-                            Date date1 = null;
-                            Date date2 = null;
-                            try {
-                                date1 = dateFormat.parse(gc1.getTime());
-                                date2 = dateFormat.parse(gc2.getTime());
-                            } catch (ParseException e) {
-                                e.printStackTrace();
+                        // Sort the list based on the messageTime in descending order
+                        Collections.sort(listGroupChats, new Comparator<GroupConversation>() {
+                            @Override
+                            public int compare(GroupConversation gc1, GroupConversation gc2) {
+                                Date date1 = null;
+                                Date date2 = null;
+                                try {
+                                    date1 = dateFormat.parse(gc1.getTime());
+                                    date2 = dateFormat.parse(gc2.getTime());
+                                } catch (ParseException e) {
+                                    e.printStackTrace();
+                                }
+                                return date2.compareTo(date1); // Sort in descending order
                             }
-                            return date2.compareTo(date1); // Sort in descending order
-                        }
-                    });
+                        });
 
-                    // Notify the adapter of the dataset change
-                    groupChatListAdapter.notifyDataSetChanged();
+                        // Notify the adapter of the dataset change
+                        groupChatListAdapter.notifyDataSetChanged();
+                    }
                 } catch (ParseException e) {
                     // Handle parsing exceptions if any
                     e.printStackTrace();
@@ -137,15 +140,15 @@ public class GroupChatListForForwardMessageFragment extends Fragment  implements
             public void onItemClick(String id, String groupName, String avatar) {
                 String currentTime = Utils.getCurrentTime();
                 initWebSocket(id);
-                sendMessageToSocket(uid, forwardMyName, forwardMyAvatar, forwardMessage, currentTime, forwardType);
+                sendMessageToSocket(uid, forwardMyName, forwardMyAvatar, forwardMessage, getCurrentDateTime(), forwardType);
                 if(forwardType.equals("text"))
                 {
-                    dynamoDBManager.saveGroupMessage(id, forwardMessage, currentTime, uid, forwardMyAvatar, forwardMyName, forwardType);
-                    dynamoDBManager.saveGroupConversation(id, forwardMessage, groupName, currentTime,forwardMyAvatar,forwardMyName);
+                    dynamoDBManager.saveGroupMessage(id, forwardMessage, getCurrentDateTime(), uid, forwardMyAvatar, forwardMyName, forwardType);
+                    dynamoDBManager.saveGroupConversation(id, forwardMessage, groupName, getCurrentDateTime(),forwardMyAvatar,forwardMyName);
                 }else
                 {
-                    dynamoDBManager.saveGroupMessage(id, forwardMessage, currentTime, uid, forwardMyAvatar, forwardMyName, forwardType);
-                    dynamoDBManager.saveGroupConversation(id, forwardType, groupName, currentTime,forwardMyAvatar,forwardMyName);
+                    dynamoDBManager.saveGroupMessage(id, forwardMessage, getCurrentDateTime(), uid, forwardMyAvatar, forwardMyName, forwardType);
+                    dynamoDBManager.saveGroupConversation(id, forwardType, groupName, getCurrentDateTime(),forwardMyAvatar,forwardMyName);
                 }
                 //live data
                 changeData();
@@ -261,5 +264,14 @@ public class GroupChatListForForwardMessageFragment extends Fragment  implements
     public void onDestroy() {
         super.onDestroy();
         mainActivity.showBottomNavigation(false);
+    }
+    public static String getCurrentDateTime() {
+        // Định dạng cho ngày tháng năm và giờ
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+        // Lấy thời gian hiện tại
+        Date currentTime = new Date();
+        // Định dạng thời gian hiện tại thành chuỗi
+        String formattedDateTime = dateFormat.format(currentTime);
+        return formattedDateTime;
     }
 }

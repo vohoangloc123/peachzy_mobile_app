@@ -1066,6 +1066,7 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 Bundle bundle=new Bundle();
+                bundle.putString("forwardIDfriend",  "");
                 bundle.putString("forwardType",  item.getType());
                 bundle.putString("forwardMessage",  item.getMessage());
                 bundle.putString("forwardMyName", userName);
@@ -1079,6 +1080,7 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 Bundle bundle=new Bundle();
+                bundle.putString("forwardID",  groupID);
                 bundle.putString("forwardType",  item.getType());
                 bundle.putString("forwardMessage",  item.getMessage());
                 bundle.putString("forwardMyName", userName);
