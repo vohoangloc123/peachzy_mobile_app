@@ -27,7 +27,14 @@ import com.example.peachzyapp.fragments.MainFragments.Users.RequestReceivedFragm
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+
 public class GroupChatListFragment extends Fragment implements MyWebSocket.WebSocketListener{
     public static final String TAG = GroupChatListFragment.class.getName();
     private MyWebSocket myWebSocket;
@@ -41,7 +48,7 @@ public class GroupChatListFragment extends Fragment implements MyWebSocket.WebSo
     private ArrayList<GroupConversation> groupConversationList;
     private String uid;
     private MyGroupViewModel viewModel;
-
+    private SimpleDateFormat dateFormat;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -93,12 +100,42 @@ public class GroupChatListFragment extends Fragment implements MyWebSocket.WebSo
             }
         });//
         listGroupChats.clear();
+        dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         dynamoDBManager.loadGroupList(uid, new DynamoDBManager.LoadGroupListListener() {
             @Override
             public void onGroupListFound(String id, String groupName, String avatar, String message, String name, String time) {
-                GroupConversation groupConversation=new GroupConversation(id, groupName,name, avatar, message, time);
-                listGroupChats.add(groupConversation);
-                groupChatListAdapter.notifyDataSetChanged();
+                try {
+                    // Parse the time string into a Date object
+                    Date messageTime = dateFormat.parse(time);
+
+                    // Create the group conversation object
+                    GroupConversation groupConversation = new GroupConversation(id, groupName, name, avatar, message, time);
+
+                    // Add the group conversation to the list
+                    listGroupChats.add(groupConversation);
+
+                    // Sort the list based on the messageTime in descending order
+                    Collections.sort(listGroupChats, new Comparator<GroupConversation>() {
+                        @Override
+                        public int compare(GroupConversation gc1, GroupConversation gc2) {
+                            Date date1 = null;
+                            Date date2 = null;
+                            try {
+                                date1 = dateFormat.parse(gc1.getTime());
+                                date2 = dateFormat.parse(gc2.getTime());
+                            } catch (ParseException e) {
+                                e.printStackTrace();
+                            }
+                            return date2.compareTo(date1); // Sort in descending order
+                        }
+                    });
+
+                    // Notify the adapter of the dataset change
+                    groupChatListAdapter.notifyDataSetChanged();
+                } catch (ParseException e) {
+                    // Handle parsing exceptions if any
+                    e.printStackTrace();
+                }
             }
         });
         groupChatListAdapter= new GroupChatListAdapter(listGroupChats);
@@ -126,13 +163,42 @@ private void resetRecycleView() {
 
             listGroupChats.clear();
 
+            dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
             dynamoDBManager.loadGroupList(uid, new DynamoDBManager.LoadGroupListListener() {
                 @Override
                 public void onGroupListFound(String id, String groupName, String avatar, String message, String name, String time) {
-                    GroupConversation groupConversation=new GroupConversation(id, groupName,name, avatar, message, time);
-                    listGroupChats.add(groupConversation);
-                    groupChatListAdapter.notifyDataSetChanged();
+                    try {
+                        // Parse the time string into a Date object
+                        Date messageTime = dateFormat.parse(time);
 
+                        // Create the group conversation object
+                        GroupConversation groupConversation = new GroupConversation(id, groupName, name, avatar, message, time);
+
+                        // Add the group conversation to the list
+                        listGroupChats.add(groupConversation);
+
+                        // Sort the list based on the messageTime in descending order
+                        Collections.sort(listGroupChats, new Comparator<GroupConversation>() {
+                            @Override
+                            public int compare(GroupConversation gc1, GroupConversation gc2) {
+                                Date date1 = null;
+                                Date date2 = null;
+                                try {
+                                    date1 = dateFormat.parse(gc1.getTime());
+                                    date2 = dateFormat.parse(gc2.getTime());
+                                } catch (ParseException e) {
+                                    e.printStackTrace();
+                                }
+                                return date2.compareTo(date1); // Sort in descending order
+                            }
+                        });
+
+                        // Notify the adapter of the dataset change
+                        groupChatListAdapter.notifyDataSetChanged();
+                    } catch (ParseException e) {
+                        // Handle parsing exceptions if any
+                        e.printStackTrace();
+                    }
                 }
             });
             groupChatListAdapter.notifyDataSetChanged();

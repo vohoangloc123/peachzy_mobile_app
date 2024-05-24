@@ -29,7 +29,12 @@ import com.example.peachzyapp.entities.Conversation;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
 
 public class ChatListForForwardMessageFragment extends Fragment  implements MyWebSocket.WebSocketListener {
     public static final String TAG= ChatListForForwardMessageFragment.class.getName();
@@ -45,6 +50,7 @@ public class ChatListForForwardMessageFragment extends Fragment  implements MyWe
     private String forwardChannelID,forwardMyAvatar,forwardMyName;
     private MyWebSocket myWebSocket;
     private ImageButton btnBack;
+    private SimpleDateFormat dateFormat;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -74,15 +80,44 @@ public class ChatListForForwardMessageFragment extends Fragment  implements MyWe
             forwardMyName=bundle.getString("forwardMyName");
             Log.d("ForwardData", "Type: " + forwardType + ", Message: ");
         }
+        dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         dynamoDBManager.loadConversation(uid, new DynamoDBManager.LoadConversationListener() {
             @Override
-            public void onConversationFound(String conversationID, String friendID ,String message, String time, String avatar, String name) {
-                Conversation conversation = new Conversation(conversationID, friendID ,message, time, avatar, name);
-                conversationsList.add(conversation);
-                Log.d("ConversationFound", "Conversation ID: " + conversationID + ", Message: " + message + ", Time: " + time + ", Avatar: " + avatar + ", Name: " + name);
-                // Notify adapter that data set has changed after all conversations are added
-                conversationAdapter.notifyDataSetChanged();
+            public void onConversationFound(String conversationID, String friendID, String message, String time, String avatar, String name) {
+                try {
+                    // Parse the time string into a Date object
+                    Date conversationTime = dateFormat.parse(time);
+
+                    // Create the conversation object
+                    Conversation conversation = new Conversation(conversationID, friendID, message, time, avatar, name);
+
+                    // Add the conversation to the list
+                    conversationsList.add(conversation);
+
+                    // Sort the list based on the conversationTime in descending order
+                    Collections.sort(conversationsList, new Comparator<Conversation>() {
+                        @Override
+                        public int compare(Conversation c1, Conversation c2) {
+                            Date date1 = null;
+                            Date date2 = null;
+                            try {
+                                date1 = dateFormat.parse(c1.getTime());
+                                date2 = dateFormat.parse(c2.getTime());
+                            } catch (ParseException e) {
+                                e.printStackTrace();
+                            }
+                            return date2.compareTo(date1); // Sort in descending order
+                        }
+                    });
+
+                    // Notify the adapter of the dataset change
+                    conversationAdapter.notifyDataSetChanged();
+                } catch (ParseException e) {
+                    // Handle parsing exceptions if any
+                    e.printStackTrace();
+                }
             }
+
             @Override
             public void onLoadConversationError(Exception e) {
                 e.printStackTrace();
@@ -144,13 +179,44 @@ public class ChatListForForwardMessageFragment extends Fragment  implements MyWe
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
+                dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
                 dynamoDBManager.loadConversation(uid, new DynamoDBManager.LoadConversationListener() {
                     @Override
-                    public void onConversationFound(String conversationID, String friendID,String message, String time, String avatar, String name) {
-                        Conversation conversation = new Conversation(conversationID, friendID, message, time, avatar, name);
-                        conversationsList.add(conversation);
-                        conversationAdapter.notifyDataSetChanged();
+                    public void onConversationFound(String conversationID, String friendID, String message, String time, String avatar, String name) {
+                        try {
+                            // Parse the time string into a Date object
+                            Date conversationTime = dateFormat.parse(time);
+
+                            // Create the conversation object
+                            Conversation conversation = new Conversation(conversationID, friendID, message, time, avatar, name);
+
+                            // Add the conversation to the list
+                            conversationsList.add(conversation);
+
+                            // Sort the list based on the conversationTime in descending order
+                            Collections.sort(conversationsList, new Comparator<Conversation>() {
+                                @Override
+                                public int compare(Conversation c1, Conversation c2) {
+                                    Date date1 = null;
+                                    Date date2 = null;
+                                    try {
+                                        date1 = dateFormat.parse(c1.getTime());
+                                        date2 = dateFormat.parse(c2.getTime());
+                                    } catch (ParseException e) {
+                                        e.printStackTrace();
+                                    }
+                                    return date2.compareTo(date1); // Sort in descending order
+                                }
+                            });
+
+                            // Notify the adapter of the dataset change
+                            conversationAdapter.notifyDataSetChanged();
+                        } catch (ParseException e) {
+                            // Handle parsing exceptions if any
+                            e.printStackTrace();
+                        }
                     }
+
                     @Override
                     public void onLoadConversationError(Exception e) {
                         e.printStackTrace();

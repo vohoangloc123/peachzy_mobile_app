@@ -165,7 +165,7 @@ public class CreateGroupChatFragment extends Fragment implements MyWebSocket.Web
         btnCreateGroup.setOnClickListener(v -> {
             String groupName = etGroupName.getText().toString().trim();
             String groupID = "-"+randomNumber() + "-" + uid;
-            String currentTime = Utils.getCurrentTime();
+            String currentTime = getCurrentDateTime();
             List<String> selectedFriendIds = createGroupChatAdapter.getSelectedFriendIds();
             List<String> selectedFriendIDsToCreateGroup = new ArrayList<>(selectedFriendIds);
             selectedFriendIDsToCreateGroup.add(uid);
@@ -429,5 +429,14 @@ public class CreateGroupChatFragment extends Fragment implements MyWebSocket.Web
     private void initWebSocket(String channelId) {
         Log.d("initWebSocket: ",channelId);
         myWebSocket = new MyWebSocket("wss://free.blr2.piesocket.com/v3/"+channelId+"?api_key=ujXx32mn0joYXVcT2j7Gp18c0JcbKTy3G6DE9FMB&notify_self=0", this);
+    }
+    public static String getCurrentDateTime() {
+        // Định dạng cho ngày tháng năm và giờ
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+        // Lấy thời gian hiện tại
+        Date currentTime = new Date();
+        // Định dạng thời gian hiện tại thành chuỗi
+        String formattedDateTime = dateFormat.format(currentTime);
+        return formattedDateTime;
     }
 }
