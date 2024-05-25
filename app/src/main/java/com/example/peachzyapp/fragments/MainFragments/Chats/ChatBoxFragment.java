@@ -12,6 +12,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -101,6 +102,7 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
     ImageButton btnSend, btnImage,btnVideo,btnBack, btnAudio;
     EditText etMessage;
     TextView tvGroupName;
+
     private List<Item> listMessage = new ArrayList<>();
     private ChatBoxAdapter adapter;
     public static final String TAG= ChatBoxFragment.class.getName();
@@ -166,6 +168,7 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
         // Set up RecyclerView layout manager
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setItemAnimator(new DefaultItemAnimator());
+        //audio
         adapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
             @Override
             public void onChanged() {
@@ -345,7 +348,6 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
         });
         return view;
     }
-
     private void startRecording() {
         // Khởi tạo MediaRecorder
         recorder = new MediaRecorder();
@@ -1054,72 +1056,81 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
     }
     @Override
     public void onMessageReceived(String receivedMessage) {
+        if (receivedMessage == null || receivedMessage.isEmpty()) {
+            return; // Không làm gì nếu tin nhắn rỗng
+        }
+
         try {
+            JSONObject jsonObject = new JSONObject(receivedMessage);
+            String jsonType = jsonObject.optString("type");
 
-            JSONObject jsonObject  = new JSONObject(receivedMessage);
-            String jsonType = jsonObject.getString("type");
-
-            if(jsonType.equals("send-message")){
-                JSONObject messageJson = jsonObject.getJSONObject("message");
-                String avatar = messageJson.getString("avatar"); // Đường dẫn ảnh đại diện mặc định
-                String from = messageJson.getString("from");
-                String to = messageJson.getString("to");
-                String message = messageJson.getString("text");
-                String currentTime = messageJson.getString("time");
-                String type=messageJson.getString("type");
-                Log.d("onMessageReceived1", receivedMessage+" "+jsonType);
-
-                // Kiểm tra xem tin nhắn nhận được có trùng với tin nhắn đã gửi không
-                boolean isDuplicate = false;
-                for (Item item : listMessage) {
-                    if (item.getMessage().equals(receivedMessage)) {
-                        isDuplicate = true;
-                        break;
-                    }
-                }
-
-                scrollToBottom();
-                if (!isDuplicate) {
-                    listMessage.add(new Item(currentTime, message, urlAvatar,false,type));
-                    Log.d("TypeIs1218", type);
-                    newPosition = listMessage.size() - 1; // Vị trí mới của tin nhắn
-                    adapter.notifyItemInserted(newPosition);
-                    scrollToBottom();
-                    if (recyclerView.getLayoutManager() != null) {
-                        // Cuộn xuống vị trí mới
-                        recyclerView.post(() -> recyclerView.smoothScrollToPosition(newPosition));
-                    } else {
-                        recyclerView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-                            @Override
-                            public void onGlobalLayout() {
-                                recyclerView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                                recyclerView.smoothScrollToPosition(newPosition);
-                            }
-                        });
-                    }
-                }
-            }
-            if(jsonType.equals("delete-message")) {
-                JSONObject messageJson = jsonObject.getJSONObject("message");
-                String avatar = messageJson.getString("avatar"); // Đường dẫn ảnh đại diện mặc định
-                String from = messageJson.getString("from");
-                String to = messageJson.getString("to");
-                String message = messageJson.getString("text");
-                String currentTime = messageJson.getString("time");
-                String type = messageJson.getString("type");
-                Log.d("onMessageReceived2", receivedMessage + " " + jsonType+" "+message+" "+currentTime);
-                Item itemIndex =new Item(currentTime, message, urlAvatar,false,type);
-                int position = listMessage.indexOf(itemIndex);
-                Log.d("onMessageReceived posotion: ",position+"");
-                removeItemFromListMessage(position);
-
+            switch (jsonType) {
+                case "send-message":
+                    handleSendMessage(jsonObject);
+                    break;
+                case "delete-message":
+                    handleDeleteMessage(jsonObject);
+                    break;
+                default:
+                    break;
             }
 
-
+            scrollToBottom(); // Cuộn xuống dưới cùng sau mỗi lần xử lý tin nhắn
         } catch (JSONException e) {
             e.printStackTrace();
         }
     }
+
+    private void handleSendMessage(JSONObject jsonObject) throws JSONException {
+        JSONObject messageJson = jsonObject.getJSONObject("message");
+        String message = messageJson.getString("text");
+        String currentTime = messageJson.getString("time");
+        String type = messageJson.getString("type");
+
+        if (isDuplicateMessage(message)) {
+            return; // Không làm gì nếu là tin nhắn trùng lặp
+        }
+
+        listMessage.add(new Item(currentTime, message, urlAvatar, false, type));
+        int newPosition = listMessage.size() - 1;
+        adapter.notifyItemInserted(newPosition);
+        scrollToPosition(newPosition);
+    }
+
+    private void handleDeleteMessage(JSONObject jsonObject) throws JSONException {
+        JSONObject messageJson = jsonObject.getJSONObject("message");
+        String message = messageJson.getString("text");
+        String currentTime = messageJson.getString("time");
+        String type = messageJson.getString("type");
+
+        Item itemIndex = new Item(currentTime, message, urlAvatar, false, type);
+        int position = listMessage.indexOf(itemIndex);
+        removeItemFromListMessage(position);
+    }
+
+    private boolean isDuplicateMessage(String message) {
+        for (Item item : listMessage) {
+            if (item.getMessage().equals(message)) {
+                return true; // Trả về true nếu là tin nhắn trùng lặp
+            }
+        }
+        return false; // Trả về false nếu không phải tin nhắn trùng lặp
+    }
+
+    private void scrollToPosition(int position) {
+        if (recyclerView.getLayoutManager() != null) {
+            recyclerView.post(() -> recyclerView.smoothScrollToPosition(position));
+        } else {
+            recyclerView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                @Override
+                public void onGlobalLayout() {
+                    recyclerView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                    recyclerView.smoothScrollToPosition(position);
+                }
+            });
+        }
+    }
+
     @Override
     public void onConnectionStateChanged(boolean isConnected) {
 
@@ -1130,6 +1141,10 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
         super.onDestroyView();
         // Ngắt kết nối khi Fragment bị hủy
         myWebSocket.closeWebSocket();
+        if (recorder != null) {
+            recorder.release();
+            recorder = null;
+        }
     }
     private void scrollToBottom() {
         if (recyclerView != null && recyclerView.getAdapter() != null) {

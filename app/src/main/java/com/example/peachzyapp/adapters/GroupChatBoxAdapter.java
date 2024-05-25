@@ -2,6 +2,7 @@ package com.example.peachzyapp.adapters;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Handler;
 import android.util.Log;
@@ -205,6 +206,12 @@ public class GroupChatBoxAdapter extends RecyclerView.Adapter<GroupChatViewHolde
         } catch (IOException e) {
             e.printStackTrace();
         }
+        holder.mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mp) {
+                holder.btnPlayPause.setImageResource(R.drawable.baseline_play_arrow_24); // Đổi biểu tượng của nút thành biểu tượng phát
+            }
+        });
         holder.btnPlayPause.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

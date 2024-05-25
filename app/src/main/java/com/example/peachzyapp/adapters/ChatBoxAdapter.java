@@ -3,6 +3,7 @@ package com.example.peachzyapp.adapters;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Paint;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Handler;
 import android.util.Log;
@@ -17,6 +18,7 @@ import android.widget.SeekBar;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -34,6 +36,7 @@ import com.squareup.picasso.Picasso;
 
 public class ChatBoxAdapter extends RecyclerView.Adapter<ChatViewHolder> {
     private Context context;
+    private List<ChatViewHolder> viewHolders = new ArrayList<>();
     private List<Item> items;
     public ChatBoxAdapter(Context context, List<Item> items) {
         this.context = context;
@@ -60,6 +63,7 @@ public class ChatBoxAdapter extends RecyclerView.Adapter<ChatViewHolder> {
     public ChatViewHolder onCreateViewHolder(@NonNull  ViewGroup parent, int viewType) {
         return new ChatViewHolder(LayoutInflater.from(context).inflate(R.layout.item_chat_box,parent,false));
     }
+
 
 
     @Override
@@ -198,6 +202,12 @@ public class ChatBoxAdapter extends RecyclerView.Adapter<ChatViewHolder> {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        holder.mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mp) {
+                holder.btnPlayPause.setImageResource(R.drawable.baseline_play_arrow_24); // Đổi biểu tượng của nút thành biểu tượng phát
+            }
+        });
         holder.btnPlayPause.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -209,8 +219,10 @@ public class ChatBoxAdapter extends RecyclerView.Adapter<ChatViewHolder> {
                     holder.btnPlayPause.setImageResource(R.drawable.baseline_stop_circle_24); // Đổi hình ảnh của nút thành biểu tượng tạm dừng
                 }
             }
+
         });
     }
+
     private void setupVideo(ChatViewHolder holder, String videoUrl) {
         holder.vvMessage.setVisibility(View.VISIBLE);
         holder.tvMessage.setVisibility(View.GONE);
