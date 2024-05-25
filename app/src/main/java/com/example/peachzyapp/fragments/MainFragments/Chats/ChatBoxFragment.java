@@ -463,7 +463,7 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
                 // Kiểm tra đường dẫn file âm thanh
                 if (filePath != null && !filePath.isEmpty()) {
                     // Tạo tên file duy nhất
-                    String fileName = generateFileName();
+                    String fileName = generateFileName("audio");
 
                     // Đọc dữ liệu từ file âm thanh
                     File audioFile = new File(filePath);
@@ -592,7 +592,7 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
 
                 if (inputStream != null) {
                     // Tạo tên file duy nhất
-                    String fileName = generateFileName();
+                    String fileName = generateFileName("video");
 
                     // Tạo đối tượng để lưu trữ ETags của các phần đã tải lên
                     Map<Integer, String> partETags = new HashMap<>();
@@ -740,7 +740,7 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
 
                 if (inputStream != null) {
                     // Tạo tên file duy nhất
-                    String fileName = generateFileName();
+                    String fileName = generateFileName("image");
 
                     // Tạo đối tượng để lưu trữ ETags của các phần đã tải lên
                     Map<Integer, String> partETags = new HashMap<>();
@@ -899,7 +899,7 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
 
                 if (inputStream != null) {
                     // Tạo tên file duy nhất
-                    String fileName = generateFileName();
+                    String fileName = generateFileName("document");
 
                     // Tạo đối tượng để lưu trữ ETags của các phần đã tải lên
                     Map<Integer, String> partETags = new HashMap<>();
@@ -1031,9 +1031,7 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
             }
         }.execute();
     }
-
-
-    private String generateFileName() {
+    private String generateFileName(String type) {
         // Lấy ngày giờ hiện tại
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
 
@@ -1041,8 +1039,9 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
         int randomNumber = new Random().nextInt(1000000);
 
         // Kết hợp ngày giờ và dãy số random để tạo tên file
-        return "image_" + timeStamp + "_" + randomNumber;
+        return type+"_" + timeStamp + "_" + randomNumber;
     }
+
 
     private void initWebSocket() {
         // Kiểm tra xem channel_id đã được thiết lập chưa
@@ -1210,6 +1209,7 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
         }
         AlertDialog alertDialog = builder.create();
         alertDialog.show();
+        Log.d("CheckType337", uid +"-"+ friend_id);
         dynamoDBManager.GetTypeOfMessage(uid +"-"+ friend_id, item.getMessage(), item.getTime(), new DynamoDBManager.GetTypeOfMessageListener() {
             @Override
             public void onFound(String type) {
@@ -1221,7 +1221,15 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
                             btnButton.setText("Copy");
                         }
                     });
-                } else {
+
+                } else if(type.equals("voice")){
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            btnButton.setText("Download");
+                        }
+                    });
+                }else {
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -1271,7 +1279,16 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
                             } catch (MalformedURLException e) {
                                 throw new RuntimeException(e);
                             }
-
+                            break;
+                        case "voice":
+                            try {
+                                key = getKey(item.getMessage());
+                                Log.d("CheckingType", "Download voice: "+key);
+                                downloadAudio(BUCKET_NAME_FOR_VOICE, key);
+                                changeData();
+                            } catch (MalformedURLException e) {
+                                throw new RuntimeException(e);
+                            }
                         default:
                             // Xử lý trường hợp không xác định
                             break;
@@ -1279,6 +1296,7 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
                 }
             }
         });
+
         btnRecall.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -1366,7 +1384,7 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
             public void onClick(DialogInterface dialog, int which) {
 
                 Bundle bundle=new Bundle();
-                bundle.putString("forwardID",  "");
+                bundle.putString("forwardID", "");
                 bundle.putString("forwardType",  item.getType());
                 bundle.putString("forwardMessage",  item.getMessage());
                 bundle.putString("forwardMyName", userName);
@@ -1387,6 +1405,61 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
         AlertDialog dialog = builder.create();
         dialog.show();
     }
+    private void downloadAudio(String bucketName, String key) {
+        new AsyncTask<String, Void, File>() {
+            @Override
+            protected File doInBackground(String... params) {
+                try {
+                    S3Object s3Object = s3Client.getObject(new GetObjectRequest(params[0], params[1]));
+                    InputStream inputStream = s3Object.getObjectContent();
+                    File file = new File(getContext().getFilesDir(), "audio_" + System.currentTimeMillis() + ".mp3"); // Tạo tên tệp mới dựa trên thời gian hiện tại
+                    try (FileOutputStream fos = new FileOutputStream(file)) {
+                        byte[] buffer = new byte[1024];
+                        int length;
+                        while ((length = inputStream.read(buffer)) > 0) {
+                            fos.write(buffer, 0, length);
+                        }
+                    }
+                    return file;
+                } catch (Exception e) {
+                    Log.e(TAG, "Error downloading audio", e);
+                    return null;
+                }
+            }
+
+            @Override
+            protected void onPostExecute(File file) {
+                if (file != null) {
+                    saveAudioToDownloads(file);
+                } else {
+                    Toast.makeText(getContext(), "Failed to download audio", Toast.LENGTH_SHORT).show();
+                }
+            }
+        }.execute(bucketName, key);
+    }
+
+    private void saveAudioToDownloads(File file) {
+        try {
+            File downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+            if (!downloadsDir.exists()) {
+                downloadsDir.mkdirs();
+            }
+            File audioFile = new File(downloadsDir, file.getName());
+            try (FileInputStream in = new FileInputStream(file);
+                 FileOutputStream out = new FileOutputStream(audioFile)) {
+                byte[] buffer = new byte[1024];
+                int length;
+                while ((length = in.read(buffer)) > 0) {
+                    out.write(buffer, 0, length);
+                }
+            }
+            Toast.makeText(getContext(), "Audio saved to Downloads", Toast.LENGTH_SHORT).show();
+        } catch (Exception e) {
+            Log.e(TAG, "Error saving audio to Downloads", e);
+            Toast.makeText(getContext(), "Failed to save audio", Toast.LENGTH_SHORT).show();
+        }
+    }
+
     private void downloadImage(String bucketName, String key) {
         new AsyncTask<String, Void, Bitmap>() {
             @Override
@@ -1436,16 +1509,6 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
                 try {
                     S3Object s3Object = s3Client.getObject(new GetObjectRequest(params[0], params[1]));
                     InputStream inputStream = s3Object.getObjectContent();
-                    //
-//                    Log.d( "CheckingType2: ",key+ "");
-//                    File file = null;
-//                    if(key.endsWith("docx")){
-//                        Log.d( "CheckingType3: ","docx");
-//                         file = new File(getContext().getFilesDir(), "document_" + System.currentTimeMillis() + ".docx"); // Tạo tên tệp mới dựa trên thời gian hiện tại
-//                    }else{
-//                        Log.d( "CheckingType3: ","pdf");
-//                        file = new File(getContext().getFilesDir(), "document_" + System.currentTimeMillis() + ".pdf");
-//                    }
                     File file = new File(getContext().getFilesDir(), "document_" + System.currentTimeMillis() + ".pdf"); // Tạo tên tệp mới dựa trên thời gian hiện tại
                     try (FileOutputStream fos = new FileOutputStream(file)) {
                         byte[] buffer = new byte[1024];
