@@ -588,7 +588,7 @@ public class MainActivity extends AppCompatActivity {
         fragmentTransaction.addToBackStack(editGroupNameFragment.TAG);
         fragmentTransaction.commit();
         // Hiển thị bottomNavigationView
-        showBottomNavigation(true);
+        showBottomNavigation(false);
     }
 
     public void goToViewProfileFragment(Bundle bundle) {

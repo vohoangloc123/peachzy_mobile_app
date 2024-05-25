@@ -25,6 +25,7 @@ import com.example.peachzyapp.entities.GroupChat;
 import com.example.peachzyapp.entities.Item;
 import com.squareup.picasso.Picasso;
 
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -145,44 +146,78 @@ public class GroupChatBoxAdapter extends RecyclerView.Adapter<GroupChatViewHolde
         RelativeLayout.LayoutParams paramsOfVideo = (RelativeLayout.LayoutParams) holder.vvGroupMessage.getLayoutParams();
         RelativeLayout.LayoutParams paramsOfFile = (RelativeLayout.LayoutParams) holder.tvGroupLink.getLayoutParams();
         RelativeLayout.LayoutParams paramsOfSeeker = (RelativeLayout.LayoutParams) holder.seekBar.getLayoutParams();
+        RelativeLayout.LayoutParams paramsOfAudio = (RelativeLayout.LayoutParams) holder.btnPlayPause.getLayoutParams();
 
         params.addRule(alignmentRule);
         paramsOfImage.addRule(alignmentRule);
         paramsOfFile.addRule(alignmentRule);
         paramsOfVideo.addRule(alignmentRule);
         paramsOfSeeker.addRule(alignmentRule);
+        paramsOfAudio.addRule(alignmentRule);
     }
 
     private void handleContent(GroupChatViewHolder holder, GroupChat currentItem) {
         if (isS3ImageUrl(currentItem.getType())) {
             Picasso.get().load(currentItem.getMessage()).into(holder.ivGroupMessage);
-            setVisibility(holder, View.GONE, View.VISIBLE, View.GONE, View.GONE, View.GONE);
+            setVisibility(holder, View.GONE, View.VISIBLE, View.GONE, View.GONE, View.GONE, View.GONE);
         } else if (isS3Document(currentItem.getType())) {
             checkFileTypeAndDisplay(holder.ivGroupMessage, currentItem.getMessage());
             holder.tvGroupLink.setText(currentItem.getMessage());
-            setVisibility(holder, View.GONE, View.VISIBLE, View.VISIBLE, View.GONE, View.GONE);
-        } else if (isS3Video(currentItem.getType())) {
+            setVisibility(holder, View.GONE, View.VISIBLE, View.VISIBLE, View.GONE, View.GONE, View.GONE);
+        }
+        else if(isS3Audio(currentItem.getType()))   {
+            setupAudio(holder, currentItem.getMessage());
+        }else if (isS3Video(currentItem.getType())) {
             setupVideo(holder, currentItem.getMessage());
         } else if(isText(currentItem.getType())) {
             holder.tvGroupMessage.setText(currentItem.getMessage());
-            setVisibility(holder, View.VISIBLE, View.GONE, View.GONE, View.GONE, View.GONE);
+            setVisibility(holder, View.VISIBLE, View.GONE, View.GONE, View.GONE, View.GONE, View.GONE);
         }
         else{
 
 
             holder.tvGroupTime.setVisibility(View.GONE);
-            setVisibility(holder, View.GONE, View.GONE, View.GONE, View.GONE, View.GONE);
+            setVisibility(holder, View.GONE, View.GONE, View.GONE, View.GONE, View.GONE, View.GONE);
         }
     }
 
-    private void setVisibility(GroupChatViewHolder holder, int textVisibility, int imageVisibility, int linkVisibility, int seekerVisibility, int videoVisibility) {
+    private void setVisibility(GroupChatViewHolder holder, int textVisibility, int imageVisibility, int linkVisibility, int seekerVisibility, int videoVisibility, int audioVisibility) {
         holder.tvGroupMessage.setVisibility(textVisibility);
         holder.ivGroupMessage.setVisibility(imageVisibility);
         holder.tvGroupLink.setVisibility(linkVisibility);
         holder.seekBar.setVisibility(seekerVisibility);
         holder.vvGroupMessage.setVisibility(videoVisibility);
+        holder.btnPlayPause.setVisibility(audioVisibility);
     }
+    private void setupAudio(GroupChatViewHolder holder, String audioUrl) {
+        holder.btnPlayPause.setVisibility(View.VISIBLE); // Hiển thị thanh trượt
+        holder.tvGroupMessage.setVisibility(View.GONE); // Ẩn nội dung văn bản
+        holder.tvGroupLink.setVisibility(View.GONE); // Ẩn liên kết
+        holder.ivGroupMessage.setVisibility(View.GONE); // Ẩn hình ảnh
+        holder.vvGroupMessage.setVisibility(View.GONE);
+        holder.seekBar.setVisibility(View.GONE);
+        // Thiết lập các thuộc tính của thanh trượt
 
+        // Thiết lập nguồn âm thanh cho đối tượng MediaPlayer
+        try {
+            holder.mediaPlayer.setDataSource(audioUrl);
+            holder.mediaPlayer.prepare();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        holder.btnPlayPause.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (holder.mediaPlayer.isPlaying()) {
+                    holder.mediaPlayer.pause();
+                    holder.btnPlayPause.setImageResource(R.drawable.baseline_play_arrow_24); // Đổi hình ảnh của nút thành biểu tượng phát
+                } else {
+                    holder.mediaPlayer.start();
+                    holder.btnPlayPause.setImageResource(R.drawable.baseline_stop_circle_24); // Đổi hình ảnh của nút thành biểu tượng tạm dừng
+                }
+            }
+        });
+    }
     private void setupVideo(GroupChatViewHolder holder, String videoUrl) {
         holder.vvGroupMessage.setVisibility(View.VISIBLE);
         holder.tvGroupMessage.setVisibility(View.GONE);
@@ -260,6 +295,9 @@ public class GroupChatBoxAdapter extends RecyclerView.Adapter<GroupChatViewHolde
     }
     private boolean isS3Video(String url) {
         return url != null && url.equals("video");
+    }
+    private boolean isS3Audio(String url) {
+        return url != null && url.equals("voice");
     }
     private boolean isText(String url) {return url != null && url.equals("text");}
 }

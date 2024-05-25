@@ -130,7 +130,14 @@
             android:background="@drawable/border_button_sent"
             android:backgroundTint="@color/white"
             android:src="@drawable/imagechat"/>
-
+        <ImageButton
+            android:id="@+id/btnAudio"
+            android:layout_width="9dp"
+            android:layout_height="50dp"
+            android:layout_weight="1"
+            android:background="@drawable/border_button_sent"
+            android:backgroundTint="@color/white"
+            android:src="@drawable/baseline_keyboard_voice_24"/>
         <ImageButton
             android:id="@+id/btnGroupSend"
             android:layout_width="29dp"

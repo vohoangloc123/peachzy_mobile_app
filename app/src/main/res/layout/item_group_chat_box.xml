@@ -49,7 +49,24 @@
         android:textSize="16sp"
         tools:text="This is a message"
         />
-
+    <ImageButton
+        android:id="@+id/btnVoice"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_below="@id/tvUserName"
+        android:layout_gravity="end"
+        android:layout_marginStart="30dp"
+        android:layout_marginTop="2dp"
+        android:maxWidth="240dp"
+        android:paddingLeft="12dp"
+        android:paddingTop="6dp"
+        android:paddingRight="12dp"
+        android:paddingBottom="6dp"
+        android:textColor="@android:color/black"
+        android:textSize="16sp"
+        android:background="@drawable/bg_message"
+        android:src="@drawable/baseline_play_arrow_24"
+        />
     <ImageView
         android:id="@+id/ivGroupMessage"
         android:layout_width="250dp"

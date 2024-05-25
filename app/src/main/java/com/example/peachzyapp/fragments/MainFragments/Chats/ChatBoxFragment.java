@@ -9,12 +9,17 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -38,7 +43,6 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -54,7 +58,6 @@ import com.amazonaws.services.s3.model.CompleteMultipartUploadRequest;
 import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.InitiateMultipartUploadRequest;
 import com.amazonaws.services.s3.model.InitiateMultipartUploadResult;
-import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PartETag;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
@@ -67,7 +70,6 @@ import com.example.peachzyapp.R;
 import com.example.peachzyapp.SocketIO.MyWebSocket;
 import com.example.peachzyapp.adapters.ChatBoxAdapter;
 import com.example.peachzyapp.dynamoDB.DynamoDBManager;
-import com.example.peachzyapp.entities.GroupChat;
 import com.example.peachzyapp.entities.Item;
 
 import org.json.JSONException;
@@ -93,10 +95,10 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
-
+import android.Manifest;
 
 public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketListener {
-    ImageButton btnSend, btnImage,btnVideo,btnBack;
+    ImageButton btnSend, btnImage,btnVideo,btnBack, btnAudio;
     EditText etMessage;
     TextView tvGroupName;
     private List<Item> listMessage = new ArrayList<>();
@@ -116,6 +118,7 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
     private static final String BUCKET_NAME = "chat-app-image-cnm";
     private static final String BUCKET_NAME_FOR_DOCUMENT = "chat-app-document-cnm";
     private static final String BUCKET_NAME_FOR_VIDEO = "chat-app-video-cnm";
+    private static final String BUCKET_NAME_FOR_VOICE = "chat-app-audio-cnm";
     PutObjectRequest request;
     private AmazonS3 s3Client;
     ImageButton btnLink;
@@ -125,6 +128,13 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
 
     private String thisType, key, forwardType, forwardMessage;;
     private MyViewChatModel viewModel;
+    String outputFile = Environment.getExternalStorageDirectory().getAbsolutePath() + "/recording.3gp";
+    private boolean isRecording = false; // Flag to check if recording is in progress
+    private static final int REQUEST_RECORD_AUDIO_PERMISSION = 200;
+    private static final String LOG_TAG = "AudioRecordTest";
+    private boolean permissionToRecordAccepted = false;
+    private MediaRecorder recorder = null;
+    private String audioFilePath;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -181,9 +191,6 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
                 initWebSocket();
             }
         });
-//        ScrollView scrollView=view.findViewById(R.id.scrollView);
-//        scrollView.fullScroll(View.FOCUS_DOWN);
-//        scrollView.setSmoothScrollingEnabled(true);
         //xử lý resize giao diện và đẩy edit text và button lên khi chat ngoài ra còn load tin nhắn mói từ dưới lên
         InputMethodManager inputManager = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
         inputManager.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT);
@@ -306,7 +313,29 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
                     startActivityForResult(Intent.createChooser(intent, "Select Document"), PICK_DOCUMENT_REQUEST);
                 }
         );
-
+        MediaRecorder myAudioRecorder = new MediaRecorder();
+        myAudioRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+        myAudioRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+        myAudioRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
+        myAudioRecorder.setOutputFile(outputFile);
+        btnAudio=view.findViewById(R.id.btnAudio);
+        btnAudio.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Nếu đang ghi âm, dừng ghi âm. Ngược lại, bắt đầu ghi âm.
+                if (!isRecording) {
+                    // Bắt đầu ghi âm
+                    startRecording();
+                    btnAudio.setImageResource(R.drawable.baseline_stop_circle_24);
+                } else {
+                    // Dừng ghi âm
+                    stopRecording();
+                    btnAudio.setImageResource(R.drawable.baseline_keyboard_voice_24);
+                }
+                // Đảo ngược trạng thái của biến isRecording
+                isRecording = !isRecording;
+            }
+        });
         adapter.setOnItemLongClickListener(new ChatBoxAdapter.OnItemLongClickListener() {
             @Override
             public void onItemLongClick(int position) {
@@ -316,7 +345,54 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
         });
         return view;
     }
+
+    private void startRecording() {
+        // Khởi tạo MediaRecorder
+        recorder = new MediaRecorder();
+        recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+        recorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+        recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+
+        // Tạo một temporary file để lưu trữ dữ liệu âm thanh trước khi tải lên S3
+        try {
+            // Tạo một file tạm thời với đường dẫn tạm thời
+            File directory = getActivity().getExternalFilesDir(Environment.DIRECTORY_MUSIC);
+            audioFilePath = directory.getAbsolutePath() + "/audio_record.3gp";
+
+            recorder.setOutputFile(audioFilePath);
+
+            // Chuẩn bị và bắt đầu ghi âm
+            recorder.prepare();
+            recorder.start();
+            Log.i(LOG_TAG, "Recording started");
+        } catch (IOException e) {
+            Log.e(LOG_TAG, "prepare() failed");
+        }
+    }
+
+    private void stopRecording() {
+        if (recorder != null) {
+            recorder.stop();
+            recorder.release();
+            Log.i(LOG_TAG, "Recording stopped");
+
+            // Tải tệp âm thanh lên S3 sau khi ghi âm kết thúc
+            uploadAudioToS3AndSocketAndDynamoDB(audioFilePath);
+        }
+    }
+
     @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case REQUEST_RECORD_AUDIO_PERMISSION:
+                permissionToRecordAccepted = grantResults[0] == PackageManager.PERMISSION_GRANTED;
+                break;
+        }
+        if (!permissionToRecordAccepted) {
+            getActivity().finish();
+        }
+    }
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
@@ -376,6 +452,134 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
                 }
             }
         }
+    }
+    private void uploadAudioToS3AndSocketAndDynamoDB(String filePath) {
+        new Thread(() -> {
+            try {
+                Log.d("IsAudio", "OnUploadAudio");
+
+                // Kiểm tra đường dẫn file âm thanh
+                if (filePath != null && !filePath.isEmpty()) {
+                    // Tạo tên file duy nhất
+                    String fileName = generateFileName();
+
+                    // Đọc dữ liệu từ file âm thanh
+                    File audioFile = new File(filePath);
+                    InputStream inputStream = new FileInputStream(audioFile);
+
+                    // Tạo đối tượng để lưu trữ ETags của các phần đã tải lên
+                    Map<Integer, String> partETags = new HashMap<>();
+
+                    // Khởi tạo UploadPartRequest với kích thước phần tối đa
+                    final int MB = 1024 * 1024; // 1 MB
+                    final long partSize = 5 * MB; // Kích thước tối đa của mỗi phần
+                    InitiateMultipartUploadRequest initiateRequest = new InitiateMultipartUploadRequest(BUCKET_NAME_FOR_VOICE, fileName + ".mp3");
+                    InitiateMultipartUploadResult initResponse = s3Client.initiateMultipartUpload(initiateRequest);
+
+                    // Tính số lượng phần
+                    long fileSize = audioFile.length();
+                    int partCount = (int) Math.ceil((double) fileSize / partSize);
+
+                    try {
+                        // Tải lần lượt từng phần lên S3
+                        for (int i = 0; i < partCount; i++) {
+                            long offset = i * partSize;
+                            long remainingBytes = fileSize - offset;
+                            long bytesToRead = Math.min(partSize, remainingBytes);
+
+                            // Đọc phần dữ liệu từ InputStream
+                            byte[] partData = new byte[(int) bytesToRead];
+                            inputStream.read(partData);
+
+                            // Upload phần lên S3
+                            UploadPartRequest uploadRequest = new UploadPartRequest()
+                                    .withBucketName(BUCKET_NAME_FOR_VOICE)
+                                    .withKey(fileName + ".mp3")
+                                    .withUploadId(initResponse.getUploadId())
+                                    .withPartNumber(i + 1)
+                                    .withPartSize(bytesToRead)
+                                    .withInputStream(new ByteArrayInputStream(partData));
+                            UploadPartResult uploadResult = s3Client.uploadPart(uploadRequest);
+
+                            // Lưu ETag của phần đã tải lên
+                            partETags.put(i + 1, uploadResult.getETag());
+                        }
+
+                        // Tạo danh sách PartETag từ Map<Integer, String>
+                        List<PartETag> partETagList = new ArrayList<>();
+                        for (Map.Entry<Integer, String> entry : partETags.entrySet()) {
+                            partETagList.add(new PartETag(entry.getKey(), entry.getValue()));
+                        }
+
+                        // Hoàn thành multipart upload
+                        CompleteMultipartUploadRequest completeRequest = new CompleteMultipartUploadRequest(BUCKET_NAME_FOR_VOICE, fileName + ".mp3", initResponse.getUploadId(), partETagList);
+                        s3Client.completeMultipartUpload(completeRequest);
+
+                        // Đóng InputStream sau khi upload hoàn tất
+                        inputStream.close();
+
+                        // Lấy URL của audio trên S3
+                        String urlAudio = s3Client.getUrl(BUCKET_NAME_FOR_VOICE, fileName + ".mp3").toString();
+
+                        // Gửi tin nhắn chứa URL audio đến WebSocket
+                        JSONObject messageToSend = new JSONObject();
+                        JSONObject json = new JSONObject();
+                        try {
+                            messageToSend.put("conversation_id", channel_id);
+                            messageToSend.put("from", uid);
+                            messageToSend.put("to", friend_id);
+                            messageToSend.put("memberName", userName);
+                            messageToSend.put("avatar", userAvatar);
+                            messageToSend.put("text", urlAudio);
+                            messageToSend.put("time", Utils.getCurrentTime());
+                            messageToSend.put("type", "voice");
+                            json.put("type", "send-message");
+                            json.put("message", messageToSend);
+                        } catch (JSONException e) {
+                            throw new RuntimeException(e);
+                        }
+                        myWebSocket.sendMessage(String.valueOf(json));
+
+                        // Lưu tin nhắn và cuộc trò chuyện vào DynamoDB
+                        saveMessageAndConversationToDB(urlAudio, "Voice", "voice");
+
+                        // Cập nhật giao diện trên luồng UI
+                        getActivity().runOnUiThread(() -> {
+                            String currentTime = getCurrentDateTime();
+                            // Thêm tin nhắn mới vào danh sách
+                            listMessage.add(new Item(Utils.getCurrentTime(), urlAudio, urlAvatar, true, "voice"));
+                            adapter.notifyItemInserted(listMessage.size() - 1); // Thông báo cho adapter về sự thay đổi
+
+                            // Cuộn xuống cuối RecyclerView
+                            scrollToBottom();
+                            changeData();
+                        });
+                    } catch (Exception e) {
+                        // Xử lý lỗi
+                        e.printStackTrace();
+                        Log.e("UploadAudioToS3", "Error uploading audio to S3: " + e.getMessage());
+
+                        // Hủy bỏ multipart upload nếu có lỗi xảy ra
+                        s3Client.abortMultipartUpload(new AbortMultipartUploadRequest(BUCKET_NAME_FOR_VOICE, fileName + ".mp3", initResponse.getUploadId()));
+                    }
+                } else {
+                    // Xử lý trường hợp đường dẫn là null hoặc rỗng
+                    Log.e("UploadAudioToS3", "File path is null or empty");
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+                // Xử lý lỗi IOException
+                Log.e("UploadAudioToS3", "Error uploading audio to S3: " + e.getMessage());
+            } catch (AmazonServiceException e) {
+                e.printStackTrace();
+                // Xử lý lỗi AmazonServiceException
+                Log.e("UploadAudioToS3", "Error uploading audio to S3: " + e.getMessage());
+            } catch (AmazonClientException e) {
+                e.printStackTrace();
+                // Xử lý lỗi AmazonClientException
+                Log.e("UploadAudioToS3", "Error uploading audio to S3: " + e.getMessage());
+            }
+        }).start();
     }
     private void uploadVideoToS3AndSocketAndDynamoDB(Uri uri) {
         new Thread(() -> {

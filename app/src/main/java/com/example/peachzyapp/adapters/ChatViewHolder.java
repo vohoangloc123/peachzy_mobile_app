@@ -1,5 +1,6 @@
 package com.example.peachzyapp.adapters;
 
+import android.media.MediaPlayer;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -20,6 +21,10 @@ public class ChatViewHolder extends RecyclerView.ViewHolder {
     ImageView ivMessage; // Thêm ImageView mới để hiển thị ảnh trong tin nhắn (nếu có)
     SeekBar seekBar;
     VideoView vvMessage;
+    public MediaPlayer mediaPlayer;
+    public ImageButton btnPlayPause;
+
+
     public ChatViewHolder(@NonNull View itemView) {
         super(itemView);
         tvTime = itemView.findViewById(R.id.tvTime);
@@ -30,5 +35,7 @@ public class ChatViewHolder extends RecyclerView.ViewHolder {
         seekBar = itemView.findViewById(R.id.seekBar);
         vvMessage = itemView.findViewById(R.id.vvMessage);
         seekBar = itemView.findViewById(R.id.seekBar);
+        btnPlayPause=itemView.findViewById(R.id.btnVoice);
+        mediaPlayer = new MediaPlayer();
     }
 }

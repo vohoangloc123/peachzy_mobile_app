@@ -14,6 +14,7 @@ import android.widget.MediaController;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -96,9 +97,10 @@ public class ChatBoxAdapter extends RecyclerView.Adapter<ChatViewHolder> {
         RelativeLayout.LayoutParams paramsOfFile = (RelativeLayout.LayoutParams) holder.tvLink.getLayoutParams();
         RelativeLayout.LayoutParams paramsOfSeeker = (RelativeLayout.LayoutParams) holder.seekBar.getLayoutParams();
         RelativeLayout.LayoutParams paramsOfVideo = (RelativeLayout.LayoutParams) holder.vvMessage.getLayoutParams();
+        RelativeLayout.LayoutParams paramsOfAudio = (RelativeLayout.LayoutParams) holder.btnPlayPause.getLayoutParams();
 
         if (isSentByMe) {
-            setAlignmentForSender(holder, params, paramsOfImage, paramsOfFile, paramsOfSeeker, paramsOfVideo);
+            setAlignmentForSender(holder, params, paramsOfImage, paramsOfFile, paramsOfSeeker, paramsOfVideo, paramsOfAudio);
             handleContentForSender(holder, currentItem);
         } else {
             setAlignmentForReceiver(holder, params, paramsOfImage, paramsOfFile);
@@ -128,16 +130,19 @@ public class ChatBoxAdapter extends RecyclerView.Adapter<ChatViewHolder> {
     private void handleContentForSender(ChatViewHolder holder, Item currentItem) {
         if (isS3ImageUrl(currentItem.getType())) {
             Picasso.get().load(currentItem.getMessage()).into(holder.ivMessage);
-            setVisibility(holder, View.GONE, View.VISIBLE, View.GONE, View.GONE, View.GONE);
+            setVisibility(holder, View.GONE, View.VISIBLE, View.GONE, View.GONE, View.GONE, View.GONE);
         } else if (isS3Document(currentItem.getType())) {
             checkFileTypeAndDisplay(holder.ivMessage, currentItem.getMessage());
             holder.tvLink.setText(currentItem.getMessage());
-            setVisibility(holder, View.GONE, View.VISIBLE, View.VISIBLE, View.GONE, View.GONE);
+            setVisibility(holder, View.GONE, View.VISIBLE, View.VISIBLE, View.GONE, View.GONE, View.GONE);
         } else if (isS3Video(currentItem.getType())) {
             setupVideo(holder, currentItem.getMessage());
+        }
+         else if(isS3Audio(currentItem.getType()))   {
+            setupAudio(holder, currentItem.getMessage());
         } else {
             holder.tvMessage.setText(currentItem.getMessage());
-            setVisibility(holder, View.VISIBLE, View.GONE, View.GONE, View.GONE, View.GONE);
+            setVisibility(holder, View.VISIBLE, View.GONE, View.GONE, View.GONE, View.GONE,  View.GONE);
         }
     }
 
@@ -153,33 +158,65 @@ public class ChatBoxAdapter extends RecyclerView.Adapter<ChatViewHolder> {
     private void handleContentForReceiver(ChatViewHolder holder, Item currentItem) {
         if (isS3ImageUrl(currentItem.getType())) {
             Picasso.get().load(currentItem.getMessage()).into(holder.ivMessage);
-            setVisibility(holder, View.GONE, View.VISIBLE, View.GONE, View.GONE, View.GONE);
+            setVisibility(holder, View.GONE, View.VISIBLE, View.GONE, View.GONE, View.GONE, View.GONE);
         } else if (isS3Document(currentItem.getType())) {
             checkFileTypeAndDisplay(holder.ivMessage, currentItem.getMessage());
             holder.tvLink.setText(currentItem.getMessage());
-            setVisibility(holder, View.GONE, View.VISIBLE, View.VISIBLE, View.GONE, View.GONE);
+            setVisibility(holder, View.GONE, View.VISIBLE, View.VISIBLE, View.GONE, View.GONE, View.GONE);
         } else if (isS3Video(currentItem.getType())) {
             setupVideo(holder, currentItem.getMessage());
+
+        }else if(isS3Audio(currentItem.getType()))   {
+            setupAudio(holder, currentItem.getMessage());
         } else {
             holder.tvMessage.setText(currentItem.getMessage());
-            setVisibility(holder, View.VISIBLE, View.GONE, View.GONE, View.GONE, View.GONE);
+            setVisibility(holder, View.VISIBLE, View.GONE, View.GONE, View.GONE, View.GONE, View.GONE);
         }
     }
 
-    private void setVisibility(ChatViewHolder holder, int textVisibility, int imageVisibility, int linkVisibility, int seekerVisibility, int videoVisibility) {
+    private void setVisibility(ChatViewHolder holder, int textVisibility, int imageVisibility, int linkVisibility, int seekerVisibility, int videoVisibility, int audioVisibility) {
         holder.tvMessage.setVisibility(textVisibility);
         holder.ivMessage.setVisibility(imageVisibility);
         holder.tvLink.setVisibility(linkVisibility);
         holder.seekBar.setVisibility(seekerVisibility);
         holder.vvMessage.setVisibility(videoVisibility);
+        holder.btnPlayPause.setVisibility(audioVisibility);
     }
+    private void setupAudio(ChatViewHolder holder, String audioUrl) {
+        holder.btnPlayPause.setVisibility(View.VISIBLE); // Hiển thị thanh trượt
+        holder.tvMessage.setVisibility(View.GONE); // Ẩn nội dung văn bản
+        holder.tvLink.setVisibility(View.GONE); // Ẩn liên kết
+        holder.ivMessage.setVisibility(View.GONE); // Ẩn hình ảnh
+        holder.vvMessage.setVisibility(View.GONE);
+        holder.seekBar.setVisibility(View.GONE);
+        // Thiết lập các thuộc tính của thanh trượt
 
+        // Thiết lập nguồn âm thanh cho đối tượng MediaPlayer
+        try {
+            holder.mediaPlayer.setDataSource(audioUrl);
+            holder.mediaPlayer.prepare();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        holder.btnPlayPause.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (holder.mediaPlayer.isPlaying()) {
+                    holder.mediaPlayer.pause();
+                    holder.btnPlayPause.setImageResource(R.drawable.baseline_play_arrow_24); // Đổi hình ảnh của nút thành biểu tượng phát
+                } else {
+                    holder.mediaPlayer.start();
+                    holder.btnPlayPause.setImageResource(R.drawable.baseline_stop_circle_24); // Đổi hình ảnh của nút thành biểu tượng tạm dừng
+                }
+            }
+        });
+    }
     private void setupVideo(ChatViewHolder holder, String videoUrl) {
         holder.vvMessage.setVisibility(View.VISIBLE);
         holder.tvMessage.setVisibility(View.GONE);
         holder.tvLink.setVisibility(View.GONE);
         holder.ivMessage.setVisibility(View.GONE);
-
+        holder.btnPlayPause.setVisibility(View.GONE);
         try {
             Uri videoUri = Uri.parse(videoUrl);
             holder.vvMessage.setVideoURI(videoUri);
@@ -242,6 +279,9 @@ public class ChatBoxAdapter extends RecyclerView.Adapter<ChatViewHolder> {
     }
     private boolean isS3Video(String url) {
         return url != null && url.equals("video");
+    }
+    private boolean isS3Audio(String url) {
+        return url != null && url.equals("voice");
     }
     @Override
     public int getItemCount() {

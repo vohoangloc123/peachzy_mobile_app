@@ -18,7 +18,6 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
-
         <ImageButton
             android:id="@+id/btnBack"
             android:layout_width="wrap_content"
@@ -27,7 +26,6 @@
             android:background="@color/btnColor"
             android:src="@drawable/arrow_left"
             android:layout_marginTop="2dp"/>
-
         <TextView
             android:id="@+id/etName"
             android:layout_width="wrap_content"
@@ -39,7 +37,6 @@
             android:textColor="@color/white"
             android:textSize="16dp"
             android:textStyle="bold" />
-
         <ImageButton
             android:id="@+id/btnCall"
             android:layout_width="wrap_content"
@@ -132,6 +129,14 @@
             android:backgroundTint="@color/white"
             android:src="@drawable/imagechat"/>
 
+        <ImageButton
+            android:id="@+id/btnAudio"
+            android:layout_width="9dp"
+            android:layout_height="50dp"
+            android:layout_weight="1"
+            android:background="@drawable/border_button_sent"
+            android:backgroundTint="@color/white"
+            android:src="@drawable/baseline_keyboard_voice_24"/>
         <ImageButton
             android:id="@+id/btnSend"
             android:layout_width="29dp"
