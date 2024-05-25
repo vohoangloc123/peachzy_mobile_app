@@ -15,14 +15,19 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.peachzyapp.LiveData.MyViewModel;
 import com.example.peachzyapp.MainActivity;
 import com.example.peachzyapp.R;
+import com.example.peachzyapp.SocketIO.MyWebSocket;
 import com.example.peachzyapp.adapters.RequestReceivedAdapter;
 import com.example.peachzyapp.dynamoDB.DynamoDBManager;
 import com.example.peachzyapp.entities.FriendItem;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 
-public class RequestReceivedFragment extends Fragment {
+public class RequestReceivedFragment extends Fragment implements MyWebSocket.WebSocketListener{
     public static final String TAG = RequestReceivedFragment.class.getName();
+    private MyWebSocket myWebSocket;
     private ImageButton btnBack;
     private String uid;
     private DynamoDBManager dynamoDBManager;
@@ -96,7 +101,7 @@ public class RequestReceivedFragment extends Fragment {
 
         viewModel = new ViewModelProvider(requireActivity()).get(MyViewModel.class);
         changeData();
-
+        initWebSocket(uid);
         return view;
     }
 
@@ -109,5 +114,68 @@ public class RequestReceivedFragment extends Fragment {
         super.onDetach();
         viewModel.setData("Change");
         Log.d("Detach", "onDetach: ");
+    }
+
+    @Override
+    public void onMessageReceived(String receivedMessage) {
+        Log.d("onMessageReceived2: ",receivedMessage);
+//        viewModel.setData(message);
+        try {
+
+            JSONObject jsonObject  = new JSONObject(receivedMessage);
+            String typeJson = jsonObject.getString("type");
+
+
+            if(typeJson.equals("friend-request")){
+                friendList.clear();
+                dynamoDBManager.getIDFriend(uid, "3", new DynamoDBManager.AlreadyFriendListener() {
+                    @Override
+                    public void onFriendAlreadyFound(FriendItem data) {
+                        // Handle case when friend is already found
+                    }
+                    @Override
+                    public void onFriendAcceptRequestFound(String id, String name, String avatar) {
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                friendItem = new FriendItem(id, avatar, name);
+                                friendList.add(friendItem);
+                                requestReceivedAdapter.notifyDataSetChanged();
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onFriendCreateGroupFound(FriendItem friendItem) {
+
+                    }
+
+                    @Override
+                    public void onFriendNotFound(String error) {
+
+                    }
+
+
+                });
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    @Override
+    public void onConnectionStateChanged(boolean isConnected) {
+
+    }
+    private void initWebSocket( String channelId) {
+
+        myWebSocket = new MyWebSocket("wss://free.blr2.piesocket.com/v3/"+channelId+"?api_key=ujXx32mn0joYXVcT2j7Gp18c0JcbKTy3G6DE9FMB&notify_self=0", this);
+
+    }
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        myWebSocket.closeWebSocket();
     }
 }

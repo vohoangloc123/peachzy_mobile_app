@@ -83,6 +83,7 @@ public class CreateGroupChatFragment extends Fragment implements MyWebSocket.Web
     private AmazonS3 s3Client;
     private PutObjectRequest request;
     private String urlAvatar;
+    String userName;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -184,7 +185,7 @@ public class CreateGroupChatFragment extends Fragment implements MyWebSocket.Web
                         dynamoDBManager.updateGroupForAccount(friendId, groupID, "member");
                     }
                     dynamoDBManager.createGroup(groupID,  selectedFriendIDsToCreateGroup);
-                    dynamoDBManager.saveGroupConversation(groupID, "Vừa tạo group", groupName, currentTime, urlAvatar, "");
+                    //dynamoDBManager.saveGroupConversation(groupID, "Vừa tạo group", groupName, currentTime, urlAvatar, userName);
                     //dynamoDBManager.saveGroupMessage(groupID,"has been added by ",getCurrentDateTime(),uid,urlAvatar,"","notification");
 
 
@@ -203,7 +204,7 @@ public class CreateGroupChatFragment extends Fragment implements MyWebSocket.Web
                         dynamoDBManager.updateGroupForAccount(friendId, groupID, "member");
                     }
                     dynamoDBManager.createGroup(groupID,  selectedFriendIDsToCreateGroup);
-                    dynamoDBManager.saveGroupConversation(groupID, "Vừa tạo group", groupName, currentTime, "https://chat-app-image-cnm.s3.ap-southeast-1.amazonaws.com/avatar.jpg", "");
+                    //dynamoDBManager.saveGroupConversation(groupID, "Vừa tạo group", groupName, currentTime, "https://chat-app-image-cnm.s3.ap-southeast-1.amazonaws.com/avatar.jpg", "");
                     //dynamoDBManager.saveGroupMessage(groupID,"has been added by ",getCurrentDateTime(),uid,"https://chat-app-image-cnm.s3.ap-southeast-1.amazonaws.com/avatar.jpg","","notification");
                     getActivity().getSupportFragmentManager().popBackStack();
                     mainActivity.showBottomNavigation(true);
@@ -225,6 +226,7 @@ public class CreateGroupChatFragment extends Fragment implements MyWebSocket.Web
                     @Override
                     public void onFriendFound(String id, String name, String email, String avatar, Boolean sex, String dateOfBirth, String role) {
                         if(uid.equals(id)){
+                            userName=name;
                             listMember.add(new FriendItem(id,avatar,name,"leader"));
                         }else{
                             listMember.add(new FriendItem(id,avatar,name,"member"));
@@ -281,7 +283,7 @@ public class CreateGroupChatFragment extends Fragment implements MyWebSocket.Web
                 }
                 messageToSend.put("groupName", groupName);
                 messageToSend.put("time", getCurrentDateTime());
-                messageToSend.put("name", "");
+                messageToSend.put("name", userName);
                 messageToSend.put("message", "Vừa tạo group");
 
                 json.put("type", "create-group");
@@ -297,7 +299,7 @@ public class CreateGroupChatFragment extends Fragment implements MyWebSocket.Web
                     messageToSendNotification.put("avatar", urlAvatar);
                 }
                 messageToSendNotification.put("memberID", uid);
-                messageToSendNotification.put("memberName", "");
+                messageToSendNotification.put("memberName", userName);
                 messageToSendNotification.put("message", "has been added by ");
                 messageToSendNotification.put("members",membersArray);
                 messageToSendNotification.put("time", getCurrentDateTime());
@@ -317,7 +319,8 @@ public class CreateGroupChatFragment extends Fragment implements MyWebSocket.Web
             } else if (urlAvatar!=null) {
                 currenAvtar=urlAvatar;
             }
-            dynamoDBManager.saveGroupMessageWithListMember(groupID," has been added by ",getCurrentDateTime(),uid,currenAvtar,"","notification",listMember);
+            dynamoDBManager.saveGroupConversation(groupID, "Vừa tạo group", groupName, currentTime, currenAvtar, userName);
+            dynamoDBManager.saveGroupMessageWithListMember(groupID," has been added by ",getCurrentDateTime(),uid,currenAvtar,userName,"notification",listMember);
             for(String id: selectedFriendIDsToCreateGroup){
                 initWebSocket(id);
                 myWebSocket.sendMessage(String.valueOf(json));

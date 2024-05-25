@@ -234,13 +234,16 @@ private void resetRecycleView() {
                         changeData();
                     }
                 });
-
-
-
-
             }
 
-
+            if(typeJson.equals("delete-group")){
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        changeData();
+                    }
+                });
+            }
 
 
 

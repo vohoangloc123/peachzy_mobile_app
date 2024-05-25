@@ -245,6 +245,7 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
                     // Tạo đối tượng JSON chứa trường type và message
                     JSONObject json = new JSONObject();
                     try{
+
                         messageToSend.put("memberID", userID);
                         messageToSend.put("memberName", userName);
                         messageToSend.put("memberAvatar", userAvatar);
@@ -253,6 +254,7 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
                         messageToSend.put("type", "text");
                         json.put("type", "send-group-message");
                         json.put("message", messageToSend);
+                        json.put("groupID", groupID);
                     }catch (JSONException e) {
                         throw new RuntimeException(e);
                     }
@@ -558,6 +560,7 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
 
                         json.put("type", "send-group-message");
                         json.put("message", messageToSend);
+                        json.put("groupID", groupID);
                     }catch (JSONException e) {
                         throw new RuntimeException(e);
                     }
@@ -677,6 +680,7 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
                             messageToSend.put("type", "voice");
                             json.put("type", "send-group-message");
                             json.put("message", messageToSend);
+                            json.put("groupID", groupID);
                         } catch (JSONException e) {
                             throw new RuntimeException(e);
                         }
@@ -816,6 +820,7 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
 
                         json.put("type", "send-group-message");
                         json.put("message", messageToSend);
+                        json.put("groupID", groupID);
                     }catch (JSONException e) {
                         throw new RuntimeException(e);
                     }
@@ -942,20 +947,23 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
                         messageToSend.put("memberAvatar", userAvatar);
                         messageToSend.put("message", urlDocument);
                         messageToSend.put("time", getCurrentDateTime());
-                        messageToSend.put("type", "document");
+                        messageToSend.put("type", "doc");
+
+                        json.put("type", "send-group-message");
                         json.put("message", messageToSend);
+                        json.put("groupID", groupID);
                     }catch (JSONException e) {
                         throw new RuntimeException(e);
                     }
                     //myWebSocket.sendMessage(String.valueOf(messageToSend));
                     myWebSocket.sendMessage(String.valueOf(json));
                     // Lưu tin nhắn và cuộc trò chuyện vào DynamoDB
-                    saveMessageAndConversationToDB(urlDocument, "Document", "document");
+                    saveMessageAndConversationToDB(urlDocument, "Document", "doc");
                     // Cập nhật giao diện trên luồng UI
                     getActivity().runOnUiThread(() -> {
                         String currentTime = getCurrentDateTime();
                         // Thêm tin nhắn mới vào danh sách
-                        listGroupMessage.add(new GroupChat(groupID, groupName, userAvatar, urlDocument, userName, currentTime, userID, "document"));
+                        listGroupMessage.add(new GroupChat(groupID, groupName, userAvatar, urlDocument, userName, currentTime, userID, "doc"));
                         adapter.notifyItemInserted(listGroupMessage.size() - 1); // Thông báo cho adapter về sự thay đổi
 
                         // Cuộn xuống cuối RecyclerView

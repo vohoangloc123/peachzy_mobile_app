@@ -976,7 +976,7 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
                         messageToSend.put("avatar", userAvatar);
                         messageToSend.put("text", urlDocument);
                         messageToSend.put("time", currentTime);
-                        messageToSend.put("type", "document");
+                        messageToSend.put("type", "doc");
                         json.put("type", "send-message");
                         json.put("message", messageToSend);
 
@@ -992,7 +992,7 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
                     // Cập nhật giao diện trên luồng UI
                     getActivity().runOnUiThread(() -> {
                         // Thêm tin nhắn mới vào danh sách
-                        listMessage.add(new Item(currentTime, urlDocument, urlAvatar, true, "document"));
+                        listMessage.add(new Item(currentTime, urlDocument, urlAvatar, true, "doc"));
                         adapter.notifyItemInserted(listMessage.size() - 1);
                         recyclerView.scrollToPosition(listMessage.size() - 1);
                         // Cuộn xuống cuối RecyclerView

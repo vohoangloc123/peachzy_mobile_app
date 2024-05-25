@@ -13,6 +13,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import android.os.Handler;
+import android.os.Looper;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -35,18 +36,24 @@ import com.bumptech.glide.load.resource.bitmap.CircleCrop;
 import com.example.peachzyapp.LiveData.MyGroupViewModel;
 import com.example.peachzyapp.MainActivity;
 import com.example.peachzyapp.R;
+import com.example.peachzyapp.SocketIO.MyWebSocket;
 import com.example.peachzyapp.dynamoDB.DynamoDBManager;
 import com.example.peachzyapp.fragments.MainFragments.Chats.ChatBoxFragment;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Random;
 
-public class GroupOptionFragment extends Fragment {
+public class GroupOptionFragment extends Fragment implements MyWebSocket.WebSocketListener{
     public static final String TAG= GroupOptionFragment.class.getName();
+    MyWebSocket myWebSocket;
     private String groupID;
     private String groupName;
     private String groupAvatar;
@@ -69,6 +76,7 @@ public class GroupOptionFragment extends Fragment {
     private static final int PICK_IMAGE_REQUEST = 1;
     private PutObjectRequest request;
     private String urlAvatar;
+    ArrayList<String> listMemberID;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -117,6 +125,23 @@ public class GroupOptionFragment extends Fragment {
         } else {
             Log.e("FriendcheckUID", "UID is null");
         }
+//get ListMemberID
+        listMemberID=new ArrayList<>();
+        Handler handler = new Handler(Looper.getMainLooper());
+        dynamoDBManager.getMembersGroup(groupID, new DynamoDBManager.GroupMemberListener() {
+            @Override
+            public void onMemberLoaded(String member) {
+                //listMemberID.add(member);
+                handler.post(() -> listMemberID.add(member));
+                Log.d("listMemberID1: ", member);
+            }
+
+            @Override
+            public void onError(String errorMessage) {
+
+            }
+        });
+
         //button
         btnBack.setOnClickListener(v->{
             Log.d("ChatBoxFragment", "bên group option " + groupName);
@@ -150,6 +175,7 @@ public class GroupOptionFragment extends Fragment {
             dynamoDBManager.deleteUserFromGroup(groupID, userID);
             dynamoDBManager.deleteGroupFromUser(userID, groupID);
             countMembersInGroupWithDelay();
+            changeData();
             getActivity().getSupportFragmentManager().popBackStack();
             getActivity().getSupportFragmentManager().popBackStack();
             mainActivity.showBottomNavigation(true);
@@ -214,6 +240,31 @@ public class GroupOptionFragment extends Fragment {
             });
             //Xóa group
             dynamoDBManager.deleteGroup(groupID);
+
+            //*
+            JSONObject messageToSend = new JSONObject();
+            JSONObject json = new JSONObject();
+            try{
+
+                messageToSend.put("groupID", groupID);
+
+                json.put("message", messageToSend);
+                json.put("type","delete-group");
+
+
+
+
+            }catch (JSONException e) {
+                throw new RuntimeException(e);
+            }
+
+            for(String id: listMemberID){
+                initWebSocket(id);
+                myWebSocket.sendMessage(String.valueOf(json));
+                myWebSocket.closeWebSocket();
+            }
+            //*
+
             getActivity().getSupportFragmentManager().popBackStack();
             getActivity().getSupportFragmentManager().popBackStack();
             mainActivity.showBottomNavigation(true);
@@ -317,10 +368,24 @@ public class GroupOptionFragment extends Fragment {
     }
 
 
+//    @Override
+//    public void onDestroyView() {
+//        super.onDestroyView();
+//        changeData(); // Cập nhật LiveData ở đây
+//        Log.d("Detach", "onDestroyView: ");
+//    }
+
     @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        changeData(); // Cập nhật LiveData ở đây
-        Log.d("Detach", "onDestroyView: ");
+    public void onMessageReceived(String message) {
+
+    }
+
+    @Override
+    public void onConnectionStateChanged(boolean isConnected) {
+
+    }
+    private void initWebSocket(String channelId) {
+        Log.d("initWebSocket: ",channelId);
+        myWebSocket = new MyWebSocket("wss://free.blr2.piesocket.com/v3/"+channelId+"?api_key=ujXx32mn0joYXVcT2j7Gp18c0JcbKTy3G6DE9FMB&notify_self=0", this);
     }
 }

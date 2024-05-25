@@ -19,12 +19,17 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.MultiTransformation;
 import com.bumptech.glide.load.resource.bitmap.CircleCrop;
 import com.example.peachzyapp.R;
+import com.example.peachzyapp.SocketIO.MyWebSocket;
 import com.example.peachzyapp.dynamoDB.DynamoDBManager;
 import com.example.peachzyapp.entities.FriendItem;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 
-public class FriendAdapter extends ArrayAdapter<FriendItem> {
+public class FriendAdapter extends ArrayAdapter<FriendItem> implements MyWebSocket.WebSocketListener{
+    private MyWebSocket myWebSocket;
     private String test;
     DynamoDBManager dynamoDBManager;
     private Context mContext;
@@ -98,6 +103,24 @@ public class FriendAdapter extends ArrayAdapter<FriendItem> {
                     dynamoDBManager.addFriend(friendId, uid, "3",uid+"-"+friendId);
                     Toast.makeText(mContext, "Add friend button clicked for " + name, Toast.LENGTH_SHORT).show();
 
+                    JSONObject messageToSend = new JSONObject();
+                    // Tạo đối tượng JSON chứa trường type và message
+                    JSONObject json = new JSONObject();
+                    try{
+
+                        messageToSend.put("from", uid);
+                        messageToSend.put("to", friendId);
+
+                        json.put("type", "friend-request");
+                        json.put("message", messageToSend);
+
+                    }catch (JSONException e) {
+                        throw new RuntimeException(e);
+                    }
+                    initWebSocket(friendId);
+                    myWebSocket.sendMessage(String.valueOf(json));
+                    myWebSocket.closeWebSocket();
+
                     remove(friendItem);
                     notifyDataSetChanged();
                 }
@@ -109,5 +132,20 @@ public class FriendAdapter extends ArrayAdapter<FriendItem> {
         return convertView;
 
         }
+
+    @Override
+    public void onMessageReceived(String message) {
+
+    }
+
+    @Override
+    public void onConnectionStateChanged(boolean isConnected) {
+
+    }
+    private void initWebSocket( String channelId) {
+
+        myWebSocket = new MyWebSocket("wss://free.blr2.piesocket.com/v3/"+channelId+"?api_key=ujXx32mn0joYXVcT2j7Gp18c0JcbKTy3G6DE9FMB&notify_self=0", this);
+
+    }
 }
 

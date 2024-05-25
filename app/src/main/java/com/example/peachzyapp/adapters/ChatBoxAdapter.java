@@ -287,7 +287,7 @@ public class ChatBoxAdapter extends RecyclerView.Adapter<ChatViewHolder> {
         return url != null && url.equals("image");
     }
     private boolean isS3Document(String url) {
-        return url != null && url.equals("document");
+        return url != null && url.equals("doc");
     }
     private boolean isS3Video(String url) {
         return url != null && url.equals("video");

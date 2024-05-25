@@ -19,13 +19,17 @@ import android.widget.ImageButton;
 import com.example.peachzyapp.LiveData.MyViewModel;
 import com.example.peachzyapp.MainActivity;
 import com.example.peachzyapp.R;
+import com.example.peachzyapp.SocketIO.MyWebSocket;
 import com.example.peachzyapp.adapters.FriendAlreadyAdapter;
 import com.example.peachzyapp.dynamoDB.DynamoDBManager;
 import com.example.peachzyapp.entities.FriendItem;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 
-public class FriendsFragment extends Fragment {
+public class FriendsFragment extends Fragment implements MyWebSocket.WebSocketListener{
     ImageButton btnAddfriend;
 
     ImageButton btnRequestReceived;
@@ -180,4 +184,36 @@ public class FriendsFragment extends Fragment {
         });
     }
 
+    @Override
+    public void onMessageReceived(String receivedMessage) {
+        Log.d("onMessageReceived2: ",receivedMessage);
+//        viewModel.setData(message);
+        try {
+
+            JSONObject jsonObject  = new JSONObject(receivedMessage);
+            String typeJson = jsonObject.getString("type");
+
+
+
+            if(typeJson.equals("accept-request")){
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        resetRecycleView();
+                    }
+                });
+            }
+
+
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    @Override
+    public void onConnectionStateChanged(boolean isConnected) {
+
+    }
 }
