@@ -1205,7 +1205,7 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
                                 throw new RuntimeException(e);
                             }
                             break;
-                        case "document":
+                        case "doc":
                             try {
                                 key = getKey(item.getMessage());
                                 Log.d("CheckingType", "Download video: "+key);

@@ -1024,7 +1024,7 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
         new AsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground(Void... voids) {
-                dynamoDBManager.saveMessageOneToOne(channel_id,urlFile,currentTime,"document",uid,friend_id);
+                dynamoDBManager.saveMessageOneToOne(channel_id,urlFile,currentTime,"doc",uid,friend_id);
                 dynamoDBManager.saveConversation(uid, friend_id, "Tập tin", currentTime, urlAvatar, friendName);
                 dynamoDBManager.saveConversation(friend_id, uid, "Tập tin", currentTime, urlAvatar, userName);
                 return null;
@@ -1260,7 +1260,7 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
                                 throw new RuntimeException(e);
                             }
                             break;
-                        case "document":
+                        case "doc":
                             try {
                                 key = getKey(item.getMessage());
                                 Log.d("CheckingType", "Download video: "+key);
@@ -1677,6 +1677,5 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
         String formattedDateTime = dateFormat.format(currentTime);
         return formattedDateTime;
     }
-
 
 }

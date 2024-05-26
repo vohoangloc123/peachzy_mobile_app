@@ -36,7 +36,7 @@
                 android:layout_marginTop="5dp"
                 android:layout_weight="1"
                 android:padding="15dp"
-                android:text="@string/xoa_thanh_vien"
+                android:text="@string/manage_member"
                 android:textColor="@color/white"
                 android:textSize="20dp" />
 

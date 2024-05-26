@@ -14,7 +14,9 @@ import android.widget.ImageView;
 import android.widget.MediaController;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
+import android.widget.Toast;
 
+import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -137,7 +139,8 @@ public class ChatBoxAdapter extends RecyclerView.Adapter<ChatViewHolder> {
             setVisibility(holder, View.GONE, View.VISIBLE, View.GONE, View.GONE, View.GONE, View.GONE);
         } else if (isS3Document(currentItem.getType())) {
             checkFileTypeAndDisplay(holder.ivMessage, currentItem.getMessage());
-            holder.tvLink.setText(currentItem.getMessage());
+            String message=filterAndDisplayFile(currentItem.getMessage());
+            holder.tvLink.setText(message);
             setVisibility(holder, View.GONE, View.VISIBLE, View.VISIBLE, View.GONE, View.GONE, View.GONE);
         } else if (isS3Video(currentItem.getType())) {
             setupVideo(holder, currentItem.getMessage());
@@ -165,7 +168,8 @@ public class ChatBoxAdapter extends RecyclerView.Adapter<ChatViewHolder> {
             setVisibility(holder, View.GONE, View.VISIBLE, View.GONE, View.GONE, View.GONE, View.GONE);
         } else if (isS3Document(currentItem.getType())) {
             checkFileTypeAndDisplay(holder.ivMessage, currentItem.getMessage());
-            holder.tvLink.setText(currentItem.getMessage());
+            String message=filterAndDisplayFile(currentItem.getMessage());
+            holder.tvLink.setText(message);
             setVisibility(holder, View.GONE, View.VISIBLE, View.VISIBLE, View.GONE, View.GONE, View.GONE);
         } else if (isS3Video(currentItem.getType())) {
             setupVideo(holder, currentItem.getMessage());
@@ -298,5 +302,11 @@ public class ChatBoxAdapter extends RecyclerView.Adapter<ChatViewHolder> {
     @Override
     public int getItemCount() {
         return items.size();
+    }
+    private String filterAndDisplayFile(String url) {
+        // Tách tên tệp từ URL
+        String[] parts = url.split("/");
+        String filename = parts[parts.length - 1];
+        return filename;
     }
 }

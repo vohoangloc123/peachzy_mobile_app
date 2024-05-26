@@ -119,7 +119,48 @@ public class AddMemberFragment extends Fragment {
         btnCancel.setOnClickListener(v->{
             getActivity().getSupportFragmentManager().popBackStack();
         });
+        btnFindFriend.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String info = etNameOrEmail.getText().toString().trim();
+                if(info.equals(""))
+                {
+                    loadFriends();
+                }else
+                {
+                    searchForMember(info);
+                }
+            }
+        });
         return view;
+    }
+    private void searchForMember(String info) {
+        if (info.isEmpty()) {
+            Toast.makeText(mainActivity, "Please enter a name or email", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String searchQuery = info.toLowerCase();
+        ArrayList<FriendItem> foundMembers = new ArrayList<>();
+        for (FriendItem member : friendList) {
+            String memberName = member.getName().toLowerCase();
+            if (memberName.contains(searchQuery)) {
+                foundMembers.add(member);
+            }
+        }
+
+        if (foundMembers.isEmpty()) {
+            Toast.makeText(mainActivity, "No member found with the given information", Toast.LENGTH_SHORT).show();
+        } else {
+            friendList.clear();
+            friendList.addAll(foundMembers);
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    addMemberAdapter.notifyDataSetChanged();
+                }
+            });
+        }
     }
     private List<FriendItem> getListFriends() {
         List<FriendItem> list= new ArrayList<>();
@@ -169,11 +210,7 @@ public class AddMemberFragment extends Fragment {
             public void onFriendNotFound(String error) {
 
             }
-
         });
-
-
-
     }
 
 

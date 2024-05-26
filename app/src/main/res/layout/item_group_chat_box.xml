@@ -112,7 +112,7 @@
         android:id="@+id/tvGroupLink"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/tvUserName"
+        android:layout_below="@id/ivGroupMessage"
         android:layout_gravity="end"
         android:layout_marginStart="30dp"
         android:layout_marginTop="2dp"

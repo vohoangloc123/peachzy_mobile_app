@@ -163,7 +163,8 @@ public class GroupChatBoxAdapter extends RecyclerView.Adapter<GroupChatViewHolde
             setVisibility(holder, View.GONE, View.VISIBLE, View.GONE, View.GONE, View.GONE, View.GONE);
         } else if (isS3Document(currentItem.getType())) {
             checkFileTypeAndDisplay(holder.ivGroupMessage, currentItem.getMessage());
-            holder.tvGroupLink.setText(currentItem.getMessage());
+            String message=filterAndDisplayFile(currentItem.getMessage());
+            holder.tvGroupLink.setText(message);
             setVisibility(holder, View.GONE, View.VISIBLE, View.VISIBLE, View.GONE, View.GONE, View.GONE);
         }
         else if(isS3Audio(currentItem.getType()))   {
@@ -307,4 +308,10 @@ public class GroupChatBoxAdapter extends RecyclerView.Adapter<GroupChatViewHolde
         return url != null && url.equals("voice");
     }
     private boolean isText(String url) {return url != null && url.equals("text");}
+    private String filterAndDisplayFile(String url) {
+        // Tách tên tệp từ URL
+        String[] parts = url.split("/");
+        String filename = parts[parts.length - 1];
+        return filename;
+    }
 }
