@@ -132,12 +132,41 @@
 
 
         </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:layout_marginTop="30dp"
+            android:background="@drawable/edittext_search"
+            android:orientation="horizontal">
 
+            <ImageButton
+                android:id="@+id/btnFindFriend"
+                android:layout_width="72dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/edittext_search"
+                android:src="@drawable/search" />
+            <EditText
+                android:id="@+id/etName"
+                android:layout_width="320dp"
+                android:layout_height="50dp"
+                android:background="@drawable/edittext_search"
+                android:ems="10"
+                android:hint="@string/name"
+                android:inputType="text"
+                android:paddingBottom="5dp"
+                android:textColor="@color/black"
+                android:textColorHint="@color/textHintChat"
+                android:textSize="18dp"
+                />
+        </LinearLayout>
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rcvFriendList"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:padding="20dp"/>
+            android:padding="20dp"
+            android:layout_marginTop="-20dp"/>
 
 
     </LinearLayout>

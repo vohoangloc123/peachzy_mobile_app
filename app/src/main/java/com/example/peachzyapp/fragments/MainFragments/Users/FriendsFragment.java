@@ -2,6 +2,7 @@ package com.example.peachzyapp.fragments.MainFragments.Users;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.media.Image;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -10,11 +11,14 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
 import com.example.peachzyapp.LiveData.MyViewModel;
 import com.example.peachzyapp.MainActivity;
@@ -46,6 +50,7 @@ public class FriendsFragment extends Fragment implements MyWebSocket.WebSocketLi
     private View view;
     private String uid;
     private MyViewModel viewModel;
+    private EditText etName;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -67,7 +72,7 @@ public class FriendsFragment extends Fragment implements MyWebSocket.WebSocketLi
         AddFriendFragment fragment = new AddFriendFragment();
         fragment.setArguments(bundle);
         dynamoDBManager = new DynamoDBManager(getActivity());
-
+        etName=view.findViewById(R.id.etName);
         dynamoDBManager.getIDFriend(uid,"1", new DynamoDBManager.AlreadyFriendListener() {
             @Override
             public void onFriendAlreadyFound(FriendItem data) {
@@ -148,7 +153,51 @@ public class FriendsFragment extends Fragment implements MyWebSocket.WebSocketLi
                 mainActivity.goToChatBoxFragment(bundle);
             }
         });
+        ImageButton btnFindFriend=view.findViewById(R.id.btnFindFriend);
+        btnFindFriend.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String info = etName.getText().toString().trim();
+                if(info.equals(""))
+                {
+                    resetRecycleView();
+                }else
+                {
+                    searchForMember(info);
+                }
+
+            }
+        });
+
         return view;
+    }
+    private void searchForMember(String info) {
+        if (info.isEmpty()) {
+            Toast.makeText(mainActivity, "Please enter a name or email", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String searchQuery = info.toLowerCase();
+        ArrayList<FriendItem> foundMembers = new ArrayList<>();
+        for (FriendItem member : friendList) {
+            String memberName = member.getName().toLowerCase();
+            if (memberName.contains(searchQuery)) {
+                foundMembers.add(member);
+            }
+        }
+
+        if (foundMembers.isEmpty()) {
+            Toast.makeText(mainActivity, "No member found with the given information", Toast.LENGTH_SHORT).show();
+        } else {
+            friendList.clear();
+            friendList.addAll(foundMembers);
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    friendAdapter.notifyDataSetChanged();
+                }
+            });
+        }
     }
 
     public void resetRecycleView(){

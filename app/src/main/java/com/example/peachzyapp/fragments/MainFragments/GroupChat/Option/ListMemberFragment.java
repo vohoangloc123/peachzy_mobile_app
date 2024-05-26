@@ -117,7 +117,13 @@ public class ListMemberFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 String info = etNameOrEmail.getText().toString().trim();
-                searchForMember(info);
+                if(info.equals(""))
+                {
+                    loadMembers();
+                }else
+                {
+                    searchForMember(info);
+                }
             }
         });
 
@@ -126,43 +132,72 @@ public class ListMemberFragment extends Fragment {
     }
 
     private void searchForMember(String info) {
-        dynamoDBManager.findFriendByInfor(info, uid, new DynamoDBManager.FriendFoundListener() {
+        if (info.isEmpty()) {
+            Toast.makeText(mainActivity, "Please enter a name or email", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String searchQuery = info.toLowerCase();
+        ArrayList<FriendItem> foundMembers = new ArrayList<>();
+        for (FriendItem member : memberList) {
+            String memberName = member.getName().toLowerCase();
+            if (memberName.contains(searchQuery)) {
+                foundMembers.add(member);
+            }
+        }
+
+        if (foundMembers.isEmpty()) {
+            Toast.makeText(mainActivity, "No member found with the given information", Toast.LENGTH_SHORT).show();
+        } else {
+            memberList.clear();
+            memberList.addAll(foundMembers);
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    listMemberAdapter.notifyDataSetChanged();
+                }
+            });
+        }
+    }
+    private void loadMembers()
+    {
+        memberList.clear();
+        dynamoDBManager.findMemberOfGroup(groupID, id -> dynamoDBManager.getProfileByUID(id, groupID, new DynamoDBManager.FriendFoundForGetUIDByEmailListener() {
             @Override
-            public void onFriendFound(String id, String name, String avatar) {
+            public void onFriendFound(String uid, String name, String email, String avatar, Boolean sex, String dateOfBirth) {
+
+            }
+
+            @Override
+            public void onFriendFound(String id, String name, String email, String avatar, Boolean sex, String dateOfBirth, String role) {
+                // Tạo FriendItem từ thông tin đã nhận được
+                FriendItem friend = new FriendItem(id, avatar, name, role);
+                memberList.add(friend);
+                Iterator<FriendItem> iterator = memberList.iterator();
+                while (iterator.hasNext()) {
+                    FriendItem currentFriend = iterator.next();
+                    // Kiểm tra nếu ID của bạn hiện tại là một chuỗi và nếu nó bằng với uid
+                    if (currentFriend.getId().equals(String.valueOf(uid))) {
+                        iterator.remove(); // Xóa đối tượng khỏi danh sách
+                        break; // Đã xóa, không cần lặp tiếp
+                    }
+                }
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        friendItem = new FriendItem(id, avatar, name);
-                        memberList.clear();
-                        memberList.add(friendItem);
-
                         listMemberAdapter.notifyDataSetChanged();
-                        Toast.makeText(getActivity(), "Friend found!", Toast.LENGTH_SHORT).show();
                     }
                 });
             }
-
             @Override
             public void onFriendNotFound() {
-                getActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(getActivity(), "Friend not found", Toast.LENGTH_SHORT).show();
-                    }
-                });
+                // Xử lý trường hợp không tìm thấy bạn bè
             }
-
             @Override
             public void onError(Exception e) {
-                getActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Log.e("Error", "Exception occurred: ", e);
-                        Toast.makeText(getActivity(), "Error occurred: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                });
+                // Xử lý trường hợp lỗi
             }
-        });
+        }));
     }
     private void changeData() {
         viewModel.setData("New data");

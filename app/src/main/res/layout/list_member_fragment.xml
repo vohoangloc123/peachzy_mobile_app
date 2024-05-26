@@ -72,7 +72,6 @@
                 android:textSize="18dp"
                 />
         </LinearLayout>
-
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rcvListMember"
             android:layout_width="match_parent"
