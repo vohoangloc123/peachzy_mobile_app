@@ -251,9 +251,6 @@ public class GroupOptionFragment extends Fragment implements MyWebSocket.WebSock
                 json.put("message", messageToSend);
                 json.put("type","delete-group");
 
-
-
-
             }catch (JSONException e) {
                 throw new RuntimeException(e);
             }

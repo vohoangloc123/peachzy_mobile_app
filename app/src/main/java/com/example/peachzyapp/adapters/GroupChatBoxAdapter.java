@@ -175,8 +175,13 @@ public class GroupChatBoxAdapter extends RecyclerView.Adapter<GroupChatViewHolde
             holder.tvGroupMessage.setText(currentItem.getMessage());
             setVisibility(holder, View.VISIBLE, View.GONE, View.GONE, View.GONE, View.GONE, View.GONE);
         }
+        else if(isNotification(currentItem.getType())) {
+            holder.tvGroupMessage.setText(currentItem.getName()+" "+currentItem.getMessage());
+            holder.ivGroupAvatar.setVisibility(View.GONE);
+            holder.tvUserName.setVisibility(View.GONE);
+            setVisibility(holder, View.VISIBLE, View.GONE, View.GONE, View.GONE, View.GONE, View.GONE);
+        }
         else{
-
 
             holder.tvGroupTime.setVisibility(View.GONE);
             setVisibility(holder, View.GONE, View.GONE, View.GONE, View.GONE, View.GONE, View.GONE);
@@ -308,6 +313,7 @@ public class GroupChatBoxAdapter extends RecyclerView.Adapter<GroupChatViewHolde
         return url != null && url.equals("voice");
     }
     private boolean isText(String url) {return url != null && url.equals("text");}
+    private boolean isNotification(String url) {return url != null && url.equals("notification");}
     private String filterAndDisplayFile(String url) {
         // Tách tên tệp từ URL
         String[] parts = url.split("/");
