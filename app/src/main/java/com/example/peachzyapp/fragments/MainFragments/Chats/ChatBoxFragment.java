@@ -870,7 +870,7 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
             protected Void doInBackground(Void... voids) {
                 dynamoDBManager.saveMessageOneToOne(channel_id,urlImage,currentTime,type ,uid,friend_id);
                 dynamoDBManager.saveConversation(uid,  friend_id, message, currentTime, urlAvatar, friendName);
-                dynamoDBManager.saveConversation(friend_id, uid, message, currentTime, urlAvatar, userName);
+                dynamoDBManager.saveConversation(friend_id, uid, message, currentTime, userAvatar, userName);
                 return null;
             }
         }.execute();
@@ -1026,7 +1026,7 @@ public class ChatBoxFragment extends Fragment implements MyWebSocket.WebSocketLi
             protected Void doInBackground(Void... voids) {
                 dynamoDBManager.saveMessageOneToOne(channel_id,urlFile,currentTime,"doc",uid,friend_id);
                 dynamoDBManager.saveConversation(uid, friend_id, "Tập tin", currentTime, urlAvatar, friendName);
-                dynamoDBManager.saveConversation(friend_id, uid, "Tập tin", currentTime, urlAvatar, userName);
+                dynamoDBManager.saveConversation(friend_id, uid, "Tập tin", currentTime, userAvatar, userName);
                 return null;
             }
         }.execute();

@@ -27,13 +27,22 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.amazonaws.AmazonClientException;
+import com.amazonaws.AmazonServiceException;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.AbortMultipartUploadRequest;
+import com.amazonaws.services.s3.model.CompleteMultipartUploadRequest;
+import com.amazonaws.services.s3.model.InitiateMultipartUploadRequest;
+import com.amazonaws.services.s3.model.InitiateMultipartUploadResult;
 import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.PartETag;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.amazonaws.services.s3.model.UploadPartRequest;
+import com.amazonaws.services.s3.model.UploadPartResult;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.MultiTransformation;
 import com.bumptech.glide.load.resource.bitmap.CircleCrop;
@@ -50,13 +59,16 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.CountDownLatch;
 
@@ -84,6 +96,7 @@ public class CreateGroupChatFragment extends Fragment implements MyWebSocket.Web
     private PutObjectRequest request;
     private String urlAvatar;
     String userName;
+    private static final String BUCKET_NAME = "chat-app-image-cnm";
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -185,9 +198,6 @@ public class CreateGroupChatFragment extends Fragment implements MyWebSocket.Web
                         dynamoDBManager.updateGroupForAccount(friendId, groupID, "member");
                     }
                     dynamoDBManager.createGroup(groupID,  selectedFriendIDsToCreateGroup);
-                    //dynamoDBManager.saveGroupConversation(groupID, "Vừa tạo group", groupName, currentTime, urlAvatar, userName);
-                    //dynamoDBManager.saveGroupMessage(groupID,"has been added by ",getCurrentDateTime(),uid,urlAvatar,"","notification");
-
 
                     getActivity().getSupportFragmentManager().popBackStack();
                     mainActivity.showBottomNavigation(true);
@@ -204,8 +214,6 @@ public class CreateGroupChatFragment extends Fragment implements MyWebSocket.Web
                         dynamoDBManager.updateGroupForAccount(friendId, groupID, "member");
                     }
                     dynamoDBManager.createGroup(groupID,  selectedFriendIDsToCreateGroup);
-                    //dynamoDBManager.saveGroupConversation(groupID, "Vừa tạo group", groupName, currentTime, "https://chat-app-image-cnm.s3.ap-southeast-1.amazonaws.com/avatar.jpg", "");
-                    //dynamoDBManager.saveGroupMessage(groupID,"has been added by ",getCurrentDateTime(),uid,"https://chat-app-image-cnm.s3.ap-southeast-1.amazonaws.com/avatar.jpg","","notification");
                     getActivity().getSupportFragmentManager().popBackStack();
                     mainActivity.showBottomNavigation(true);
                 }else {
@@ -213,7 +221,6 @@ public class CreateGroupChatFragment extends Fragment implements MyWebSocket.Web
                     Toast.makeText(getContext(), "Chưa đủ số lượng thành viên để tạo group tối thiểu là 2 người", Toast.LENGTH_LONG).show();
                 }
             }
-            ///*
             ArrayList<FriendItem> listMember = new ArrayList<>();
             CountDownLatch latch = new CountDownLatch(selectedFriendIDsToCreateGroup.size());
             for (String friendId : selectedFriendIDsToCreateGroup) {
@@ -351,15 +358,15 @@ public class CreateGroupChatFragment extends Fragment implements MyWebSocket.Web
                 .transform(new MultiTransformation<Bitmap>(new CircleCrop()))
                 .into(imageView);
     }
-    private String generateFileName() {
+    private String generateFileName(String type) {
         // Lấy ngày giờ hiện tại
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
 
         // Tạo dãy số random
-        int randomNumber = new Random().nextInt(10000);
+        int randomNumber = new Random().nextInt(1000000);
 
         // Kết hợp ngày giờ và dãy số random để tạo tên file
-        return "avatar_" + timeStamp + "_" + randomNumber + ".jpg";
+        return type+"_" + timeStamp + "_" + randomNumber;
     }
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -376,32 +383,103 @@ public class CreateGroupChatFragment extends Fragment implements MyWebSocket.Web
 
                 // Upload ảnh lên S3
 
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            // Mở InputStream từ Uri
-                            String fileName=generateFileName();
-                            InputStream inputStream = getActivity().getContentResolver().openInputStream(uri);
-
-                            // Tạo đối tượng PutObjectRequest và đặt tên bucket và key
-                            request = new PutObjectRequest("chat-app-image-cnm", fileName+".jpg", inputStream, new ObjectMetadata());
-                            urlAvatar="https://chat-app-image-cnm.s3.ap-southeast-1.amazonaws.com/"+fileName+".jpg";
-                            // Upload ảnh lên S3
-                            s3Client.putObject(request);
-
-                            // Đóng InputStream sau khi tải lên thành công
-                            inputStream.close();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }).start();
+                uploadImageToS3(uri);
 
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
+    }
+    private void uploadImageToS3(Uri uri) {
+        new Thread(() -> {
+            try {
+                // Mở InputStream từ Uri
+                InputStream inputStream = getActivity().getContentResolver().openInputStream(uri);
+
+                if (inputStream != null) {
+                    // Tạo tên file duy nhất
+                    String fileName = generateFileName("image");
+
+                    // Tạo đối tượng để lưu trữ ETags của các phần đã tải lên
+                    Map<Integer, String> partETags = new HashMap<>();
+
+                    // Khởi tạo UploadPartRequest với kích thước phần tối đa
+                    final int MB = 1024 * 1024; // 1 MB
+                    final long partSize = 5 * MB; // Kích thước tối đa của mỗi phần
+                    InitiateMultipartUploadRequest initiateRequest = new InitiateMultipartUploadRequest(BUCKET_NAME, fileName + ".jpg");
+                    InitiateMultipartUploadResult initResponse = s3Client.initiateMultipartUpload(initiateRequest);
+
+                    // Tính số lượng phần
+                    long fileSize = inputStream.available();
+                    int partCount = (int) Math.ceil((double) fileSize / partSize);
+
+                    try {
+                        // Tải lần lượt từng phần lên S3
+                        for (int i = 0; i < partCount; i++) {
+                            long offset = i * partSize;
+                            long remainingBytes = fileSize - offset;
+                            long bytesToRead = Math.min(partSize, remainingBytes);
+
+                            // Đọc phần dữ liệu từ InputStream
+                            byte[] partData = new byte[(int) bytesToRead];
+                            inputStream.read(partData);
+
+                            // Upload phần lên S3
+                            UploadPartRequest uploadRequest = new UploadPartRequest()
+                                    .withBucketName(BUCKET_NAME)
+                                    .withKey(fileName + ".jpg")
+                                    .withUploadId(initResponse.getUploadId())
+                                    .withPartNumber(i + 1)
+                                    .withPartSize(bytesToRead)
+                                    .withInputStream(new ByteArrayInputStream(partData));
+                            UploadPartResult uploadResult = s3Client.uploadPart(uploadRequest);
+                            // Lưu ETag của phần đã tải lên
+                            partETags.put(i + 1, uploadResult.getETag());
+                        }
+
+                        // Tạo danh sách PartETag từ Map<Integer, String>
+                        List<PartETag> partETagList = new ArrayList<>();
+                        for (Map.Entry<Integer, String> entry : partETags.entrySet()) {
+                            partETagList.add(new PartETag(entry.getKey(), entry.getValue()));
+                        }
+
+                        // Hoàn thành multipart upload
+                        CompleteMultipartUploadRequest completeRequest = new CompleteMultipartUploadRequest(BUCKET_NAME, fileName + ".jpg", initResponse.getUploadId(), partETagList);
+                        s3Client.completeMultipartUpload(completeRequest);
+
+                        // Đóng InputStream sau khi upload hoàn tất
+                        inputStream.close();
+
+                        // Lấy URL của ảnh trên S3
+                        urlAvatar = s3Client.getUrl(BUCKET_NAME, fileName + ".jpg").toString();
+                        Log.d("UploadImageToS3", "Image URL: " + urlAvatar);
+
+                    } catch (Exception e) {
+                        // Xử lý lỗi
+                        e.printStackTrace();
+                        Log.e("UploadImageToS3", "Error uploading image to S3: " + e.getMessage());
+
+                        // Hủy bỏ multipart upload nếu có lỗi xảy ra
+                        s3Client.abortMultipartUpload(new AbortMultipartUploadRequest(BUCKET_NAME, fileName + ".jpg", initResponse.getUploadId()));
+                    }
+                } else {
+                    // Xử lý trường hợp inputStream là null
+                    Log.e("UploadImageToS3", "InputStream is null");
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+                // Xử lý lỗi IOException
+                Log.e("UploadImageToS3", "Error uploading image to S3: " + e.getMessage());
+            } catch (AmazonServiceException e) {
+                e.printStackTrace();
+                // Xử lý lỗi AmazonServiceException
+                Log.e("UploadImageToS3", "Error uploading image to S3: " + e.getMessage());
+            } catch (AmazonClientException e) {
+                e.printStackTrace();
+                // Xử lý lỗi AmazonClientException
+                Log.e("UploadImageToS3", "Error uploading image to S3: " + e.getMessage());
+            }
+        }).start();
     }
     private String randomNumber()
     {

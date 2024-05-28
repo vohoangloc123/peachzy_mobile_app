@@ -100,7 +100,7 @@ public class RequestReceivedFragment extends Fragment implements MyWebSocket.Web
         });
 
         viewModel = new ViewModelProvider(requireActivity()).get(MyViewModel.class);
-        changeData();
+//        changeData();
         initWebSocket(uid);
         return view;
     }

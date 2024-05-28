@@ -261,7 +261,7 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
                     myWebSocket.sendMessage(String.valueOf(json));
                     //B3 đẩy lên dynamoDB để load lại tin nhắn khi out ra khung chat
                     dynamoDBManager.saveGroupMessage(groupID, message, currentTime, userID, userAvatar, userName, "text");
-                    dynamoDBManager.saveGroupConversation(groupID, message, groupName, currentTime,userAvatar, userName);
+                    dynamoDBManager.saveGroupConversation(groupID, message, groupName, currentTime,groupAvatar, userName);
                     updateLastSeenAndRead();
                     scrollToBottom();
                     changeData();
@@ -997,7 +997,7 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
             @Override
             protected Void doInBackground(Void... voids) {
                 dynamoDBManager.saveGroupMessage(groupID, urlImage, currentTime, userID, userAvatar, userName, type);
-                dynamoDBManager.saveGroupConversation(groupID, message, groupName, currentTime,userAvatar, userName);
+                dynamoDBManager.saveGroupConversation(groupID, message, groupName, currentTime,groupAvatar, userName);
                 return null;
             }
         }.execute();
@@ -1265,7 +1265,7 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
         dynamoDBManager.recallMessageForGroup(groupID,item.getMessage(),item.getTime());
         listGroupMessage.remove(position);
         String currentTime = getCurrentDateTime();
-        dynamoDBManager.saveGroupConversation(groupID, "message has been recalled", groupName, currentTime,userAvatar, userName);
+        dynamoDBManager.saveGroupConversation(groupID, "message has been recalled", groupName, currentTime,groupAvatar, userName);
 
         JSONObject messageToSend = new JSONObject();
         // Tạo đối tượng JSON chứa trường type và message

@@ -1,4 +1,5 @@
 package com.example.peachzyapp.adapters;
+import android.graphics.Bitmap;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,6 +10,10 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.MultiTransformation;
+import com.bumptech.glide.load.resource.bitmap.CircleCrop;
 import com.example.peachzyapp.R;
 import com.example.peachzyapp.entities.FriendItem;
 
@@ -17,7 +22,6 @@ import java.util.List;
 
 public class AddMemberAdapter extends RecyclerView.Adapter<AddMemberAdapter.AddMembersViewHolder>{
     private List<FriendItem> listFriend;
-    public ImageView ivFriendAvatarAddMembers;
     private List<String> selectedMemberIds = new ArrayList<>();
     public List<String> getSelectedMemberIds() {
         return selectedMemberIds;
@@ -49,10 +53,14 @@ public class AddMemberAdapter extends RecyclerView.Adapter<AddMemberAdapter.AddM
         if (friends == null) {
             return;
         }
+        Glide.with(holder.itemView.getContext())
+                .load(friends.getAvatar())
+                .placeholder(R.drawable.logo)
+                .transform(new MultiTransformation<Bitmap>(new CircleCrop()))
+                .into(holder.ivFriendAvatar);
         holder.tvFriendNameAddMember.setText(friends.getName());
         // Gán ID vào tag của checkbox
         holder.cbAddMemberToGroup.setTag(friends.getId());
-
         holder.cbAddMemberToGroup.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -82,11 +90,12 @@ public class AddMemberAdapter extends RecyclerView.Adapter<AddMemberAdapter.AddM
     public class AddMembersViewHolder extends RecyclerView.ViewHolder {
         public TextView tvFriendNameAddMember;
         public CheckBox cbAddMemberToGroup;
+        public ImageView ivFriendAvatar;
         public AddMembersViewHolder(@NonNull View itemView) {
             super(itemView);
             tvFriendNameAddMember = itemView.findViewById(R.id.tvMemberName);
             cbAddMemberToGroup = itemView.findViewById(R.id.cbAddMember);
-            ivFriendAvatarAddMembers = itemView.findViewById(R.id.ivMemberAvatar);
+            ivFriendAvatar = itemView.findViewById(R.id.ivMemberAvatar);
         }
     }
 }

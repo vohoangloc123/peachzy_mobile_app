@@ -10,8 +10,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
+import com.example.peachzyapp.MainActivity;
 import com.example.peachzyapp.R;
 import com.example.peachzyapp.fragments.MainFragments.Users.AddFriendFragment;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -25,6 +27,7 @@ public class ChangePasswordFragment extends Fragment {
     private Button btnChangePassword;
     private EditText etCurrentPassword,  etNewPassword,  etReNewPassword;
     private FirebaseAuth mAuth;
+    private MainActivity mainActivity;
     public static final String TAG= ChangePasswordFragment.class.getName();
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -36,6 +39,12 @@ public class ChangePasswordFragment extends Fragment {
         etCurrentPassword=view.findViewById(R.id.etCurrentPassword);
         etNewPassword=view.findViewById(R.id.etNewPassword);
         etReNewPassword=view.findViewById(R.id.etReNewPassword);
+        ImageButton btnBack=view.findViewById(R.id.btnBack);
+        mainActivity= (MainActivity) getActivity();
+        btnBack.setOnClickListener(v->{
+            getFragmentManager().popBackStack();
+            mainActivity.showBottomNavigation(true);
+        });
         btnChangePassword.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
