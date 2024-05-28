@@ -6,13 +6,13 @@
     android:layout_height="match_parent"
     tools:context=".fragments.SignUpFragments.OTPFragment"
     android:orientation="vertical"
-    android:background="@color/bgGrey">
+    android:background="@color/white">
 
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/bgGrey"
+        android:background="@color/white"
         android:orientation="vertical"
         android:padding="15dp"
         android:textAlignment="center"
@@ -81,7 +81,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:backgroundTint="@color/bgGrey"
+                android:backgroundTint="@color/white"
                 android:text="@string/Resend"
                 android:textColor="@color/btnColor" />
 
@@ -109,7 +109,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="50px"
-                android:backgroundTint="@color/bgGrey"
+                android:backgroundTint="@color/white"
                 android:text="@string/returnSignIn"
                 android:textAlignment="center"
                 android:textColor="@color/textColorBtn"
