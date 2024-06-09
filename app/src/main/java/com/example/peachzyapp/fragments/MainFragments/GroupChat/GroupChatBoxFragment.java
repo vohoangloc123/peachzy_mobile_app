@@ -182,7 +182,7 @@ public class GroupChatBoxFragment extends Fragment  implements MyWebSocket.WebSo
         mainActivity = (MainActivity) getActivity();
         dynamoDBManager = new DynamoDBManager(getContext());
         // Tạo Amazon S3 client
-        BasicAWSCredentials credentials = new BasicAWSCredentials("AKIAZI2LEH5QHYJMDGHD", "57MJpyB+ZOaL1XHIgjb1fdBsXc4HnH/S2lkEYDQ/");
+        BasicAWSCredentials credentials = new BasicAWSCredentials("mykey", "mykey");
         s3Client = new AmazonS3Client(credentials);
         s3Client.setRegion(Region.getRegion(Regions.AP_SOUTHEAST_1));
         //adapter

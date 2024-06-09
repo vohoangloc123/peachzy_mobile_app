@@ -337,7 +337,7 @@ public class CreateGroupChatFragment extends Fragment implements MyWebSocket.Web
             }
             ///*
         });
-        BasicAWSCredentials credentials = new BasicAWSCredentials("AKIAZI2LEH5QHYJMDGHD", "57MJpyB+ZOaL1XHIgjb1fdBsXc4HnH/S2lkEYDQ/");
+        BasicAWSCredentials credentials = new BasicAWSCredentials("mykey", "mykey");
         // Tạo Amazon S3 client
         s3Client = new AmazonS3Client(credentials);
         s3Client.setRegion(Region.getRegion(Regions.AP_SOUTHEAST_1));
